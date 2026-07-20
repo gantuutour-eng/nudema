@@ -1,0 +1,7 @@
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+
+# Claude Design-ийн зургийн sidecar (хөтөч дээр үүсдэг)
+.image-slots.state.json

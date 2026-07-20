@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'Manrope', -apple-system, sans-serif; color: #1a1c1a; background: #fff; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  a:hover { color: #1e46c8; }
+  input::placeholder { color: #b3bab4; }
+</style>
+<script src="./image-slot.js"></script>
+<script src="./mn-regions.js"></script>
+<script src="./nudema-store.js"></script>
+</helmet>
+<div style="width:100%;background:#fff;">
+
+  <header style="border-bottom:1px solid #eee;background:#fff;">
+   <div style="max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:20px 34px;position:relative;">
+    <div style="display:flex;align-items:center;gap:22px;">
+      <x-import component-from-global-scope="nudema-menu" from="./nudema-menu.js" hint-size="24px,24px"></x-import>
+      <a href="Nudema%20Mongolia.dc.html" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:26px;font-weight:800;letter-spacing:0.08em;color:#2a54e6;">NUDEMA</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:18px;">
+      <a href="Nudema%20Cart.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"></path><path d="M9 8a3 3 0 0 1 6 0"></path></svg></a>
+    </div>
+   </div>
+  </header>
+
+  <!-- checkout body -->
+  <sc-if value="{{ notDone }}" hint-placeholder-val="{{ true }}">
+    <section style="max-width:1080px;margin:0 auto;padding:40px 40px 80px;display:grid;grid-template-columns:1fr 360px;gap:32px;align-items:start;">
+      <div>
+        <!-- delivery -->
+        <div style="border:1px solid #eee;border-radius:16px;padding:26px 28px;margin-bottom:22px;">
+          <sc-if value="{{ isGift }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2a54e6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7S9.5 7 8 5.5 8 2.5 9.5 3 12 7 12 7z"></path><path d="M12 7s2.5 0 4-1.5S15.5 2.5 14 3s-2 4-2 4z"></path></svg>
+                <h2 style="font-size:18px;font-weight:800;margin:0;color:#16255f;">Бэлгийн захиалга</h2>
+              </div>
+              <div style="background:#f6f8fe;border:1px solid #dbe2fb;border-radius:12px;padding:16px 18px;display:flex;gap:12px;align-items:flex-start;">
+                <span style="font-size:18px;line-height:1.4;">🎁</span>
+                <p style="margin:0;font-size:13.5px;line-height:1.7;color:#3a4a6b;">Та зөвхөн <b style="color:#16255f;">төлбөрөө төлнө</b>. Төлбөр баталгаажсаны дараа <b style="color:#16255f;">бэлгийн холбоос</b> үүсэх бөгөөд түүнийг мессенжерээр илгээнэ. <b style="color:#16255f;">Хүлээн авагч</b> холбоосоор дамжуулан хүргэлтийн хаягаа өөрөө оруулна — тиймээс одоо хаяг оруулах шаардлагагүй.</p>
+              </div>
+              <div style="margin-top:16px;">
+                <label style="font-size:12px;font-weight:600;color:#8a938c;display:block;margin-bottom:6px;">Таны утасны дугаар (мэдэгдэл авах)</label>
+                <input placeholder="99xxxxxx" style="width:100%;height:46px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ notGift }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <h2 style="font-size:17px;font-weight:800;margin:0 0 16px;color:#2a54e6;">Захиалагчийн мэдээлэл</h2>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:26px;">
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Овог нэр <span style="color:#e0392f;">*</span></label>
+                  <input placeholder="Овог нэрээ бичнэ үү" style="width:100%;height:48px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Утасны дугаар <span style="color:#e0392f;">*</span></label>
+                  <input placeholder="99xxxxxx" style="width:100%;height:48px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
+                </div>
+              </div>
+
+              <h2 style="font-size:17px;font-weight:800;margin:0 0 14px;color:#2a54e6;">Хүргэлтийн мэдээлэл</h2>
+
+              <div style="font-size:12px;font-weight:700;color:#5c6660;margin-bottom:8px;">Хүргэлтийн бүс</div>
+              <div style="border:1px solid #f3b6b6;background:#fdf2f2;border-radius:12px;padding:16px 18px;display:flex;gap:12px;align-items:flex-start;margin-bottom:22px;">
+                <span style="width:16px;height:16px;border-radius:50%;border:5px solid #e0392f;flex:0 0 auto;margin-top:2px;"></span>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:700;color:#16255f;margin-bottom:4px;">Улаанбаатар</div>
+                  <div style="font-size:12px;line-height:1.6;color:#8a7070;">Зүүн–амгалан. Хойшоо-7 буудал хүртэл. Ураншаа–зайсан хүртэл, буянт ухаа 1,2. Баруун тийшээ–орбитын тойрог, баян хошууны тойрог. {{ freeThreshold }}-с дээш бол хүргэлт үнэгүй.</div>
+                </div>
+                <span style="font-size:13px;font-weight:800;color:#e0392f;white-space:nowrap;">{{ shippingFee }}</span>
+              </div>
+
+              <div style="margin-bottom:16px;">
+                <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Хот / Аймаг <span style="color:#e0392f;">*</span></label>
+                <select onChange="{{ onCity }}" style="width:100%;height:48px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;background:#fff;color:#2a302b;">
+                  <sc-for list="{{ cities }}" as="c" hint-placeholder-count="22">
+                    <option value="{{ c }}">{{ c }}</option>
+                  </sc-for>
+                </select>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Сум / Дүүрэг <span style="color:#e0392f;">*</span></label>
+                  <select style="width:100%;height:48px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;background:#fff;color:#2a302b;">
+                    <option value="">Сум/Дүүрэг сонгох</option>
+                    <sc-for list="{{ districts }}" as="d" hint-placeholder-count="9">
+                      <option value="{{ d }}">{{ d }}</option>
+                    </sc-for>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Баг / Хороо <span style="color:#e0392f;">*</span></label>
+                  <select style="width:100%;height:48px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;background:#fff;color:#2a302b;">
+                    <option value="">Баг/Хороо сонгох</option>
+                    <sc-for list="{{ khoroos }}" as="k" hint-placeholder-count="12">
+                      <option value="{{ k }}">{{ k }}</option>
+                    </sc-for>
+                  </select>
+                </div>
+              </div>
+
+              <div style="margin-bottom:16px;">
+                <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Хүргэлтийн хаяг <span style="color:#e0392f;">*</span></label>
+                <textarea placeholder="Байр, орц, давхар, тоот дэлгэрэнгүй бичнэ үү" style="width:100%;height:84px;border:1px solid #d7ddd7;border-radius:10px;padding:12px 14px;font-family:inherit;font-size:14px;resize:none;"></textarea>
+              </div>
+
+              <div style="margin-bottom:16px;">
+                <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Нэмэлт мэдээлэл</label>
+                <textarea placeholder="Жишээ: Хаалганы код, ажлын цаг г.м" style="width:100%;height:74px;border:1px solid #d7ddd7;border-radius:10px;padding:12px 14px;font-family:inherit;font-size:14px;resize:none;"></textarea>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <!-- order items -->
+        <div style="border:1px solid #eee;border-radius:16px;padding:26px 28px;margin-bottom:22px;">
+          <h2 style="font-size:18px;font-weight:800;margin:0 0 6px;color:#16255f;">Захиалгын бараа</h2>
+          <sc-for list="{{ items }}" as="it" hint-placeholder-count="2">
+            <div style="display:flex;gap:16px;padding:18px 0;border-bottom:1px solid #f0f2f0;align-items:center;">
+              <div style="width:70px;height:70px;background:#f4f5f3;border-radius:10px;overflow:hidden;position:relative;flex:0 0 auto;">
+                <sc-if value="{{ it.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ it.img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></sc-if>
+                <sc-if value="{{ it.noImg }}" hint-placeholder-val="{{ true }}"><image-slot id="co-{{ it.id }}" shape="rect" fit="contain" placeholder=""></image-slot></sc-if>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:14px;font-weight:600;color:#2a302b;">{{ it.title }}</div>
+                <div style="font-size:12px;color:#9aa39c;margin-top:3px;">{{ it.option }} · {{ it.qty }} ширхэг</div>
+              </div>
+              <div style="font-size:15px;font-weight:800;">{{ it.lineTotal }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- payment method -->
+        <div style="border:1px solid #eee;border-radius:16px;padding:26px 28px;">
+          <h2 style="font-size:18px;font-weight:800;margin:0 0 20px;color:#16255f;">Төлбөрийн хэрэгсэл</h2>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <sc-for list="{{ methods }}" as="m" hint-placeholder-count="2">
+              <button onClick="{{ m.onClick }}" style="{{ m.style }}">{{ m.label }}</button>
+            </sc-for>
+          </div>
+
+          <!-- bank transfer details (админы тохиргооноос) -->
+          <sc-if value="{{ isBank }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:20px;background:#f6f8fe;border:1px solid #dbe2fb;border-radius:14px;padding:22px 24px;">
+              <div style="font-size:14px;font-weight:800;color:#16255f;margin-bottom:14px;">Шилжүүлэх дансны мэдээлэл</div>
+
+              <sc-for list="{{ bankAccounts }}" as="b" hint-placeholder-count="1">
+                <div style="{{ b.wrapStyle }}">
+                  <div style="display:flex;flex-direction:column;gap:12px;font-size:14px;">
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#8a90a3;">Банк</span><span style="font-weight:700;color:#16255f;">{{ b.bank }}</span></div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#8a90a3;">Дансны дугаар</span><span style="display:flex;align-items:center;gap:8px;"><span style="font-weight:700;color:#16255f;font-variant-numeric:tabular-nums;">{{ b.number }}</span><button onClick="{{ b.onCopy }}" style="{{ copyBtnStyle }}">{{ b.copyLabel }}</button></span></div>
+                    <sc-if value="{{ b.hasHolder }}" hint-placeholder-val="{{ true }}">
+                      <div style="display:flex;justify-content:space-between;"><span style="color:#8a90a3;">Хүлээн авагч</span><span style="font-weight:700;color:#16255f;">{{ b.holder }}</span></div>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;padding-top:14px;margin-top:14px;border-top:1px solid #dbe2fb;"><span style="color:#8a90a3;">Шилжүүлэх дүн</span><span style="display:flex;align-items:center;gap:8px;"><span style="font-weight:800;color:#2a54e6;">{{ total }}</span><button onClick="{{ copyAmount }}" style="{{ copyBtnStyle }}">{{ copyAmountLabel }}</button></span></div>
+
+              <div style="margin-top:16px;">
+                <label style="font-size:12px;font-weight:600;color:#8a90a3;display:block;margin-bottom:6px;">Гүйлгээний утга (нэр)</label>
+                <input placeholder="Жишээ: Отгонцэцэг" style="width:100%;height:44px;border:1px solid #cdd5ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;background:#fff;">
+              </div>
+              <sc-if value="{{ hasBankNote }}" hint-placeholder-val="{{ true }}">
+                <p style="font-size:12px;color:#8a90a3;line-height:1.7;margin:14px 0 0;">{{ bankNote }}</p>
+              </sc-if>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+
+      <!-- summary -->
+      <aside style="background:#f7f8f6;border-radius:16px;padding:26px 24px;position:sticky;top:20px;">
+        <h3 style="font-size:16px;font-weight:800;margin:0 0 20px;color:#16255f;">Төлбөрийн дүн</h3>
+        <div style="display:flex;flex-direction:column;gap:14px;font-size:14px;">
+          <div style="display:flex;justify-content:space-between;"><span style="color:#8a938c;">Барааны үнэ</span><span style="font-weight:600;">{{ subtotal }}</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:#8a938c;">Хямдрал</span><span style="font-weight:600;color:#e0392f;">−{{ discount }}</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:#8a938c;">Хүргэлт</span><span style="font-weight:600;color:#2a54e6;">{{ shippingLabel }}</span></div>
+        </div>
+        <div style="border-top:1px solid #e4e7e3;margin:20px 0;padding-top:18px;display:flex;justify-content:space-between;align-items:baseline;">
+          <span style="font-size:15px;font-weight:700;">Нийт төлбөр</span>
+          <span style="font-size:24px;font-weight:800;color:#2a54e6;">{{ total }}</span>
+        </div>
+        <button onClick="{{ pay }}" style="width:100%;height:54px;background:#2a54e6;color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:12px;">{{ payLabel }}</button>
+        <a href="Nudema%20Cart.dc.html" style="display:block;text-align:center;height:50px;line-height:50px;border:1px solid #cfd6d0;border-radius:12px;font-size:14px;font-weight:700;color:#3a423c;">Сагс руу буцах</a>
+        <p style="font-size:11px;color:#9aa39c;line-height:1.6;margin:16px 0 0;text-align:center;">Захиалга баталгаажуулснаар үйлчилгээний нөхцөл, хувийн мэдээлэл боловсруулах бодлогыг зөвшөөрсөнд тооцно.</p>
+      </aside>
+    </section>
+  </sc-if>
+
+  <!-- order complete -->
+  <sc-if value="{{ done }}" hint-placeholder-val="{{ false }}">
+    <section style="max-width:560px;margin:0 auto;padding:90px 40px 110px;text-align:center;">
+      <!-- gift: share link -->
+      <sc-if value="{{ isGift }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="width:84px;height:84px;border-radius:50%;background:#eaeefe;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2a54e6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7S9.5 7 8 5.5 8 2.5 9.5 3 12 7 12 7z"></path><path d="M12 7s2.5 0 4-1.5S15.5 2.5 14 3s-2 4-2 4z"></path></svg>
+          </div>
+          <h1 style="font-size:26px;font-weight:800;color:#16255f;margin:0 0 10px;">Төлбөр амжилттай! Бэлгээ илгээцгээе 🎁</h1>
+          <p style="font-size:14px;color:#5c6660;line-height:1.7;margin:0 0 24px;">Доорх бэлгийн холбоосыг хуулж, дуртай мессенжерээрээ илгээгээрэй.<br>Хүлээн авагч холбоосоор хаягаа оруулмагц бэлэг хүргэгдэнэ.</p>
+          <div style="display:flex;align-items:center;gap:8px;background:#f4f5f3;border:1px solid #e4e7e3;border-radius:12px;padding:6px 6px 6px 16px;margin-bottom:22px;">
+            <span style="flex:1;text-align:left;font-size:13px;color:#5c6660;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ giftLink }}</span>
+            <button onClick="{{ copyLink }}" style="border:none;background:#2a54e6;color:#fff;font-family:inherit;font-size:13px;font-weight:700;padding:10px 16px;border-radius:9px;cursor:pointer;white-space:nowrap;">{{ copyLinkLabel }}</button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:26px;">
+            <a href="{{ shareMessenger }}" target="_blank" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 6px;border:1px solid #eee;border-radius:14px;">
+              <span style="width:44px;height:44px;border-radius:50%;background:#0a7cff;display:flex;align-items:center;justify-content:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.3 2 2 6.1 2 11.5c0 3 1.5 5.7 3.8 7.5V22l3.5-1.9c.9.2 1.8.4 2.7.4 5.7 0 10-4.1 10-9.5S17.7 2 12 2zm1 12.3l-2.5-2.7-4.9 2.7 5.4-5.7 2.6 2.7 4.8-2.7-5.4 5.7z"></path></svg></span>
+              <span style="font-size:12px;font-weight:700;color:#3a423c;">Messenger</span>
+            </a>
+            <a href="{{ shareViber }}" target="_blank" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 6px;border:1px solid #eee;border-radius:14px;">
+              <span style="width:44px;height:44px;border-radius:50%;background:#7360f2;display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.5 2 3 5.3 3 9.8c0 2.2.9 4.1 2.5 5.5v3.9l3.3-2c.9.2 1.9.3 3.2.3 5.5 0 9-3.3 9-7.8S17.5 2 12 2z"></path></svg></span>
+              <span style="font-size:12px;font-weight:700;color:#3a423c;">Viber</span>
+            </a>
+            <a href="{{ shareSms }}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 6px;border:1px solid #eee;border-radius:14px;">
+              <span style="width:44px;height:44px;border-radius:50%;background:#22b573;display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span>
+              <span style="font-size:12px;font-weight:700;color:#3a423c;">SMS</span>
+            </a>
+          </div>
+          <a href="Nudema%20Mongolia.dc.html" style="display:inline-block;border:1px solid #cfd6d0;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Дэлгүүр рүү буцах</a>
+        </div>
+      </sc-if>
+      <!-- bank: deposit pending -->
+      <sc-if value="{{ isBankNotGift }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="width:84px;height:84px;border-radius:50%;background:#eaeefe;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2a54e6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+          </div>
+          <h1 style="font-size:26px;font-weight:800;color:#16255f;margin:0 0 12px;">Төлбөр хүлээгдэж байна</h1>
+          <p style="font-size:15px;color:#5c6660;line-height:1.7;margin:0 0 30px;">Захиалга үүслээ. Доорх данс руу шилжүүлэг хийсний дараа захиалга баталгаажна.<br>Захиалгын дугаар: <b style="color:#16255f;">{{ orderNo }}</b></p>
+          <div style="background:#f6f8fe;border:1px solid #dbe2fb;border-radius:16px;padding:24px 26px;text-align:left;margin-bottom:22px;">
+            <sc-for list="{{ bankAccounts }}" as="b" hint-placeholder-count="1">
+              <div style="{{ b.wrapStyle }}">
+                <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:14px;"><span style="color:#8a90a3;">Банк</span><span style="font-weight:700;color:#16255f;">{{ b.bank }}</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:14px;align-items:center;"><span style="color:#8a90a3;">Дансны дугаар</span><span style="display:flex;align-items:center;gap:8px;"><span style="font-weight:700;color:#16255f;font-variant-numeric:tabular-nums;">{{ b.number }}</span><button onClick="{{ b.onCopy }}" style="{{ copyBtnStyle }}">{{ b.copyLabel }}</button></span></div>
+                <sc-if value="{{ b.hasHolder }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:#8a90a3;">Хүлээн авагч</span><span style="font-weight:700;color:#16255f;">{{ b.holder }}</span></div>
+                </sc-if>
+              </div>
+            </sc-for>
+            <div style="display:flex;justify-content:space-between;font-size:14px;padding-top:14px;margin-top:4px;border-top:1px solid #dbe2fb;align-items:center;"><span style="color:#8a90a3;">Шилжүүлэх дүн</span><span style="display:flex;align-items:center;gap:8px;"><span style="font-weight:800;color:#2a54e6;">{{ total }}</span><button onClick="{{ copyAmount }}" style="{{ copyBtnStyle }}">{{ copyAmountLabel }}</button></span></div>
+          </div>
+          <sc-if value="{{ hasBankNote }}" hint-placeholder-val="{{ true }}">
+            <p style="font-size:13px;color:#8a90a3;line-height:1.7;margin:0 0 26px;">⏱ {{ bankNote }}</p>
+          </sc-if>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <a href="Nudema%20Mongolia.dc.html" style="display:inline-block;background:#2a54e6;color:#fff;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Дэлгүүр рүү буцах</a>
+            <a href="Nudema%20Order.dc.html" style="display:inline-block;border:1px solid #cfd6d0;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Захиалга харах</a>
+          </div>
+        </div>
+      </sc-if>
+      <!-- non-bank: success -->
+      <sc-if value="{{ isSuccessNotGift }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="width:84px;height:84px;border-radius:50%;background:#eaeefe;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;">
+            <span style="color:#2a54e6;font-size:40px;">✓</span>
+          </div>
+          <h1 style="font-size:26px;font-weight:800;color:#16255f;margin:0 0 12px;">Захиалга амжилттай!</h1>
+          <p style="font-size:15px;color:#5c6660;line-height:1.7;margin:0 0 30px;">Таны захиалгыг хүлээн авлаа. Хүргэлт 2–3 хоногт хийгдэнэ.<br>Захиалгын дугаар: <b style="color:#16255f;">{{ orderNo }}</b></p>
+          <div style="background:#f7f8f6;border-radius:16px;padding:24px 26px;text-align:left;margin-bottom:30px;">
+            <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:12px;"><span style="color:#8a938c;">Нийт төлбөр</span><span style="font-weight:800;color:#2a54e6;">{{ total }}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:#8a938c;">Хүргэх хаяг</span><span style="font-weight:600;text-align:right;max-width:60%;">УБ, Сүхбаатар дүүрэг, 1-р хороо</span></div>
+          </div>
+          <div style="display:flex;gap:12px;justify-content:center;">
+            <a href="Nudema%20Mongolia.dc.html" style="display:inline-block;background:#2a54e6;color:#fff;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Дэлгүүр рүү буцах</a>
+            <a href="Nudema%20Order.dc.html" style="display:inline-block;border:1px solid #cfd6d0;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Захиалга харах</a>
+          </div>
+        </div>
+      </sc-if>
+    </section>
+  </sc-if>
+
+  <footer style="background:#2a54e6;color:#d3ddfb;">
+   <div style="max-width:1280px;margin:0 auto;padding:50px 40px 46px;">
+    <div style="font-size:22px;font-weight:800;letter-spacing:0.08em;color:#fff;margin-bottom:24px;">NUDEMA</div>
+    <div style="display:flex;gap:26px;font-size:13px;font-weight:600;margin-bottom:26px;flex-wrap:wrap;">
+      <a href="#" style="color:#e6ecff;">Үйлчилгээний нөхцөл</a>
+      <a href="#" style="color:#e6ecff;">Компанийн мэдээлэл</a>
+      <a href="#" style="color:#fff;">Хувийн мэдээлэл боловсруулах бодлого</a>
+      <a href="#" style="color:#e6ecff;">Хэрэглэгчийн төв</a>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:40px;flex-wrap:wrap;">
+      <div style="font-size:12px;line-height:1.9;color:#b7c4ee;max-width:560px;">
+        {{ footerCompany }}<br>
+        Захирал: Б.Оюунбилэг · Улсын бүртгэлийн дугаар: 106-86-43373<br>
+        {{ footerLine }}<br>
+        NUDEMA MONGOLIA LLC. ALL RIGHTS RESERVED.
+      </div>
+      <div style="display:flex;gap:16px;align-items:center;">
+        <span style="width:34px;height:34px;border-radius:50%;border:1px solid #6d84e8;display:flex;align-items:center;justify-content:center;font-size:14px;">◎</span>
+        <span style="width:34px;height:34px;border-radius:50%;border:1px solid #6d84e8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">TALK</span>
+        <span style="width:34px;height:34px;border-radius:50%;border:1px solid #6d84e8;display:flex;align-items:center;justify-content:center;font-size:14px;">▶</span>
+      </div>
+    </div>
+   </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { method: 'bank', done: false, copied: '', linkCopied: false, city: 'Улаанбаатар' };
+
+  componentDidMount() {
+    this.reload();
+    this._unsub = NudemaStore.subscribe(() => this.reload());
+  }
+  componentWillUnmount() {
+    if (this._unsub) this._unsub();
+    clearTimeout(this._ct); clearTimeout(this._lt);
+  }
+  reload() {
+    this.setState({
+      settings: NudemaStore.read('settings'),
+      products: NudemaStore.read('products'),
+    });
+  }
+
+  isGiftMode() {
+    try { return typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('gift') === '1'; }
+    catch (e) { return false; }
+  }
+
+  fmt(n) { return NudemaStore.money(n) + '₮'; }
+  parseAmount(v) { return Number(String(v == null ? '' : v).replace(/[^\d]/g, '')) || 0; }
+
+  copy(text, key) {
+    const flag = () => { this.setState({ copied: key }); clearTimeout(this._ct); this._ct = setTimeout(() => this.setState({ copied: '' }), 1500); };
+    // execCommand path first — reliable inside sandboxed iframes where the async Clipboard API is blocked
+    let ok = false;
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed'; ta.style.top = '0'; ta.style.left = '0'; ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus(); ta.select(); ta.setSelectionRange(0, text.length);
+      ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+    } catch (e) { ok = false; }
+    if (ok) { flag(); return; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(flag, () => {});
+    }
+  }
+
+  renderVals() {
+    const settings = this.state.settings || NudemaStore.read('settings');
+    const catalog = this.state.products || NudemaStore.read('products');
+
+    // Сагсны бараа — каталогийн эхний хоёроор жишээлнэ
+    const rawItems = catalog.slice(0, 2).map((p, i) => ({
+      id: p.id, title: p.title, option: 'Стандарт', unit: p.price,
+      original: p.original || p.price, qty: i === 1 ? 2 : 1,
+      img: p.img || '', hasImg: !!p.img, noImg: !p.img,
+    }));
+    const items = rawItems.map(it => ({ ...it, lineTotal: this.fmt(it.unit * it.qty) }));
+    const subtotal = rawItems.reduce((a, it) => a + it.original * it.qty, 0);
+    const total = rawItems.reduce((a, it) => a + it.unit * it.qty, 0);
+    const discount = subtotal - total;
+
+    /* ---- Данс шилжүүлэг: админд тохируулсан дансууд ---- */
+    const accounts = (settings.bankAccounts || []).filter(a => a && a.bank && a.number);
+    const bankAvailable = accounts.length > 0;
+
+    const methodDefs = [];
+    if (bankAvailable) methodDefs.push({ key: 'bank', label: 'Данс шилжүүлэг' });
+    methodDefs.push({ key: 'qpay', label: 'QPay' });
+    // Данс устгагдсан бол сонголтыг зөв утга руу буцаана
+    const methodKey = methodDefs.some(m => m.key === this.state.method) ? this.state.method : methodDefs[0].key;
+
+    const methods = methodDefs.map(m => ({
+      label: m.label,
+      onClick: () => this.setState({ method: m.key }),
+      style: `border:1px solid ${methodKey === m.key ? '#2a54e6' : '#d7ddd7'};background:${methodKey === m.key ? '#eaeefe' : '#fff'};color:${methodKey === m.key ? '#2a54e6' : '#5c6660'};font-family:inherit;font-size:14px;font-weight:${methodKey === m.key ? 700 : 500};padding:15px 12px;border-radius:10px;cursor:pointer;`,
+    }));
+
+    const gift = this.isGiftMode();
+    const regions = (typeof window !== 'undefined' && window.MN_REGIONS) ? window.MN_REGIONS : { 'Улаанбаатар': [] };
+    const cities = Object.keys(regions);
+    const city = regions[this.state.city] ? this.state.city : cities[0];
+    const districts = regions[city] || [];
+    const isUB = city === 'Улаанбаатар';
+    const khooLabel = isUB ? '-р хороо' : '-р баг';
+    const khoroos = Array.from({ length: isUB ? 25 : 12 }, (_, i) => (i + 1) + khooLabel);
+
+    // Хүргэлтийн төлбөр ба босго тохиргооноос
+    const feeAmount = this.parseAmount(settings.shippingFee);
+    const threshold = this.parseAmount(settings.freeThreshold);
+    const shipping = (!gift && total < threshold) ? feeAmount : 0;
+    const grand = total + shipping;
+
+    const giftLink = 'https://nudema.mn/gift/NDM-' + (1000 + (grand % 9000));
+    const shareText = 'Танд Nudema-аас бэлэг ирлээ! 🎁 ' + giftLink;
+
+    const bankAccounts = accounts.map((a, i) => ({
+      bank: a.bank, number: a.number, holder: a.holder || '',
+      hasHolder: !!String(a.holder || '').trim(),
+      // Олон данс бол тус бүрийг зураасаар тусгаарлана
+      wrapStyle: i > 0 ? 'border-top:1px solid #dbe2fb;padding-top:14px;margin-top:14px;' : '',
+      onCopy: () => this.copy(String(a.number).replace(/\s/g, ''), 'acc' + i),
+      copyLabel: this.state.copied === ('acc' + i) ? '✓ Хууллаа' : 'Хуулах',
+    }));
+
+    return {
+      items, methods,
+      subtotal: this.fmt(subtotal),
+      discount: this.fmt(discount),
+      total: this.fmt(grand),
+      shippingLabel: shipping === 0 ? 'Үнэгүй' : this.fmt(shipping),
+      shippingFee: settings.shippingFee,
+      freeThreshold: settings.freeThreshold,
+      notDone: !this.state.done,
+      done: this.state.done,
+      isGift: gift,
+      notGift: !gift,
+      cities, districts, khoroos,
+      onCity: (e) => this.setState({ city: e.target.value }),
+
+      bankAccounts,
+      bankNote: settings.bankNote || '',
+      hasBankNote: !!String(settings.bankNote || '').trim(),
+      isBank: methodKey === 'bank',
+      isBankNotGift: methodKey === 'bank' && !gift,
+      isSuccessNotGift: methodKey !== 'bank' && !gift,
+
+      orderNo: 'NDM-20260720-4417',
+      copyBtnStyle: 'border:1px solid #cdd5ee;background:#fff;color:#2a54e6;font-family:inherit;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;',
+      copyAmount: () => this.copy(String(grand), 'amt'),
+      copyAmountLabel: this.state.copied === 'amt' ? '✓ Хууллаа' : 'Хуулах',
+
+      footerCompany: `${settings.shopName} ХХК · Улаанбаатар хот, Сүхбаатар дүүрэг, Энх тайваны өргөн чөлөө 12`,
+      footerLine: `И-мэйл: ${settings.email} · Утас: ${settings.phone} · Ажлын цаг: Даваа–Баасан 09:00–18:00`,
+
+      giftLink,
+      shareMessenger: 'https://www.facebook.com/dialog/send?link=' + encodeURIComponent(giftLink) + '&app_id=0&redirect_uri=' + encodeURIComponent(giftLink),
+      shareViber: 'viber://forward?text=' + encodeURIComponent(shareText),
+      shareSms: 'sms:?body=' + encodeURIComponent(shareText),
+      copyLinkLabel: this.state.linkCopied ? '✓ Хууллаа' : 'Хуулах',
+      copyLink: () => {
+        const text = giftLink; let ok = false;
+        try {
+          const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta);
+          ta.focus(); ta.select(); ta.setSelectionRange(0, text.length); ok = document.execCommand('copy'); document.body.removeChild(ta);
+        } catch (e) { ok = false; }
+        if (ok) { this.setState({ linkCopied: true }); clearTimeout(this._lt); this._lt = setTimeout(() => this.setState({ linkCopied: false }), 1500); }
+        else if (navigator.clipboard) { navigator.clipboard.writeText(text).then(() => this.setState({ linkCopied: true }), () => {}); }
+      },
+      payLabel: gift
+        ? (methodKey === 'bank' ? 'Бэлгийн захиалга баталгаажуулах' : this.fmt(grand) + ' төлж бэлэг илгээх')
+        : (methodKey === 'bank' ? 'Захиалга баталгаажуулах' : this.fmt(grand) + ' төлөх'),
+      pay: () => { this.setState({ done: true }); if (typeof window !== 'undefined') window.scrollTo(0, 0); },
+    };
+  }
+}
+</script>
+</body>
+</html>

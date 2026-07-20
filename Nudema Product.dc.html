@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'Manrope', -apple-system, sans-serif; color: #1a1c1a; background: #fff; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  a:hover { color: #1e46c8; }
+</style>
+<script src="./image-slot.js"></script>
+<script src="./nudema-store.js"></script>
+</helmet>
+<!-- Өнгөт туузууд дэлгэц дүүрэн; доторх агуулга 1280px -->
+<div style="width:100%;background:#fff;">
+
+  <!-- header -->
+  <header style="border-bottom:1px solid #eee;background:#fff;">
+   <div style="max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:20px 34px;position:relative;">
+    <div style="display:flex;align-items:center;gap:22px;">
+      <x-import component-from-global-scope="nudema-menu" from="./nudema-menu.js" hint-size="24px,24px"></x-import>
+      <a href="Nudema%20Mongolia.dc.html" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:26px;font-weight:800;letter-spacing:0.08em;color:#2a54e6;">NUDEMA</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:18px;">
+      <a href="Nudema%20Brand%20Story.dc.html" style="background:#2a54e6;color:#fff;font-size:13px;font-weight:700;padding:9px 16px;border-radius:20px;">Брэндийн түүх</a>
+      <a href="Nudema%20Search.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.2-3.2"></path></svg></a>
+      <a href="Nudema%20Account.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path></svg></a>
+      <a href="Nudema%20Cart.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"></path><path d="M9 8a3 3 0 0 1 6 0"></path></svg></a>
+    </div>
+   </div>
+  </header>
+
+  <!-- бүтээгдэхүүн олдоогүй -->
+  <sc-if value="{{ notFound }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:1280px;margin:0 auto;padding:110px 40px 130px;text-align:center;">
+      <div style="font-size:44px;margin-bottom:16px;">🔍</div>
+      <h1 style="font-size:24px;font-weight:800;color:#16255f;margin:0 0 10px;">Бүтээгдэхүүн олдсонгүй</h1>
+      <p style="font-size:14px;color:#8a938c;margin:0 0 26px;">Энэ бүтээгдэхүүн устсан эсвэл хаяг буруу байна.</p>
+      <a href="Nudema%20Mongolia.dc.html" style="display:inline-block;background:#2a54e6;color:#fff;font-size:14px;font-weight:700;padding:13px 28px;border-radius:24px;">Нүүр хуудас руу ›</a>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ found }}" hint-placeholder-val="{{ true }}">
+  <div>
+  <!-- breadcrumb -->
+  <div style="max-width:1280px;margin:0 auto;padding:18px 40px 0;font-size:12.5px;color:#9aa39c;display:flex;gap:8px;">
+    <a href="Nudema%20Mongolia.dc.html">Нүүр</a><span>›</span><a href="Nudema%20Search.dc.html">Арьс арчилгаа</a><span>›</span><span style="color:#5c6660;">{{ category }}</span>
+  </div>
+
+  <!-- product top -->
+  <section style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:52px;padding:28px 40px 64px;">
+    <!-- gallery -->
+    <div>
+      <div style="position:relative;background:#f4f5f3;border-radius:16px;aspect-ratio:1/1;overflow:hidden;">
+        <sc-if value="{{ hasImg }}" hint-placeholder-val="{{ false }}">
+          <img src="{{ img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;">
+        </sc-if>
+        <sc-if value="{{ noImg }}" hint-placeholder-val="{{ true }}">
+          <image-slot id="pd-main-{{ id }}" shape="rect" fit="contain" placeholder="Гол зураг"></image-slot>
+        </sc-if>
+        <sc-if value="{{ hasBadge }}" hint-placeholder-val="{{ true }}">
+          <span style="position:absolute;top:16px;left:16px;background:#2a54e6;color:#fff;font-size:12px;font-weight:700;padding:6px 12px;border-radius:14px;z-index:3;">{{ badge }}</span>
+        </sc-if>
+      </div>
+      <sc-if value="{{ hasThumbs }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px;">
+          <sc-for list="{{ thumbs }}" as="t" hint-placeholder-count="4">
+            <button onClick="{{ t.onClick }}" style="{{ t.style }}">
+              <img src="{{ t.src }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;">
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- info -->
+    <div>
+      <div style="font-size:13px;font-weight:700;color:#2a54e6;letter-spacing:0.04em;">NUDEMA</div>
+      <h1 style="font-size:28px;font-weight:800;line-height:1.32;margin:10px 0 14px;color:#16255f;">{{ title }}</h1>
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px;margin-bottom:22px;">
+        <span style="color:#e0a020;font-weight:700;">★★★★★ {{ rating }}</span>
+        <span style="color:#9aa39c;">Сэтгэгдэл {{ count }}</span>
+      </div>
+
+      <sc-if value="{{ hasDiscount }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;">
+          <span style="font-size:15px;color:#b3bab4;text-decoration:line-through;">{{ original }}</span>
+          <span style="font-size:15px;color:#e0392f;font-weight:800;">{{ discountPct }}</span>
+        </div>
+      </sc-if>
+      <div style="font-size:32px;font-weight:800;color:#111;margin-bottom:22px;">{{ price }}</div>
+
+      <div style="border-top:1px solid #eee;border-bottom:1px solid #eee;padding:18px 0;display:flex;flex-direction:column;gap:12px;font-size:14px;">
+        <sc-if value="{{ hasDiscount }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;justify-content:space-between;"><span style="color:#8a938c;">Хямдралын дүн</span><span style="font-weight:700;color:#e0392f;">−{{ benefit }}</span></div>
+        </sc-if>
+        <sc-if value="{{ hasShipping }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;justify-content:space-between;"><span style="color:#8a938c;">Хүргэлт</span><span style="color:#3a423c;">{{ shippingLine }}</span></div>
+        </sc-if>
+        <sc-if value="{{ hasPoints }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;justify-content:space-between;"><span style="color:#8a938c;">Урамшуулал</span><span style="color:#3a423c;">{{ points }} оноо ({{ pointsRate }})</span></div>
+        </sc-if>
+        <div style="display:flex;justify-content:space-between;"><span style="color:#8a938c;">Нөөц</span><span style="{{ stockStyle }}">{{ stockLabel }}</span></div>
+      </div>
+
+      <!-- options (админд оруулсан үед л) -->
+      <sc-if value="{{ hasOptions }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:22px;">
+          <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:#3a423c;">Багцын хэмжээ</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <sc-for list="{{ options }}" as="o" hint-placeholder-count="3">
+              <button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- quantity -->
+      <div style="margin-top:24px;display:flex;align-items:center;justify-content:space-between;background:#f4f5f3;border-radius:12px;padding:16px 18px;">
+        <span style="font-size:14px;font-weight:600;">{{ optionLabel }}</span>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div style="display:flex;align-items:center;border:1px solid #d7ddd7;border-radius:8px;background:#fff;">
+            <button onClick="{{ dec }}" style="border:none;background:none;width:34px;height:34px;font-size:17px;cursor:pointer;">−</button>
+            <span style="width:34px;text-align:center;font-size:14px;font-weight:700;">{{ qty }}</span>
+            <button onClick="{{ inc }}" style="border:none;background:none;width:34px;height:34px;font-size:17px;cursor:pointer;">+</button>
+          </div>
+          <span style="font-size:16px;font-weight:800;">{{ lineTotal }}</span>
+        </div>
+      </div>
+      <sc-if value="{{ qtyCapped }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:12px;color:#e0730a;font-weight:600;margin:8px 2px 0;">Нөөцөд {{ stock }} ширхэг үлдсэн тул үүнээс олныг сонгох боломжгүй.</p>
+      </sc-if>
+
+      <!-- total -->
+      <div style="margin-top:22px;display:flex;justify-content:space-between;align-items:baseline;">
+        <span style="font-size:15px;font-weight:600;color:#3a423c;">Нийт төлбөр</span>
+        <span style="font-size:26px;font-weight:800;color:#2a54e6;">{{ lineTotal }}</span>
+      </div>
+
+      <!-- buttons -->
+      <div style="margin-top:44px;display:flex;gap:12px;">
+        <div style="position:relative;flex:0 0 58px;">
+          <div style="position:absolute;bottom:64px;left:50%;transform:translateX(-50%);white-space:nowrap;background:#fee500;color:#3a1d1d;font-size:12px;font-weight:700;padding:7px 12px;border-radius:16px;box-shadow:0 4px 12px rgba(16,37,95,.14);">Бэлэглэх</div>
+          <button onClick="{{ openGift }}" title="Бэлэглэх" style="width:58px;height:56px;border:1px solid #cfd6d0;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2a54e6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7S9.5 7 8 5.5 8 2.5 9.5 3 12 7 12 7z"></path><path d="M12 7s2.5 0 4-1.5S15.5 2.5 14 3s-2 4-2 4z"></path></svg>
+          </button>
+        </div>
+        <sc-if value="{{ inStock }}" hint-placeholder-val="{{ true }}">
+          <a href="Nudema%20Cart.dc.html" style="flex:1;height:56px;line-height:56px;text-align:center;border:1px solid #2a54e6;border-radius:12px;background:#fff;color:#2a54e6;font-size:16px;font-weight:800;">Сагсанд нэмэх</a>
+        </sc-if>
+        <sc-if value="{{ inStock }}" hint-placeholder-val="{{ true }}">
+          <a href="Nudema%20Checkout.dc.html" style="flex:1;height:56px;line-height:56px;text-align:center;border:none;border-radius:12px;background:#2a54e6;color:#fff;font-size:16px;font-weight:800;">Худалдан авах</a>
+        </sc-if>
+        <sc-if value="{{ soldOut }}" hint-placeholder-val="{{ false }}">
+          <span style="flex:1;height:56px;line-height:56px;text-align:center;border:none;border-radius:12px;background:#eceff6;color:#9aa39c;font-size:16px;font-weight:800;cursor:not-allowed;">Дууссан</span>
+        </sc-if>
+      </div>
+    </div>
+  </section>
+
+  <!-- detail tabs -->
+  <section style="border-top:1px solid #eee;">
+    <div style="display:flex;justify-content:center;gap:0;border-bottom:1px solid #eee;">
+      <sc-for list="{{ detailTabs }}" as="t" hint-placeholder-count="3">
+        <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
+      </sc-for>
+    </div>
+
+    <div style="max-width:820px;margin:0 auto;padding:56px 40px 30px;text-align:center;">
+      <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <h2 style="font-size:24px;font-weight:800;color:#16255f;margin:0 0 16px;">{{ title }}</h2>
+          <p style="font-size:15px;line-height:1.9;color:#5c6660;margin:0 0 32px;">{{ description }}</p>
+          <sc-if value="{{ hasDetailBlocks }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:18px;">
+              <sc-for list="{{ detailBlocks }}" as="d" hint-placeholder-count="2">
+                <div>
+                  <sc-if value="{{ d.isDivider }}" hint-placeholder-val="{{ false }}">
+                    <div style="height:1px;background:#e4e7e3;"></div>
+                  </sc-if>
+                  <sc-if value="{{ d.isText }}" hint-placeholder-val="{{ false }}">
+                    <p style="{{ d.textStyle }}">{{ d.text }}</p>
+                  </sc-if>
+                  <sc-if value="{{ d.isImage }}" hint-placeholder-val="{{ false }}">
+                    <img src="{{ d.img }}" style="display:block;width:100%;border-radius:14px;">
+                  </sc-if>
+                  <sc-if value="{{ d.isVideo }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#e4e7e3;">
+                      <iframe src="{{ d.embed }}" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ d.isImageText }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;">
+                      <img src="{{ d.img }}" style="display:block;width:100%;border-radius:14px;">
+                      <p style="font-size:15px;line-height:1.85;color:#5c6660;margin:0;text-align:left;">{{ d.text }}</p>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ d.isTextImage }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;">
+                      <p style="font-size:15px;line-height:1.85;color:#5c6660;margin:0;text-align:left;">{{ d.text }}</p>
+                      <img src="{{ d.img }}" style="display:block;width:100%;border-radius:14px;">
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ d.isTwoImages }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                      <img src="{{ d.img }}" style="display:block;width:100%;border-radius:14px;">
+                      <img src="{{ d.img2 }}" style="display:block;width:100%;border-radius:14px;">
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ noDetailBlocks }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:14px;color:#9aa39c;padding:30px 0;margin:0;">Дэлгэрэнгүй тайлбар оруулаагүй байна.</p>
+          </sc-if>
+        </div>
+      </sc-if>
+      <sc-if value="{{ isIngredients }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:left;">
+          <h2 style="font-size:24px;font-weight:800;color:#16255f;margin:0 0 20px;text-align:center;">Найрлага</h2>
+          <sc-for list="{{ ingredients }}" as="ing" hint-placeholder-count="5">
+            <div style="display:flex;justify-content:space-between;padding:16px 4px;border-bottom:1px solid #f0f2f0;font-size:14px;">
+              <span style="font-weight:600;color:#2a302b;">{{ ing.name }}</span>
+              <span style="color:#8a938c;">{{ ing.role }}</span>
+            </div>
+          </sc-for>
+          <sc-if value="{{ noIngredients }}" hint-placeholder-val="{{ false }}">
+            <p style="text-align:center;font-size:14px;color:#9aa39c;padding:30px 0;margin:0;">Найрлагын мэдээлэл оруулаагүй байна.</p>
+          </sc-if>
+        </div>
+      </sc-if>
+      <sc-if value="{{ isReviews }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:left;">
+          <h2 style="font-size:24px;font-weight:800;color:#16255f;margin:0 0 20px;text-align:center;">Сэтгэгдэл</h2>
+          <sc-for list="{{ reviews }}" as="r" hint-placeholder-count="3">
+            <div style="border:1px solid #f0f2f0;border-radius:12px;padding:20px 22px;margin-bottom:14px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                <span style="font-weight:700;font-size:14px;">{{ r.user }}</span>
+                <span style="color:#e0a020;font-size:13px;">★ {{ r.rating }}</span>
+              </div>
+              <p style="margin:0;font-size:14px;line-height:1.7;color:#5c6660;">{{ r.text }}</p>
+              <sc-if value="{{ r.hasReply }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:12px;background:#f7f8fc;border-left:3px solid #2a54e6;border-radius:0 8px 8px 0;padding:11px 14px;">
+                  <div style="font-size:11px;font-weight:800;color:#2a54e6;margin-bottom:4px;">NUDEMA-гийн хариу</div>
+                  <div style="font-size:13px;line-height:1.65;color:#4a5266;">{{ r.reply }}</div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <sc-if value="{{ noReviews }}" hint-placeholder-val="{{ false }}">
+            <p style="text-align:center;font-size:14px;color:#9aa39c;padding:30px 0;margin:0;">Энэ бүтээгдэхүүнд сэтгэгдэл алга байна.</p>
+          </sc-if>
+        </div>
+      </sc-if>
+    </div>
+  </section>
+
+  <!-- related -->
+  <section style="max-width:1280px;margin:0 auto;padding:40px 40px 70px;">
+    <h2 style="font-size:20px;font-weight:800;margin:0 0 26px;color:#16255f;">Хамт худалдан авдаг бүтээгдэхүүн</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">
+      <sc-for list="{{ related }}" as="p" hint-placeholder-count="4">
+        <div style="display:block;">
+          <a href="{{ p.href }}" style="position:relative;display:block;background:#f4f5f3;border-radius:14px;aspect-ratio:1/1;overflow:hidden;">
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></sc-if>
+            <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><image-slot id="rel-{{ p.id }}" shape="rect" fit="contain" placeholder="Зураг"></image-slot></sc-if>
+          </a>
+          <a href="{{ p.href }}" style="display:block;margin-top:12px;font-size:14px;font-weight:600;line-height:1.4;color:#2a302b;">{{ p.title }}</a>
+          <div style="margin-top:6px;font-size:17px;font-weight:800;color:#111;">{{ p.price }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+  </div>
+  </sc-if>
+
+  <!-- footer -->
+  <footer style="background:#2a54e6;color:#d3ddfb;">
+   <div style="max-width:1280px;margin:0 auto;padding:50px 40px 46px;">
+    <div style="font-size:22px;font-weight:800;letter-spacing:0.08em;color:#fff;margin-bottom:24px;">NUDEMA</div>
+    <div style="display:flex;gap:26px;font-size:13px;font-weight:600;margin-bottom:26px;flex-wrap:wrap;">
+      <a href="#" style="color:#e6ecff;">Үйлчилгээний нөхцөл</a>
+      <a href="#" style="color:#e6ecff;">Компанийн мэдээлэл</a>
+      <a href="#" style="color:#fff;">Хувийн мэдээлэл боловсруулах бодлого</a>
+      <a href="#" style="color:#e6ecff;">Хэрэглэгчийн төв</a>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:40px;flex-wrap:wrap;">
+      <div style="font-size:12px;line-height:1.9;color:#b7c4ee;max-width:560px;">
+        {{ footerCompany }}<br>
+        Захирал: Б.Оюунбилэг · Улсын бүртгэлийн дугаар: 106-86-43373<br>
+        {{ footerLine }}<br>
+        NUDEMA MONGOLIA LLC. ALL RIGHTS RESERVED.
+      </div>
+      <div style="display:flex;gap:16px;align-items:center;">
+        <span style="width:34px;height:34px;border-radius:50%;border:1px solid #6d84e8;display:flex;align-items:center;justify-content:center;font-size:14px;">◎</span>
+        <span style="width:34px;height:34px;border-radius:50%;border:1px solid #6d84e8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">TALK</span>
+        <span style="width:34px;height:34px;border-radius:50%;border:1px solid #6d84e8;display:flex;align-items:center;justify-content:center;font-size:14px;">▶</span>
+      </div>
+    </div>
+   </div>
+  </footer>
+
+  <!-- gift modal -->
+  <sc-if value="{{ giftOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeGift }}" style="position:fixed;inset:0;background:rgba(16,37,95,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;">
+      <div onClick="{{ stop }}" style="width:440px;max-width:100%;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(16,37,95,.28);">
+        <sc-if value="{{ giftForm }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="background:#2a54e6;padding:26px 28px;position:relative;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7S9.5 7 8 5.5 8 2.5 9.5 3 12 7 12 7z"></path><path d="M12 7s2.5 0 4-1.5S15.5 2.5 14 3s-2 4-2 4z"></path></svg>
+                <div style="font-size:18px;font-weight:800;color:#fff;">Хайртай хүндээ бэлэглэх</div>
+              </div>
+              <button onClick="{{ closeGift }}" style="position:absolute;top:20px;right:22px;background:none;border:none;font-size:24px;color:#fff;cursor:pointer;">×</button>
+            </div>
+            <div style="padding:26px 28px;">
+              <div style="display:flex;gap:14px;align-items:center;background:#f7f8f6;border-radius:14px;padding:14px 16px;margin-bottom:22px;">
+                <div style="width:56px;height:56px;background:#eef0f7;border-radius:10px;overflow:hidden;position:relative;flex:0 0 auto;">
+                  <sc-if value="{{ hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></sc-if>
+                  <sc-if value="{{ noImg }}" hint-placeholder-val="{{ true }}"><image-slot id="gift-thumb-{{ id }}" shape="rect" fit="contain" placeholder=""></image-slot></sc-if>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:700;color:#16255f;">{{ title }}</div>
+                  <div style="font-size:14px;font-weight:800;color:#2a54e6;margin-top:3px;">{{ lineTotal }}</div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:13px;">
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#8a90a3;display:block;margin-bottom:6px;">Хүлээн авагчийн нэр</label>
+                  <input placeholder="Жишээ: Сарантуяа" style="width:100%;height:46px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
+                </div>
+                <div>
+                  <label style="font-size:12px;font-weight:600;color:#8a90a3;display:block;margin-bottom:6px;">Мессеж (заавал биш)</label>
+                  <textarea placeholder="Төрсөн өдрийн мэнд хүргэе! 🎁" style="width:100%;height:78px;border:1px solid #d7ddd7;border-radius:10px;padding:12px 14px;font-family:inherit;font-size:14px;resize:none;"></textarea>
+                </div>
+              </div>
+              <a href="Nudema%20Checkout.dc.html?gift=1" style="width:100%;height:54px;margin-top:22px;background:#2a54e6;color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;">
+                Бэлгээр худалдан авах
+              </a>
+              <p style="font-size:11px;color:#9aa39c;text-align:center;margin:14px 0 0;line-height:1.6;">Төлбөрөө төлсний дараа бэлгийн холбоос үүснэ. Хүлээн авагч холбоосоор хаягаа оруулмагц бэлэг хүргэгдэнэ.</p>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ giftSent }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:44px 34px 34px;text-align:center;">
+            <div style="width:78px;height:78px;border-radius:50%;background:#eaeefe;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+              <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#2a54e6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7S9.5 7 8 5.5 8 2.5 9.5 3 12 7 12 7z"></path><path d="M12 7s2.5 0 4-1.5S15.5 2.5 14 3s-2 4-2 4z"></path></svg>
+            </div>
+            <h3 style="font-size:22px;font-weight:800;color:#16255f;margin:0 0 8px;">Бэлгийн холбоос бэлэн боллоо! 🎁</h3>
+            <p style="font-size:14px;color:#5c6660;line-height:1.7;margin:0 0 22px;">Доорх холбоосыг хуулж, дуртай мессенжерээрээ илгээгээрэй.</p>
+            <div style="display:flex;align-items:center;gap:8px;background:#f4f5f3;border:1px solid #e4e7e3;border-radius:12px;padding:6px 6px 6px 16px;margin-bottom:22px;">
+              <span style="flex:1;text-align:left;font-size:13px;color:#5c6660;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ giftLink }}</span>
+              <button onClick="{{ copyLink }}" style="border:none;background:#2a54e6;color:#fff;font-family:inherit;font-size:13px;font-weight:700;padding:10px 16px;border-radius:9px;cursor:pointer;white-space:nowrap;">{{ copyLabel }}</button>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;">
+              <a href="{{ shareMessenger }}" target="_blank" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 6px;border:1px solid #eee;border-radius:14px;">
+                <span style="width:44px;height:44px;border-radius:50%;background:#0a7cff;display:flex;align-items:center;justify-content:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.3 2 2 6.1 2 11.5c0 3 1.5 5.7 3.8 7.5V22l3.5-1.9c.9.2 1.8.4 2.7.4 5.7 0 10-4.1 10-9.5S17.7 2 12 2zm1 12.3l-2.5-2.7-4.9 2.7 5.4-5.7 2.6 2.7 4.8-2.7-5.4 5.7z"/></svg></span>
+                <span style="font-size:12px;font-weight:700;color:#3a423c;">Messenger</span>
+              </a>
+              <a href="{{ shareViber }}" target="_blank" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 6px;border:1px solid #eee;border-radius:14px;">
+                <span style="width:44px;height:44px;border-radius:50%;background:#7360f2;display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.5 2 3 5.3 3 9.8c0 2.2.9 4.1 2.5 5.5v3.9l3.3-2c.9.2 1.9.3 3.2.3 5.5 0 9-3.3 9-7.8S17.5 2 12 2z"/></svg></span>
+                <span style="font-size:12px;font-weight:700;color:#3a423c;">Viber</span>
+              </a>
+              <a href="{{ shareSms }}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 6px;border:1px solid #eee;border-radius:14px;">
+                <span style="width:44px;height:44px;border-radius:50%;background:#22b573;display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+                <span style="font-size:12px;font-weight:700;color:#3a423c;">SMS</span>
+              </a>
+            </div>
+            <button onClick="{{ closeGift }}" style="width:100%;height:52px;background:#fff;color:#3a423c;border:1px solid #cfd6d0;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;">Хаах</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+// Найрлага оруулаагүй хуучин бараанд харуулах ерөнхий жагсаалт
+const FALLBACK_INGREDIENTS = [
+  { name: 'Гиалуроны хүчил (Sodium Hyaluronate)', role: 'Гүн чийгшил' },
+  { name: 'Ниацинамид', role: 'Гэрэлтүүлэг · тон тэгшитгэл' },
+  { name: 'Керамид NP', role: 'Хамгаалалтын давхарга сэргээх' },
+  { name: 'Пантенол (B5)', role: 'Тайвшруулах' },
+  { name: 'Центелла асиатика', role: 'Улайлт намдаах' },
+  { name: 'Скваалан', role: 'Чийг тогтоох' },
+];
+
+class Component extends DCLogic {
+  state = { qty: 1, option: 0, tab: 'detail', gift: '', copied: false, detailCount: 3 };
+
+  componentDidMount() {
+    this.reload();
+    this._unsub = NudemaStore.subscribe(() => this.reload());
+  }
+
+  componentWillUnmount() {
+    if (this._unsub) this._unsub();
+    clearTimeout(this._ct);
+  }
+
+  reload() {
+    this.setState({
+      products: NudemaStore.read('products'),
+      reviews: NudemaStore.read('reviews'),
+      settings: NudemaStore.read('settings'),
+    });
+  }
+
+  // YouTube холбоосыг embed хаяг руу хөрвүүлнэ (видео блокод хэрэглэнэ)
+  toEmbed(url) {
+    if (!url) return '';
+    const m1 = String(url).match(/[?&]v=([\w-]{11})/);
+    const m2 = String(url).match(/youtu\.be\/([\w-]{11})/);
+    const m3 = String(url).match(/embed\/([\w-]{11})/);
+    const id = (m1 && m1[1]) || (m2 && m2[1]) || (m3 && m3[1]) || (/^[\w-]{11}$/.test(url) ? url : '');
+    return id ? `https://www.youtube-nocookie.com/embed/${id}?rel=0&playsinline=1` : '';
+  }
+
+  // ?id=3 (эсвэл #id=3) хаягаас аль бүтээгдэхүүнийг үзэхийг тодорхойлно
+  paramId() {
+    try {
+      const q = new URLSearchParams(window.location.search || '').get('id');
+      if (q) return Number(q);
+      const m = String(window.location.hash || '').match(/id=(\d+)/);
+      if (m) return Number(m[1]);
+    } catch (e) {}
+    return null;
+  }
+
+  renderVals() {
+    const products = this.state.products || NudemaStore.read('products');
+    const allReviews = this.state.reviews || NudemaStore.read('reviews');
+    const settings = this.state.settings || NudemaStore.read('settings');
+    const money = NudemaStore.money;
+    const fmt = (n) => money(n) + '₮';
+
+    const id = this.paramId();
+    // id заагаагүй бол эхний бараа; заасан ч олдохгүй бол "олдсонгүй"
+    const product = id === null ? products[0] : products.find(p => Number(p.id) === id);
+
+    if (!product) {
+      return {
+        notFound: true, found: false,
+        footerCompany: `${settings.shopName} ХХК · Улаанбаатар хот, Сүхбаатар дүүрэг, Энх тайваны өргөн чөлөө 12`,
+        footerLine: `И-мэйл: ${settings.email} · Утас: ${settings.phone} · Ажлын цаг: Даваа–Баасан 09:00–18:00`,
+        giftOpen: false, giftForm: false, giftSent: false,
+        closeGift: () => {}, stop: () => {}, copyLink: () => {},
+      };
+    }
+
+    /* ---- Гол зургийн галерей (хуучин ганц img-тай нийцтэй) ---- */
+    const gallery = (Array.isArray(product.images) && product.images.length)
+      ? product.images
+      : (product.img ? [product.img] : []);
+    const shotIdx = Math.max(0, Math.min(this.state.shot || 0, gallery.length - 1));
+    const mainImg = gallery[shotIdx] || '';
+
+    /* ---- Дэлгэрэнгүй блокууд (хуучин detailImages-тай нийцтэй) ---- */
+    const rawBlocks = (Array.isArray(product.detailBlocks) && product.detailBlocks.length)
+      ? product.detailBlocks
+      : (product.detailImages || []).map((src, i) => ({ id: i + 1, type: 'image', img: src }));
+    const detailBlocks = rawBlocks
+      // Хоосон блокыг харуулахгүй
+      .filter(b => {
+        if (b.type === 'divider') return true;
+        if (b.type === 'text') return !!String(b.text || '').trim();
+        if (b.type === 'video') return !!this.toEmbed(b.url);
+        if (b.type === 'twoImages') return !!(b.img || b.img2);
+        if (b.type === 'imageText' || b.type === 'textImage') return !!(b.img || String(b.text || '').trim());
+        return !!b.img;
+      })
+      .map(b => ({
+        isText: b.type === 'text',
+        isDivider: b.type === 'divider',
+        isImage: b.type === 'image',
+        isVideo: b.type === 'video',
+        isImageText: b.type === 'imageText',
+        isTextImage: b.type === 'textImage',
+        isTwoImages: b.type === 'twoImages',
+        text: b.text || '',
+        img: b.img || '',
+        img2: b.img2 || '',
+        embed: b.type === 'video' ? this.toEmbed(b.url) : '',
+        textStyle: `font-size:15px;line-height:1.9;color:#5c6660;margin:0;text-align:${b.align === 'center' ? 'center' : 'left'};white-space:pre-wrap;`,
+      }));
+
+    /* ---- Үнэ ба сонголт — админаас ирнэ ---- */
+    const optionDefs = Array.isArray(product.options) ? product.options.filter(o => o && o.label) : [];
+    const hasOptions = optionDefs.length > 0;
+    const oi = Math.min(this.state.option, Math.max(0, optionDefs.length - 1));
+    const options = optionDefs.map((o, i) => ({
+      // Нэмэлт төлбөрийг шошгон дээр автоматаар харуулна
+      label: Number(o.add) > 0 ? `${o.label} (+${money(o.add)}₮)` : o.label,
+      onClick: () => this.setState({ option: i }),
+      style: `border:1px solid ${oi === i ? '#2a54e6' : '#d7ddd7'};background:${oi === i ? '#eaeefe' : '#fff'};color:${oi === i ? '#2a54e6' : '#5c6660'};font-family:inherit;font-size:13px;font-weight:${oi === i ? 700 : 500};padding:11px 16px;border-radius:10px;cursor:pointer;`,
+    }));
+    const optionAdd = hasOptions ? (Number(optionDefs[oi].add) || 0) : 0;
+
+    const stock = Number(product.stock) || 0;
+    const inStock = stock > 0;
+    // Нөөцөөс олон ширхэг сонгуулахгүй
+    const maxQty = inStock ? stock : 1;
+    const qty = Math.min(this.state.qty, maxQty);
+    const unit = product.price + optionAdd;
+    const total = unit * qty;
+
+    const hasDiscount = !!product.original && product.original > product.price;
+
+    /* ---- Сэтгэгдэл: гарчгийн үгээр тааруулна ---- */
+    const norm = (s) => String(s || '').toLowerCase();
+    const tokens = norm(product.title).split(/\s+/).filter(t => t.length > 3);
+    const matched = allReviews.filter(r => !r.hidden && tokens.some(t => norm(r.product).includes(t)));
+    const reviews = matched.map(r => ({
+      user: r.name, rating: Number(r.rating || 5).toFixed(1), text: r.text,
+      hasReply: !!r.reply, reply: r.reply,
+    }));
+
+    /* ---- Найрлага: админд оруулсан бол түүнийг ---- */
+    const typedIng = String(product.ingredients || '').split(',').map(s => s.trim()).filter(Boolean);
+    const ingredients = typedIng.length ? typedIng.map(n => ({ name: n, role: '' })) : FALLBACK_INGREDIENTS;
+
+    const tabDefs = [
+      { key: 'detail', label: 'Дэлгэрэнгүй' },
+      { key: 'ingredients', label: 'Найрлага' },
+      { key: 'reviews', label: `Сэтгэгдэл (${reviews.length})` },
+    ];
+    const detailTabs = tabDefs.map(t => ({
+      label: t.label,
+      onClick: () => this.setState({ tab: t.key }),
+      style: `border:none;border-bottom:2px solid ${this.state.tab === t.key ? '#2a54e6' : 'transparent'};background:none;color:${this.state.tab === t.key ? '#2a54e6' : '#8a938c'};font-family:inherit;font-size:15px;font-weight:700;padding:18px 28px;cursor:pointer;`,
+    }));
+
+    const related = products
+      .filter(p => Number(p.id) !== Number(product.id))
+      .slice(0, 4)
+      .map(p => ({
+        id: p.id, title: p.title, price: fmt(p.price),
+        href: 'Nudema%20Product.dc.html?id=' + p.id,
+        img: p.img || '', hasImg: !!p.img, noImg: !p.img,
+      }));
+
+    const giftLink = 'https://nudema.mn/gift/NDM-' + (1000 + (total % 9000));
+    const shareText = 'Танд Nudema-аас бэлэг ирлээ! 🎁 ' + giftLink;
+
+    return {
+      found: true, notFound: false,
+      id: product.id,
+      title: product.title,
+      category: product.category || 'Бүтээгдэхүүн',
+      badge: product.badge || '',
+      hasBadge: !!product.badge,
+      rating: product.rating,
+      count: product.count,
+      img: mainImg,
+      hasImg: !!mainImg,
+      noImg: !mainImg,
+      hasThumbs: gallery.length > 1,
+      thumbs: gallery.map((src, i) => ({
+        src,
+        onClick: () => this.setState({ shot: i }),
+        style: `position:relative;display:block;padding:0;background:#f4f5f3;border-radius:10px;aspect-ratio:1/1;overflow:hidden;cursor:pointer;border:2px solid ${i === shotIdx ? '#2a54e6' : 'transparent'};`,
+      })),
+      price: fmt(product.price),
+      original: hasDiscount ? fmt(product.original) : '',
+      hasDiscount,
+      discountPct: hasDiscount ? Math.round((1 - product.price / product.original) * 100) + '%' : '',
+      benefit: hasDiscount ? fmt(product.original - product.price) : '',
+      // Хүргэлт ба урамшуулал: зөвхөн админд оруулсан үед
+      hasShipping: !!String(product.shipping || '').trim(),
+      shippingLine: String(product.shipping || '').trim(),
+      hasPoints: Number(product.pointsRate) > 0,
+      pointsRate: Number(product.pointsRate) + '%',
+      points: money(Math.round(product.price * (Number(product.pointsRate) || 0) / 100)),
+      stock,
+      inStock,
+      soldOut: !inStock,
+      stockLabel: inStock ? `${money(stock)} ширхэг` : 'Дууссан',
+      stockStyle: `font-weight:700;color:${!inStock ? '#e0392f' : stock < 30 ? '#e0730a' : '#12934f'};`,
+      qtyCapped: this.state.qty > maxQty,
+
+      options,
+      hasOptions,
+      optionLabel: hasOptions ? optionDefs[oi].label : 'Тоо ширхэг',
+      qty,
+      lineTotal: fmt(total),
+      inc: () => this.setState(s => ({ qty: Math.min(maxQty, s.qty + 1) })),
+      dec: () => this.setState(s => ({ qty: Math.max(1, s.qty - 1) })),
+
+      detailTabs,
+      isDetail: this.state.tab === 'detail',
+      description: product.desc || 'Nudema-ийн арьс арчилгааны технологи арьсны хамгаалалтын давхаргыг сэргээж, удаан хугацаанд чийгшлийг барьдаг.',
+      // Дэлгэрэнгүй блокууд админаас (Бүтээгдэхүүн → засах → Дэлгэрэнгүй тайлбар)
+      detailBlocks,
+      hasDetailBlocks: detailBlocks.length > 0,
+      noDetailBlocks: detailBlocks.length === 0,
+      isIngredients: this.state.tab === 'ingredients',
+      ingredients,
+      noIngredients: ingredients.length === 0,
+      isReviews: this.state.tab === 'reviews',
+      reviews,
+      noReviews: reviews.length === 0,
+      related,
+
+      footerCompany: `${settings.shopName} ХХК · Улаанбаатар хот, Сүхбаатар дүүрэг, Энх тайваны өргөн чөлөө 12`,
+      footerLine: `И-мэйл: ${settings.email} · Утас: ${settings.phone} · Ажлын цаг: Даваа–Баасан 09:00–18:00`,
+
+      giftOpen: this.state.gift !== '',
+      giftForm: this.state.gift === 'form',
+      giftSent: this.state.gift === 'sent',
+      openGift: (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ gift: 'form', copied: false }); },
+      closeGift: () => this.setState({ gift: '' }),
+      stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
+      giftLink,
+      shareMessenger: 'https://www.facebook.com/dialog/send?link=' + encodeURIComponent(giftLink) + '&app_id=0&redirect_uri=' + encodeURIComponent(giftLink),
+      shareViber: 'viber://forward?text=' + encodeURIComponent(shareText),
+      shareSms: 'sms:?body=' + encodeURIComponent(shareText),
+      copyLabel: this.state.copied ? '✓ Хууллаа' : 'Хуулах',
+      copyLink: () => {
+        const text = giftLink;
+        let ok = false;
+        try {
+          const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', '');
+          ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta);
+          ta.focus(); ta.select(); ta.setSelectionRange(0, text.length); ok = document.execCommand('copy'); document.body.removeChild(ta);
+        } catch (e) { ok = false; }
+        if (ok) { this.setState({ copied: true }); clearTimeout(this._ct); this._ct = setTimeout(() => this.setState({ copied: false }), 1500); }
+        else if (navigator.clipboard) { navigator.clipboard.writeText(text).then(() => this.setState({ copied: true }), () => window.prompt('Холбоосыг хуулж авна уу:', text)); }
+        else { window.prompt('Холбоосыг хуулж авна уу:', text); }
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

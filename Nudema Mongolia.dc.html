@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'Manrope', -apple-system, sans-serif; color: #1a1c1a; background: #fff; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  a:hover { color: #1e46c8; }
+  @keyframes nd-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  @keyframes nd-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  @keyframes nd-review-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+</style>
+<script src="./image-slot.js"></script>
+<script src="./nudema-store.js"></script>
+</helmet>
+<!-- Өнгөт туузууд (марки, инстаграм, футер) дэлгэц дүүрэн; доторх агуулга 1280px -->
+<div style="width:100%;background:#fff;">
+
+  <!-- marquee -->
+  <div style="background:#2a54e6;overflow:hidden;white-space:nowrap;">
+    <div style="display:inline-flex;gap:56px;padding:9px 0;animation:nd-marquee 28s linear infinite;font-size:12px;font-weight:600;color:#d5deff;letter-spacing:0.02em;">
+      <sc-for list="{{ marqueeLoop }}" as="t" hint-placeholder-count="6">
+        <span style="white-space:nowrap;">{{ t.text }}</span>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- header -->
+  <header style="border-bottom:1px solid #eee;background:#fff;">
+   <div style="max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:20px 34px;position:relative;">
+    <div style="display:flex;align-items:center;gap:22px;">
+      <x-import component-from-global-scope="nudema-menu" from="./nudema-menu.js" hint-size="24px,24px"></x-import>
+      <a href="#" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:26px;font-weight:800;letter-spacing:0.08em;color:#2a54e6;">NUDEMA</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:18px;">
+      <a href="Nudema%20Brand%20Story.dc.html" style="background:#2a54e6;color:#fff;font-size:13px;font-weight:700;padding:9px 16px;border-radius:20px;">Брэндийн түүх</a>
+      <a href="Nudema%20Search.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.2-3.2"></path></svg></a>
+      <a href="Nudema%20Account.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path></svg></a>
+      <a href="Nudema%20Cart.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"></path><path d="M9 8a3 3 0 0 1 6 0"></path></svg></a>
+    </div>
+   </div>
+  </header>
+
+  <!-- hero banner carousel -->
+  <section style="max-width:1280px;margin:0 auto;padding:24px 40px 8px;">
+    <div style="position:relative;height:300px;border-radius:18px;overflow:hidden;">
+      <div style="{{ heroTrackStyle }}">
+        <sc-for list="{{ heroSlides }}" as="s" hint-placeholder-count="3">
+          <div style="position:relative;flex:0 0 calc(100% - 70px);height:100%;border-radius:18px;overflow:hidden;">
+            <sc-if value="{{ s.hasImg }}" hint-placeholder-val="{{ false }}">
+              <img src="{{ s.img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+            </sc-if>
+            <sc-if value="{{ s.noImg }}" hint-placeholder-val="{{ true }}">
+              <image-slot id="hero-{{ s.id }}" shape="rect" fit="cover" placeholder="Хиро баннер зураг"></image-slot>
+            </sc-if>
+            <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(22,37,95,.42) 0%,rgba(22,37,95,.12) 42%,rgba(22,37,95,0) 70%);pointer-events:none;"></div>
+            <div style="position:absolute;left:52px;top:50%;transform:translateY(-50%);z-index:2;pointer-events:none;max-width:56%;">
+              <h1 style="font-size:33px;line-height:1.28;font-weight:800;margin:0 0 16px;color:#fff;text-shadow:0 1px 12px rgba(22,37,95,.25);">
+                {{ s.line1 }}<sc-if value="{{ s.hasLine2 }}" hint-placeholder-val="{{ true }}"><br>{{ s.line2 }}</sc-if>
+              </h1>
+              <p style="font-size:15px;font-weight:600;margin:0;color:#e6ebff;">{{ s.sub }}</p>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="position:absolute;left:52px;bottom:26px;z-index:3;display:flex;align-items:center;gap:10px;">
+        <span style="background:rgba(22,37,95,.45);color:#fff;font-size:12px;font-weight:700;padding:7px 14px;border-radius:16px;letter-spacing:0.04em;">{{ heroCounter }}</span>
+        <div style="display:flex;gap:6px;">
+          <button onClick="{{ heroPrev }}" style="width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.85);color:#16255f;font-size:15px;cursor:pointer;">‹</button>
+          <button onClick="{{ heroNext }}" style="width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.85);color:#16255f;font-size:15px;cursor:pointer;">›</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- official mall products -->
+  <section style="max-width:1280px;margin:0 auto;padding:44px 40px 60px;">
+    <h2 style="text-align:center;font-size:26px;font-weight:800;margin:0 0 38px;color:#16255f;">Зөвхөн энд, албан ёсны дэлгүүрт!</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">
+      <sc-for list="{{ officialProducts }}" as="p" hint-placeholder-count="4">
+        <div style="display:block;">
+          <a href="{{ p.href }}" style="position:relative;display:block;background:#f4f5f3;border-radius:14px;aspect-ratio:1/1;overflow:hidden;">
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></sc-if>
+            <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><image-slot id="off-{{ p.id }}" shape="rect" fit="contain" placeholder="Зураг"></image-slot></sc-if>
+            <sc-if value="{{ p.badge }}" hint-placeholder-val="{{ true }}">
+              <span style="position:absolute;top:10px;right:10px;background:#2a54e6;color:#fff;font-size:11px;font-weight:700;padding:5px 9px;border-radius:12px;z-index:3;">{{ p.badge }}</span>
+            </sc-if>
+          </a>
+          <div style="margin-top:14px;font-size:12px;color:#e0a020;font-weight:700;">★ {{ p.rating }} <span style="color:#9aa39c;font-weight:500;">({{ p.count }})</span></div>
+          <a href="{{ p.href }}" style="display:block;margin-top:6px;font-size:14px;font-weight:600;line-height:1.4;color:#2a302b;">{{ p.title }}</a>
+          <div style="margin-top:8px;display:flex;align-items:baseline;gap:8px;">
+            <span style="font-size:18px;font-weight:800;color:#111;">{{ p.price }}</span>
+            <sc-if value="{{ p.hasOriginal }}" hint-placeholder-val="{{ true }}"><span style="font-size:13px;color:#b3bab4;text-decoration:line-through;">{{ p.original }}</span></sc-if>
+          </div>
+          <sc-if value="{{ p.hasBenefit }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:8px;font-size:11.5px;font-weight:700;color:#2a54e6;background:#eef2ff;display:inline-block;padding:4px 9px;border-radius:10px;">{{ p.benefit }} хэмнэлт</div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+    <div style="text-align:center;margin-top:44px;">
+      <a href="Nudema%20Search.dc.html" style="display:inline-block;border:1px solid #cfd6d0;border-radius:24px;padding:13px 34px;font-size:14px;font-weight:700;" style-hover="border-color:#2a54e6;color:#2a54e6;">Бүтээгдэхүүн цааш үзэх ›</a>
+    </div>
+  </section>
+
+  <!-- banner (image background) -->
+  <section style="max-width:1280px;margin:0 auto;padding:0 40px 64px;">
+    <div style="position:relative;height:260px;border-radius:18px;overflow:hidden;background:#16255f;">
+      <image-slot id="mid-banner" shape="rect" fit="cover" placeholder="Дунд баннер зураг"></image-slot>
+      <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(16,37,95,.62) 0%,rgba(16,37,95,.3) 50%,rgba(16,37,95,.05) 100%);pointer-events:none;"></div>
+      <div style="position:absolute;left:52px;top:50%;transform:translateY(-50%);z-index:2;max-width:52%;">
+        <span style="display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);color:#fff;font-size:11.5px;font-weight:700;padding:6px 13px;border-radius:14px;letter-spacing:0.04em;margin-bottom:16px;">ГИШҮҮНЧЛЭЛ</span>
+        <h2 style="font-size:29px;line-height:1.3;font-weight:800;margin:0 0 12px;color:#fff;">Гишүүн болоод<br>бүх захиалгад 15% хямдрал</h2>
+        <p style="font-size:14px;font-weight:600;color:#d3ddfb;margin:0 0 20px;">Бүртгэл үнэгүй · Төрсөн өдрийн купон · Үнэгүй хүргэлт</p>
+        <a href="Nudema%20Account.dc.html" style="display:inline-block;background:#fff;color:#2a54e6;font-size:14px;font-weight:800;padding:12px 28px;border-radius:24px;" style-hover="background:#eef2ff;">Гишүүн болох ›</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- best products -->
+  <section style="max-width:1280px;margin:0 auto;padding:0 40px 64px;">
+    <h2 style="text-align:center;font-size:26px;font-weight:800;margin:0 0 10px;color:#16255f;">Хамгийн эрэлттэй бүтээгдэхүүн</h2>
+    <p style="text-align:center;font-size:14px;color:#8a90a3;margin:0 0 28px;">Энэ долоо хоногт хамгийн их зарагдсан Nudema бүтээгдэхүүнүүд</p>
+    <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:36px;">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+        <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
+      </sc-for>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">
+      <sc-for list="{{ bestFiltered }}" as="p" hint-placeholder-count="4">
+        <div style="display:block;">
+          <a href="{{ p.href }}" style="position:relative;display:block;background:{{ p.bg }};border-radius:14px;aspect-ratio:1/1;overflow:hidden;">
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></sc-if>
+            <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><image-slot id="best-{{ p.id }}" shape="rect" fit="contain" placeholder="Зураг"></image-slot></sc-if>
+            <span style="position:absolute;top:10px;left:10px;background:rgba(16,37,95,.72);color:#fff;font-size:12px;font-weight:800;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:3;">{{ p.rank }}</span>
+          </a>
+          <div style="margin-top:14px;font-size:12px;color:#e0a020;font-weight:700;">★ {{ p.rating }} <span style="color:#9aa39c;font-weight:500;">({{ p.count }})</span></div>
+          <a href="{{ p.href }}" style="display:block;margin-top:6px;font-size:14px;font-weight:600;line-height:1.4;color:#2a302b;">{{ p.title }}</a>
+          <div style="margin-top:8px;display:flex;align-items:baseline;gap:8px;">
+            <span style="font-size:18px;font-weight:800;color:#111;">{{ p.price }}</span>
+            <sc-if value="{{ p.hasOriginal }}" hint-placeholder-val="{{ true }}"><span style="font-size:13px;color:#b3bab4;text-decoration:line-through;">{{ p.original }}</span></sc-if>
+          </div>
+          <sc-if value="{{ p.hasBenefit }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:8px;font-size:11.5px;font-weight:700;color:#2a54e6;background:#eef2ff;display:inline-block;padding:4px 9px;border-radius:10px;">{{ p.benefit }} хэмнэлт</div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ bestEmpty }}" hint-placeholder-val="{{ false }}">
+      <p style="text-align:center;font-size:14px;color:#9aa39c;padding:48px 0 8px;margin:0;">Энэ ангилалд бүтээгдэхүүн алга байна.</p>
+    </sc-if>
+  </section>
+
+  <!-- reviews (auto-scroll) -->
+  <section style="padding:20px 0 64px;overflow:hidden;">
+    <h2 style="text-align:center;font-size:26px;font-weight:800;margin:0 0 8px;color:#16255f;">Хэрэглэгчдийн сэтгэгдэл</h2>
+    <p style="text-align:center;font-size:14px;color:#8a90a3;margin:0 0 34px;">{{ reviewSummary }}</p>
+    <div style="display:flex;width:max-content;gap:20px;padding:0 20px;animation:nd-review-marquee 44s linear infinite;" style-hover="animation-play-state:paused;">
+      <sc-for list="{{ reviewLoop }}" as="r" hint-placeholder-count="12">
+        <div style="flex:0 0 320px;background:#fff;border:1px solid #eef0f5;border-radius:16px;padding:24px 24px 22px;box-shadow:0 6px 20px rgba(16,37,95,.05);">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+            <div style="width:44px;height:44px;border-radius:50%;background:{{ r.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;flex:0 0 auto;">{{ r.initial }}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:14px;font-weight:700;color:#16255f;">{{ r.name }}</div>
+              <div style="font-size:12px;color:#e0a020;letter-spacing:1px;">{{ r.stars }}</div>
+            </div>
+            <span style="font-size:11px;font-weight:700;color:#2a54e6;background:#eef2ff;padding:4px 9px;border-radius:10px;white-space:nowrap;">{{ r.tag }}</span>
+          </div>
+          <p style="margin:0;font-size:13.5px;line-height:1.75;color:#4a5266;">{{ r.text }}</p>
+          <sc-if value="{{ r.hasReply }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:12px;background:#f7f8fc;border-left:3px solid #2a54e6;border-radius:0 8px 8px 0;padding:10px 13px;">
+              <div style="font-size:10.5px;font-weight:800;color:#2a54e6;margin-bottom:3px;">NUDEMA-гийн хариу</div>
+              <div style="font-size:12.5px;line-height:1.6;color:#4a5266;">{{ r.reply }}</div>
+            </div>
+          </sc-if>
+          <div style="margin-top:14px;font-size:11px;color:#b0b7c3;">{{ r.product }} · {{ r.date }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- instagram -->
+  <section style="background:#fafafa;">
+   <div style="max-width:1280px;margin:0 auto;padding:60px 40px;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:36px;">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16255f" stroke-width="1.7"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.6" cy="6.4" r="1.2" fill="#16255f" stroke="none"/></svg>
+      <a href="https://www.instagram.com/" target="_blank" style="font-size:22px;font-weight:800;color:#16255f;">@nudema.mongolia</a>
+      <p style="font-size:14px;color:#8a90a3;margin:2px 0 0;">Nudema-г Instagram-аар дагаж, шинэ мэдээ, зөвлөгөө аваарай</p>
+      <a href="https://www.instagram.com/" target="_blank" style="margin-top:12px;display:inline-flex;align-items:center;gap:8px;background:linear-gradient(45deg,#f09433,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888);color:#fff;font-size:14px;font-weight:700;padding:11px 24px;border-radius:24px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.6" cy="6.4" r="1.1" fill="#fff" stroke="none"/></svg>
+        Дагах
+      </a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;">
+      <sc-for list="{{ instaPosts }}" as="p" hint-placeholder-count="6">
+        <a href="https://www.instagram.com/" target="_blank" style="position:relative;display:block;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:#eef0f7;" style-hover="opacity:0.92;">
+          <image-slot id="insta-{{ p.id }}" shape="rect" fit="cover" placeholder="Instagram зураг"></image-slot>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:16px;background:rgba(16,37,95,0);color:rgba(255,255,255,0);font-size:13px;font-weight:700;transition:all .2s;pointer-events:none;" style-hover="background:rgba(16,37,95,.42);color:#fff;">
+            <span style="display:flex;align-items:center;gap:5px;">♥ {{ p.likes }}</span>
+            <span style="display:flex;align-items:center;gap:5px;">💬 {{ p.comments }}</span>
+          </div>
+        </a>
+      </sc-for>
+    </div>
+   </div>
+  </section>
+
+  <!-- brand story -->
+  <section style="max-width:1280px;margin:0 auto;padding:70px 40px;">
+    <h2 style="text-align:center;font-size:26px;font-weight:800;margin:0 0 40px;color:#16255f;">Брэндийн түүх</h2>
+    <div style="position:relative;max-width:640px;margin:0 auto;border-radius:8px;overflow:hidden;aspect-ratio:16/9;background:#c9d0cd;">
+      <sc-if value="{{ hasVideo }}" hint-placeholder-val="{{ false }}">
+        <iframe src="{{ embedUrl }}" style="position:absolute;inset:0;width:100%;height:100%;border:0;z-index:4;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+      </sc-if>
+      <sc-if value="{{ noVideo }}" hint-placeholder-val="{{ true }}">
+        <div style="position:absolute;inset:0;">
+          <image-slot id="brand-video" shape="rect" placeholder="Брэндийн видео"></image-slot>
+          <button onClick="{{ askVideo }}" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:66px;height:66px;border-radius:50%;border:none;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;z-index:3;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.15);">
+            <span style="border-left:18px solid #2a54e6;border-top:11px solid transparent;border-bottom:11px solid transparent;margin-left:5px;"></span>
+          </button>
+          <div style="position:absolute;left:0;right:0;bottom:14px;text-align:center;z-index:3;pointer-events:none;font-size:12px;color:#3a423c;">YouTube холбоос оруулахын тулд ▶ товчийг дарна уу</div>
+        </div>
+      </sc-if>
+    </div>
+    <div style="text-align:center;margin-top:40px;">
+      <a href="Nudema%20Brand%20Story.dc.html" style="display:inline-block;border:1px solid #cfd6d0;border-radius:24px;padding:13px 34px;font-size:14px;font-weight:700;" style-hover="border-color:#2a54e6;color:#2a54e6;">Брэндийн түүх үзэх ›</a>
+    </div>
+  </section>
+
+  <!-- footer -->
+  <footer style="background:#2a54e6;color:#d3ddfb;">
+   <div style="max-width:1280px;margin:0 auto;padding:50px 40px 46px;">
+    <div style="font-size:22px;font-weight:800;letter-spacing:0.08em;color:#fff;margin-bottom:24px;">NUDEMA</div>
+    <div style="display:flex;gap:26px;font-size:13px;font-weight:600;margin-bottom:26px;flex-wrap:wrap;">
+      <a href="#" style="color:#e6ecff;">Үйлчилгээний нөхцөл</a>
+      <a href="#" style="color:#e6ecff;">Компанийн мэдээлэл</a>
+      <a href="#" style="color:#fff;">Хувийн мэдээлэл боловсруулах бодлого</a>
+      <a href="#" style="color:#e6ecff;">Хэрэглэгчийн төв</a>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:40px;flex-wrap:wrap;">
+      <div style="font-size:12px;line-height:1.9;color:#b7c4ee;max-width:560px;">
+        {{ footerCompany }}<br>
+        Захирал: Б.Оюунбилэг · Улсын бүртгэлийн дугаар: 106-86-43373<br>
+        {{ footerLine }}<br>
+        NUDEMA MONGOLIA LLC. ALL RIGHTS RESERVED.
+      </div>
+      <div style="display:flex;gap:16px;align-items:center;">
+        <span style="width:34px;height:34px;border-radius:50%;border:1px solid #6d84e8;display:flex;align-items:center;justify-content:center;font-size:14px;">◎</span>
+        <span style="width:34px;height:34px;border-radius:50%;border:1px solid #6d84e8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">TALK</span>
+        <span style="width:34px;height:34px;border-radius:50%;border:1px solid #6d84e8;display:flex;align-items:center;justify-content:center;font-size:14px;">▶</span>
+      </div>
+    </div>
+   </div>
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;youtubeUrl&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Брэндийн видео&quot;}}">
+class Component extends DCLogic {
+  state = { tab: 'all', hero: 0, video: '' };
+
+  // Админ хуудсанд (Nudema Admin.dc.html) хийсэн өөрчлөлтийг уншина.
+  componentDidMount() {
+    this.reload();
+    this._unsub = NudemaStore.subscribe(() => this.reload());
+  }
+
+  componentWillUnmount() {
+    if (this._unsub) this._unsub();
+  }
+
+  reload() {
+    this.setState({
+      cms: NudemaStore.read('content'),
+      products: NudemaStore.read('products'),
+      reviews: NudemaStore.read('reviews'),
+      settings: NudemaStore.read('settings'),
+      taxonomy: NudemaStore.read('taxonomy'),
+    });
+  }
+
+  toEmbed(url) {
+    if (!url) return '';
+    let id = '';
+    const m1 = url.match(/[?&]v=([\w-]{11})/);
+    const m2 = url.match(/youtu\.be\/([\w-]{11})/);
+    const m3 = url.match(/embed\/([\w-]{11})/);
+    id = (m1 && m1[1]) || (m2 && m2[1]) || (m3 && m3[1]) || (/^[\w-]{11}$/.test(url) ? url : '');
+    return id ? `https://www.youtube-nocookie.com/embed/${id}?rel=0&playsinline=1` : '';
+  }
+
+  renderVals() {
+    const cms = this.state.cms || NudemaStore.read('content');
+    const allProducts = this.state.products || NudemaStore.read('products');
+    const allReviews = this.state.reviews || NudemaStore.read('reviews');
+    const settings = this.state.settings || NudemaStore.read('settings');
+    const money = NudemaStore.money;
+    const current = this.state.video || cms.brandVideo || (this.props.youtubeUrl ?? '');
+    const embedUrl = this.toEmbed(current);
+    const askVideo = () => {
+      const url = window.prompt('YouTube холбоосыг оруулна уу:', this.state.video || '');
+      if (url !== null) this.setState({ video: url.trim() });
+    };
+    // Анхны 3 слайдын хоёр мөрт гарчиг. Админд line2 талбар байхгүй тул
+    // гарчгийг дарж бичсэн үед хоёр дахь мөрийг нуух нь зөв.
+    const heroDefaults = [
+      { line1: 'Энэ зун арьсаа хамгаал!', line2: 'Nudema онцгой хямдрал', sub: 'Nudema дан онцлох бараа хамгийн ихдээ 58% хямдрал' },
+      { line1: 'Гүн чийгшлийн шинэ шугам', line2: '72 цагийн чийгшил баталгаа', sub: 'Шинэ бүтээгдэхүүн албан ёсны дэлгүүрт гарлаа' },
+      { line1: 'Гишүүдэд зориулсан', line2: '~46% онцгой хямдрал', sub: 'Зөвхөн энд, албан ёсны дэлгүүрт' },
+    ];
+    // Слайдын тоо админаас хамаарна (нэмэх/устгах боломжтой).
+    const cmsSlides = Array.isArray(cms.slides) && cms.slides.length
+      ? cms.slides
+      : NudemaStore.DEFAULTS.content.slides;
+    const storeSlides = NudemaStore.DEFAULTS.content.slides;
+    const heroSlides = cmsSlides.map((c, i) => {
+      const d = heroDefaults[i] || { line1: '', line2: '', sub: '' };
+      const typed = (c.line1 || '').trim();
+      // Store-ийн үндсэн утга нь line1-г аль хэдийн дүүргэсэн байдаг тул зөвхөн
+      // "хоосон эсэх"-ээр шалгавал 2 дахь мөр хэзээ ч гарахгүй. Админ ҮНЭХЭЭР
+      // өөрчилсөн үед л нуух ёстой.
+      const storeDefault = ((storeSlides[i] || {}).line1 || '').trim();
+      const overridden = !!typed && typed !== storeDefault;
+      const line1 = typed || d.line1;
+      const line2 = overridden ? '' : d.line2;
+      const img = (c.img || '').trim();
+      return {
+        id: c.id || (i + 1),
+        line1,
+        line2,
+        hasLine2: !!line2,
+        sub: (c.sub || '').trim() || d.sub,
+        img,
+        hasImg: !!img,
+        noImg: !img,
+      };
+    });
+    const total = heroSlides.length;
+    // Слайд устгагдсан үед индекс хүрээнээс хальж болзошгүй тул хязгаарлана.
+    const hi = Math.max(0, Math.min(this.state.hero, total - 1));
+    const pad = (n) => String(n).padStart(2, '0');
+    const heroTrackStyle = `display:flex;gap:14px;height:100%;transition:transform .55s cubic-bezier(.4,0,.2,1);transform:translateX(calc(-${hi} * (100% - 56px)));`;
+    const heroCounter = `${pad(hi + 1)} / ${pad(total)}`;
+    const heroNext = () => this.setState(s => ({ hero: (s.hero + 1) % total }));
+    const heroPrev = () => this.setState(s => ({ hero: (s.hero - 1 + total) % total }));
+
+    // Дэлгүүрт харагдах хэлбэрт хөрвүүлэх (үнийг форматлаж, хэмнэлтийг тооцно)
+    const toCard = (p, extra) => ({
+      id: p.id, badge: p.badge || '', rating: p.rating, count: p.count, title: p.title,
+      price: money(p.price) + '₮',
+      original: p.original ? money(p.original) + '₮' : '',
+      hasOriginal: !!p.original,
+      benefit: p.original && p.original > p.price ? money(p.original - p.price) + '₮' : '',
+      hasBenefit: !!(p.original && p.original > p.price),
+      img: p.img || '',
+      hasImg: !!p.img,
+      noImg: !p.img,
+      href: 'Nudema%20Product.dc.html?id=' + p.id,
+      ...(extra || {}),
+    });
+
+    // "Албан ёсны дэлгүүр" — админд "Нүүр хуудсанд харуулах" асаалттай бараанууд
+    const officialProducts = allProducts.filter(p => p.showOnHome).slice(0, 4).map(p => toCard(p));
+
+    // "Хамгийн эрэлттэй" — борлуулалтаар эрэмбэлсэн бүх бараа.
+    // Таб сонгосны ДАРАА эхний 4-ийг авна; эсрэгээр хийвэл ихэнх таб хоосон гарна.
+    const bestPool = allProducts.slice().sort((a, b) => (b.sold || 0) - (a.sold || 0));
+
+    // Табууд админы ангиллаас үүснэ (Админ → Бүтээгдэхүүн → Ангилал / Таг удирдах)
+    const taxonomy = this.state.taxonomy || NudemaStore.read('taxonomy');
+    const tabDefs = [{ key: 'all', label: 'Бүгд' }, ...taxonomy.categories.map(c => ({ key: c, label: c }))];
+    const tabs = tabDefs.map(t => ({
+      label: t.label,
+      onClick: () => this.setState({ tab: t.key }),
+      style: `border:1px solid ${this.state.tab === t.key ? '#2a54e6' : '#d7ddd7'};background:${this.state.tab === t.key ? '#2a54e6' : '#fff'};color:${this.state.tab === t.key ? '#fff' : '#5c6660'};font-family:inherit;font-size:14px;font-weight:700;padding:9px 22px;border-radius:22px;cursor:pointer;`,
+    }));
+
+    const bestFiltered = (this.state.tab === 'all' ? bestPool : bestPool.filter(p => p.category === this.state.tab))
+      .slice(0, 4)
+      .map((p, i) => toCard(p, { rank: String(i + 1).padStart(2, '0'), cat: p.category, bg: p.bg || '#f4f5f3' }));
+    const bestEmpty = bestFiltered.length === 0;
+
+    const instaPosts = [
+      { id: 1, likes: '1,204', comments: '38' },
+      { id: 2, likes: '892', comments: '21' },
+      { id: 3, likes: '2,015', comments: '64' },
+      { id: 4, likes: '743', comments: '12' },
+      { id: 5, likes: '1,538', comments: '47' },
+      { id: 6, likes: '967', comments: '29' },
+    ];
+
+    // Гүйдэг мөр: суурь дараалал 3 удаа давтаж өргөнийг дүүргэнэ, дараа нь
+    // хоёр дахин хуулна. Ингэснээр translateX(-50%) яг нэг суурь урттай
+    // тэнцэж, давталт таслалтгүй болно.
+    const marqueeMsgs = (Array.isArray(cms.marquee) ? cms.marquee : [])
+      .map(t => String(t || '').trim()).filter(Boolean);
+    const marqueeBase = (marqueeMsgs.length ? marqueeMsgs : NudemaStore.DEFAULTS.content.marquee);
+    const marqueeRepeated = [].concat(marqueeBase, marqueeBase, marqueeBase);
+    const marqueeLoop = [].concat(marqueeRepeated, marqueeRepeated)
+      .map((text, i) => ({ id: i, text }));
+
+    // Админд "Нуух" дарсан сэтгэгдлийг харуулахгүй
+    const reviewsRaw = allReviews.filter(r => !r.hidden);
+    const avgRating = reviewsRaw.length
+      ? (reviewsRaw.reduce((a, r) => a + Number(r.rating || 5), 0) / reviewsRaw.length).toFixed(1)
+      : '5.0';
+    // Тасралтгүй гүйлгэхийн тулд жагсаалтыг хоёр дахин давтана
+    const reviewLoop = [...reviewsRaw, ...reviewsRaw].map((r, i) => ({
+      ...r, id: i, initial: r.name.charAt(0),
+      stars: '★★★★★'.slice(0, Math.max(1, Math.round(Number(r.rating || 5)))),
+      hasReply: !!r.reply,
+    }));
+
+    return {
+      heroSlides, heroTrackStyle, heroCounter, heroNext, heroPrev,
+      hasVideo: !!embedUrl, noVideo: !embedUrl, embedUrl, askVideo,
+      officialProducts, tabs, bestFiltered, bestEmpty, reviewLoop, instaPosts,
+      marqueeLoop,
+      reviewSummary: `${money(reviewsRaw.length * 4500)}+ жинхэнэ хэрэглэгчийн үнэлгээ · ★ ${avgRating}`,
+      shopName: settings.shopName,
+      shopPhone: settings.phone,
+      shopEmail: settings.email,
+      footerLine: `И-мэйл: ${settings.email} · Утас: ${settings.phone} · Ажлын цаг: Даваа–Баасан 09:00–18:00`,
+      footerCompany: `${settings.shopName} ХХК · Улаанбаатар хот, Сүхбаатар дүүрэг, Энх тайваны өргөн чөлөө 12`,
+    };
+  }
+}
+</script>
+</body>
+</html>

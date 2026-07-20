@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'Manrope', -apple-system, sans-serif; color: #1a1c1a; background: #eef0f4; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  a:hover { color: #1e46c8; }
+  .mScroll::-webkit-scrollbar { display: none; }
+  @keyframes m-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+</style>
+<script src="./image-slot.js"></script>
+<script src="./nudema-store.js"></script>
+</helmet>
+<div style="width:390px;margin:0 auto;background:#fff;min-height:100vh;overflow:hidden;position:relative;">
+
+  <!-- top bar -->
+  <div style="background:#2a54e6;overflow:hidden;white-space:nowrap;">
+    <div style="display:inline-flex;gap:32px;padding:7px 0;animation:m-marquee 26s linear infinite;font-size:11px;font-weight:600;color:#d5deff;letter-spacing:.02em;">
+      <sc-for list="{{ marqueeLoop }}" as="t" hint-placeholder-count="6">
+        <span style="white-space:nowrap;">{{ t.text }}</span>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- header -->
+  <header style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee;position:sticky;top:0;background:#fff;z-index:20;">
+    <button onClick="{{ toggleMenu }}" style="display:flex;flex-direction:column;gap:4px;background:none;border:none;padding:4px;cursor:pointer;">
+      <span style="width:20px;height:2px;background:#1a1c1a;display:block;"></span>
+      <span style="width:20px;height:2px;background:#1a1c1a;display:block;"></span>
+      <span style="width:20px;height:2px;background:#1a1c1a;display:block;"></span>
+    </button>
+    <a href="Nudema%20Mongolia.dc.html" style="font-size:21px;font-weight:800;letter-spacing:0.08em;color:#2a54e6;">NUDEMA</a>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <a href="Nudema%20Search.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg></a>
+      <a href="Nudema%20Cart.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg></a>
+    </div>
+  </header>
+
+  <!-- slide-in menu -->
+  <div onClick="{{ closeMenu }}" style="{{ scrimStyle }}"></div>
+  <aside style="{{ drawerStyle }}">
+    <div style="padding:20px 20px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:20px;font-weight:800;letter-spacing:.08em;color:#2a54e6;">NUDEMA</span>
+      <button onClick="{{ closeMenu }}" style="background:none;border:none;font-size:24px;color:#1a1c1a;cursor:pointer;">&times;</button>
+    </div>
+    <nav style="padding:10px 8px;">
+      <sc-for list="{{ menuLinks }}" as="m" hint-placeholder-count="6">
+        <a href="{{ m.href }}" style="display:block;padding:14px 16px;font-size:16px;font-weight:700;color:#16255f;border-radius:10px;">{{ m.label }}</a>
+      </sc-for>
+    </nav>
+  </aside>
+
+  <!-- hero -->
+  <section style="padding:14px 16px 6px;">
+    <div style="position:relative;height:190px;border-radius:16px;overflow:hidden;">
+      <div style="{{ heroTrackStyle }}">
+        <sc-for list="{{ heroSlides }}" as="s" hint-placeholder-count="3">
+          <div style="position:relative;flex:0 0 100%;height:100%;">
+            <sc-if value="{{ s.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ s.img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></sc-if>
+            <sc-if value="{{ s.noImg }}" hint-placeholder-val="{{ true }}"><image-slot id="m-hero-{{ s.id }}" shape="rect" fit="cover" placeholder="Баннер"></image-slot></sc-if>
+            <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(22,37,95,.5) 0%,rgba(22,37,95,.05) 75%);"></div>
+            <div style="position:absolute;left:20px;top:50%;transform:translateY(-50%);max-width:70%;">
+              <div style="font-size:19px;line-height:1.25;font-weight:800;color:#fff;">{{ s.line1 }}</div>
+              <div style="font-size:12px;font-weight:600;color:#e6ebff;margin-top:6px;">{{ s.sub }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="position:absolute;left:20px;bottom:14px;display:flex;gap:6px;z-index:3;">
+        <sc-for list="{{ heroDots }}" as="d" hint-placeholder-count="3">
+          <span onClick="{{ d.onClick }}" style="{{ d.style }}"></span>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- quick links -->
+  <section style="display:flex;gap:14px;overflow-x:auto;padding:18px 16px 4px;" class="mScroll">
+    <sc-for list="{{ quickLinks }}" as="q" hint-placeholder-count="7">
+      <a href="#" style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:7px;width:62px;">
+        <span style="width:50px;height:50px;border-radius:50%;background:#eef2ff;color:#2a54e6;display:flex;align-items:center;justify-content:center;font-size:19px;">{{ q.icon }}</span>
+        <span style="font-size:10.5px;font-weight:600;line-height:1.3;text-align:center;color:#4a5266;">{{ q.label }}</span>
+      </a>
+    </sc-for>
+  </section>
+
+  <!-- official products -->
+  <section style="padding:22px 16px 24px;">
+    <h2 style="font-size:18px;font-weight:800;color:#16255f;margin:0 0 4px;">Албан ёсны дэлгүүр</h2>
+    <p style="font-size:12px;color:#8a90a3;margin:0 0 16px;">Зөвхөн энд, албан ёсны дэлгүүрт!</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <sc-for list="{{ officialProducts }}" as="p" hint-placeholder-count="4">
+        <a href="{{ p.href }}" style="display:block;">
+          <div style="position:relative;background:#f4f5f3;border-radius:12px;aspect-ratio:1/1;overflow:hidden;">
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></sc-if>
+            <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><image-slot id="m-prod-{{ p.id }}" shape="rect" fit="contain" placeholder="Зураг"></image-slot></sc-if>
+            <sc-if value="{{ p.badge }}" hint-placeholder-val="{{ true }}">
+              <span style="position:absolute;top:8px;right:8px;background:#2a54e6;color:#fff;font-size:10px;font-weight:700;padding:3px 7px;border-radius:10px;z-index:3;">{{ p.badge }}</span>
+            </sc-if>
+          </div>
+          <div style="margin-top:9px;font-size:11px;color:#e0a020;font-weight:700;">★ {{ p.rating }} <span style="color:#9aa39c;font-weight:500;">({{ p.count }})</span></div>
+          <div style="margin-top:4px;font-size:13px;font-weight:600;line-height:1.35;color:#2a302b;">{{ p.title }}</div>
+          <div style="margin-top:6px;display:flex;align-items:baseline;gap:6px;">
+            <span style="font-size:15px;font-weight:800;color:#111;">{{ p.price }}</span>
+            <sc-if value="{{ p.hasOriginal }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;color:#b3bab4;text-decoration:line-through;">{{ p.original }}</span></sc-if>
+          </div>
+          <sc-if value="{{ p.hasBenefit }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:6px;font-size:10.5px;font-weight:700;color:#2a54e6;background:#eef2ff;display:inline-block;padding:3px 8px;border-radius:9px;">{{ p.benefit }} хэмнэлт</div>
+          </sc-if>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- membership banner -->
+  <section style="position:relative;height:160px;margin:0 16px 26px;border-radius:16px;overflow:hidden;background:#16255f;">
+    <image-slot id="m-banner" shape="rect" fit="cover" placeholder="Баннер зураг"></image-slot>
+    <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(42,84,230,.88),rgba(42,84,230,.2));"></div>
+    <div style="position:absolute;left:20px;top:50%;transform:translateY(-50%);max-width:72%;">
+      <span style="display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.42);color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:12px;margin-bottom:9px;">ГИШҮҮНЧЛЭЛ</span>
+      <h3 style="font-size:17px;font-weight:800;color:#fff;margin:0 0 10px;line-height:1.3;">Гишүүн болоод<br>бүх захиалгад 15% хямдрал</h3>
+      <a href="Nudema%20Account.dc.html" style="display:inline-block;background:#fff;color:#2a54e6;font-size:12px;font-weight:800;padding:8px 18px;border-radius:18px;">Гишүүн болох ›</a>
+    </div>
+  </section>
+
+  <!-- best products -->
+  <section style="padding:0 0 26px;">
+    <div style="padding:0 16px;margin-bottom:14px;">
+      <h2 style="font-size:18px;font-weight:800;color:#16255f;margin:0 0 4px;">Хамгийн эрэлттэй</h2>
+      <p style="font-size:12px;color:#8a90a3;margin:0;">Энэ долоо хоногт хамгийн их зарагдсан</p>
+    </div>
+    <div style="display:flex;gap:8px;overflow-x:auto;padding:0 16px 14px;" class="mScroll">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
+        <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
+      </sc-for>
+    </div>
+    <div style="display:flex;gap:12px;overflow-x:auto;padding:0 16px;" class="mScroll">
+      <sc-for list="{{ bestFiltered }}" as="p" hint-placeholder-count="4">
+        <a href="{{ p.href }}" style="flex:0 0 150px;display:block;">
+          <div style="position:relative;background:{{ p.bg }};border-radius:12px;aspect-ratio:1/1;overflow:hidden;">
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></sc-if>
+            <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><image-slot id="m-best-{{ p.id }}" shape="rect" fit="contain" placeholder="Зураг"></image-slot></sc-if>
+            <span style="position:absolute;top:8px;left:8px;background:rgba(16,37,95,.72);color:#fff;font-size:11px;font-weight:800;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:3;">{{ p.rank }}</span>
+          </div>
+          <div style="margin-top:9px;font-size:11px;color:#e0a020;font-weight:700;">★ {{ p.rating }} <span style="color:#9aa39c;font-weight:500;">({{ p.count }})</span></div>
+          <div style="margin-top:4px;font-size:13px;font-weight:600;line-height:1.35;color:#2a302b;">{{ p.title }}</div>
+          <div style="margin-top:6px;display:flex;align-items:baseline;gap:6px;">
+            <span style="font-size:15px;font-weight:800;color:#111;">{{ p.price }}</span>
+            <sc-if value="{{ p.hasOriginal }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;color:#b3bab4;text-decoration:line-through;">{{ p.original }}</span></sc-if>
+          </div>
+        </a>
+      </sc-for>
+    </div>
+    <sc-if value="{{ bestEmpty }}" hint-placeholder-val="{{ false }}">
+      <p style="text-align:center;font-size:13px;color:#9aa39c;padding:26px 16px 6px;margin:0;">Энэ ангилалд бүтээгдэхүүн алга байна.</p>
+    </sc-if>
+  </section>
+
+  <!-- reviews marquee -->
+  <section style="padding:6px 0 26px;overflow:hidden;">
+    <div style="padding:0 16px;margin-bottom:14px;">
+      <h2 style="font-size:18px;font-weight:800;color:#16255f;margin:0;">Хэрэглэгчдийн сэтгэгдэл</h2>
+      <p style="font-size:12px;color:#8a90a3;margin:4px 0 0;">{{ reviewSummary }}</p>
+    </div>
+    <div style="display:flex;width:max-content;gap:12px;padding:0 16px;animation:m-marquee 40s linear infinite;">
+      <sc-for list="{{ reviewLoop }}" as="r" hint-placeholder-count="8">
+        <div style="flex:0 0 250px;background:#fff;border:1px solid #eef0f5;border-radius:14px;padding:16px 18px;box-shadow:0 4px 14px rgba(16,37,95,.05);">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div style="width:36px;height:36px;border-radius:50%;background:{{ r.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex:0 0 auto;">{{ r.initial }}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:#16255f;">{{ r.name }}</div>
+              <div style="font-size:11px;color:#e0a020;">{{ r.stars }}</div>
+            </div>
+          </div>
+          <p style="margin:0;font-size:12.5px;line-height:1.6;color:#4a5266;">{{ r.text }}</p>
+          <sc-if value="{{ r.hasReply }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:10px;background:#f7f8fc;border-left:3px solid #2a54e6;border-radius:0 7px 7px 0;padding:8px 11px;">
+              <div style="font-size:10px;font-weight:800;color:#2a54e6;margin-bottom:2px;">NUDEMA-гийн хариу</div>
+              <div style="font-size:11.5px;line-height:1.55;color:#4a5266;">{{ r.reply }}</div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- events -->
+  <section style="padding:0 0 26px;">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;padding:0 16px;margin-bottom:14px;">
+      <h2 style="font-size:18px;font-weight:800;color:#16255f;margin:0;">Эвент</h2>
+      <a href="#" style="font-size:12px;font-weight:700;color:#2a54e6;">Бүгд ›</a>
+    </div>
+    <div style="display:flex;gap:12px;overflow-x:auto;padding:0 16px;" class="mScroll">
+      <sc-for list="{{ events }}" as="e" hint-placeholder-count="3">
+        <a href="#" style="flex:0 0 230px;display:block;">
+          <div style="position:relative;border-radius:14px;overflow:hidden;aspect-ratio:4/3;background:#eef0f7;">
+            <image-slot id="m-event-{{ e.id }}" shape="rect" fit="cover" placeholder="Эвент зураг"></image-slot>
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,37,95,0) 42%,rgba(16,37,95,.7) 100%);"></div>
+            <div style="position:absolute;left:14px;right:14px;bottom:13px;">
+              <p style="font-size:10.5px;font-weight:700;color:#c7d4ff;margin:0 0 4px;">{{ e.sub }}</p>
+              <h3 style="font-size:14px;font-weight:800;line-height:1.35;color:#fff;margin:0;">{{ e.title }}</h3>
+            </div>
+          </div>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- brand story -->
+  <section style="padding:0 16px 30px;">
+    <h2 style="font-size:18px;font-weight:800;color:#16255f;margin:0 0 14px;">Брэндийн түүх</h2>
+    <div style="position:relative;border-radius:14px;overflow:hidden;aspect-ratio:16/9;background:#c9d0cd;">
+      <sc-if value="{{ hasVideo }}" hint-placeholder-val="{{ false }}">
+        <iframe src="{{ embedUrl }}" style="position:absolute;inset:0;width:100%;height:100%;border:0;z-index:4;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </sc-if>
+      <sc-if value="{{ noVideo }}" hint-placeholder-val="{{ true }}">
+        <div style="position:absolute;inset:0;">
+          <image-slot id="m-brand-video" shape="rect" placeholder="Брэндийн видео"></image-slot>
+          <span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;z-index:3;box-shadow:0 4px 14px rgba(0,0,0,.15);">
+            <span style="border-left:15px solid #2a54e6;border-top:9px solid transparent;border-bottom:9px solid transparent;margin-left:4px;"></span>
+          </span>
+          <div style="position:absolute;left:0;right:0;bottom:10px;text-align:center;z-index:3;font-size:10.5px;color:#3a423c;">Админ → Контент хэсэгт YouTube холбоос оруулна уу</div>
+        </div>
+      </sc-if>
+    </div>
+    <a href="Nudema%20Brand%20Story.dc.html" style="display:block;text-align:center;margin-top:16px;border:1px solid #cfd6d0;border-radius:22px;padding:11px 0;font-size:13px;font-weight:700;">Брэндийн түүх үзэх ›</a>
+  </section>
+
+  <!-- instagram -->
+  <section style="background:#fafafa;padding:26px 16px 30px;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:18px;">
+      <a href="https://www.instagram.com/" target="_blank" style="font-size:17px;font-weight:800;color:#16255f;">@nudema.mongolia</a>
+      <p style="font-size:12px;color:#8a90a3;margin:2px 0 0;text-align:center;">Шинэ мэдээ, зөвлөгөө аваарай</p>
+      <a href="https://www.instagram.com/" target="_blank" style="margin-top:8px;background:linear-gradient(45deg,#f09433,#dc2743 50%,#bc1888);color:#fff;font-size:13px;font-weight:700;padding:8px 20px;border-radius:20px;">Дагах</a>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+      <sc-for list="{{ instaPosts }}" as="p" hint-placeholder-count="6">
+        <a href="https://www.instagram.com/" target="_blank" style="position:relative;display:block;aspect-ratio:1/1;border-radius:10px;overflow:hidden;background:#eef0f7;">
+          <image-slot id="m-insta-{{ p.id }}" shape="rect" fit="cover" placeholder=""></image-slot>
+          <span style="position:absolute;left:0;right:0;bottom:0;padding:5px 7px;background:linear-gradient(180deg,rgba(16,37,95,0),rgba(16,37,95,.6));color:#fff;font-size:10px;font-weight:700;z-index:3;">♥ {{ p.likes }}</span>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- footer -->
+  <footer style="background:#2a54e6;color:#d3ddfb;padding:28px 16px 34px;">
+    <div style="font-size:18px;font-weight:800;letter-spacing:.08em;color:#fff;margin-bottom:14px;">NUDEMA</div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px 18px;font-size:12px;font-weight:600;margin-bottom:16px;">
+      <a href="#" style="color:#e6ecff;">Үйлчилгээний нөхцөл</a>
+      <a href="#" style="color:#fff;">Хувийн мэдээлэл</a>
+      <a href="#" style="color:#e6ecff;">Хэрэглэгчийн төв</a>
+    </div>
+    <div style="font-size:11px;line-height:1.8;color:#b7c4ee;">
+      {{ footerCompany }}<br>{{ footerLine }}<br>NUDEMA MONGOLIA LLC. ALL RIGHTS RESERVED.
+    </div>
+  </footer>
+
+  <!-- bottom tab bar -->
+  <nav style="position:sticky;bottom:0;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:9px 0 12px;z-index:20;">
+    <a href="Nudema%20Mongolia.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#2a54e6;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2a54e6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Нүүр
+    </a>
+    <a href="Nudema%20Search.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#8a90a3;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8a90a3" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>Хайх
+    </a>
+    <a href="Nudema%20Cart.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#8a90a3;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8a90a3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>Сагс
+    </a>
+    <a href="Nudema%20Account.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#8a90a3;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8a90a3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Профайл
+    </a>
+  </nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
+class Component extends DCLogic {
+  state = { hero: 0, menu: false, tab: 'all' };
+
+  componentDidMount() {
+    this.reload();
+    this._unsub = NudemaStore.subscribe(() => this.reload());
+    this._iv = setInterval(() => {
+      const n = (this.state.heroCount || 3);
+      this.setState(s => ({ hero: (s.hero + 1) % n }));
+    }, 4000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this._iv);
+    if (this._unsub) this._unsub();
+  }
+
+  // Админ (Nudema Admin.dc.html) дээрх өөрчлөлтийг уншина.
+  reload() {
+    this.setState({
+      cms: NudemaStore.read('content'),
+      products: NudemaStore.read('products'),
+      reviews: NudemaStore.read('reviews'),
+      settings: NudemaStore.read('settings'),
+      taxonomy: NudemaStore.read('taxonomy'),
+    });
+  }
+
+  toEmbed(url) {
+    if (!url) return '';
+    const m1 = url.match(/[?&]v=([\w-]{11})/);
+    const m2 = url.match(/youtu\.be\/([\w-]{11})/);
+    const m3 = url.match(/embed\/([\w-]{11})/);
+    const id = (m1 && m1[1]) || (m2 && m2[1]) || (m3 && m3[1]) || (/^[\w-]{11}$/.test(url) ? url : '');
+    return id ? `https://www.youtube-nocookie.com/embed/${id}?rel=0&playsinline=1` : '';
+  }
+
+  renderVals() {
+    const cms = this.state.cms || NudemaStore.read('content');
+    const allProducts = this.state.products || NudemaStore.read('products');
+    const allReviews = this.state.reviews || NudemaStore.read('reviews');
+    const settings = this.state.settings || NudemaStore.read('settings');
+    const money = NudemaStore.money;
+
+    /* ---- Хиро ---- */
+    // Слайдын тоо админаас хамаарна (нэмэх/устгах боломжтой).
+    const heroDefaults = NudemaStore.DEFAULTS.content.slides;
+    const cmsSlides = Array.isArray(cms.slides) && cms.slides.length ? cms.slides : heroDefaults;
+    const heroSlides = cmsSlides.map((c, i) => {
+      const d = heroDefaults[i] || { line1: '', sub: '' };
+      const img = (c.img || '').trim();
+      return {
+        id: c.id || (i + 1),
+        line1: (c.line1 || '').trim() || d.line1,
+        sub: (c.sub || '').trim() || d.sub,
+        img,
+        hasImg: !!img,
+        noImg: !img,
+      };
+    });
+    const hi = heroSlides.length ? this.state.hero % heroSlides.length : 0;
+    const heroTrackStyle = `display:flex;height:100%;transition:transform .5s cubic-bezier(.4,0,.2,1);transform:translateX(-${hi * 100}%);`;
+    const heroDots = heroSlides.map((s, i) => ({
+      onClick: () => this.setState({ hero: i }),
+      style: `width:${i === hi ? 18 : 7}px;height:7px;border-radius:4px;background:${i === hi ? '#fff' : 'rgba(255,255,255,.55)'};transition:all .3s;cursor:pointer;`,
+    }));
+
+    const quickLinks = [
+      { icon: '♡', label: 'Гишүүнчлэл' },
+      { icon: '◈', label: 'Албан ёсны' },
+      { icon: '✦', label: 'Шинэ бараа' },
+      { icon: '❏', label: 'Онцлох' },
+      { icon: '％', label: 'Купон' },
+      { icon: '▤', label: 'Эвент' },
+      { icon: '⌘', label: 'Бэлэг' },
+    ];
+
+    /* ---- Бүтээгдэхүүн (PC хувилбартай ижил дүрэм) ---- */
+    const toCard = (p, extra) => ({
+      id: p.id, badge: p.badge || '', rating: p.rating, count: p.count, title: p.title,
+      price: money(p.price) + '₮',
+      original: p.original ? money(p.original) + '₮' : '',
+      hasOriginal: !!p.original,
+      benefit: p.original && p.original > p.price ? money(p.original - p.price) + '₮' : '',
+      hasBenefit: !!(p.original && p.original > p.price),
+      img: p.img || '',
+      hasImg: !!p.img,
+      noImg: !p.img,
+      href: 'Nudema%20Product.dc.html?id=' + p.id,
+      ...(extra || {}),
+    });
+
+    const officialProducts = allProducts.filter(p => p.showOnHome).slice(0, 4).map(p => toCard(p));
+
+    // Таб сонгосны ДАРАА эхний 4-ийг авна (эсрэгээр хийвэл ихэнх таб хоосон гарна).
+    const bestPool = allProducts.slice().sort((a, b) => (b.sold || 0) - (a.sold || 0));
+    // Табууд админы ангиллаас үүснэ
+    const taxonomy = this.state.taxonomy || NudemaStore.read('taxonomy');
+    const tabDefs = [{ key: 'all', label: 'Бүгд' }, ...taxonomy.categories.map(c => ({ key: c, label: c }))];
+    const tabs = tabDefs.map(t => ({
+      label: t.label,
+      onClick: () => this.setState({ tab: t.key }),
+      style: `flex:0 0 auto;border:1px solid ${this.state.tab === t.key ? '#2a54e6' : '#d7ddd7'};background:${this.state.tab === t.key ? '#2a54e6' : '#fff'};color:${this.state.tab === t.key ? '#fff' : '#5c6660'};font-family:inherit;font-size:12.5px;font-weight:700;padding:8px 16px;border-radius:18px;white-space:nowrap;cursor:pointer;`,
+    }));
+    const bestFiltered = (this.state.tab === 'all' ? bestPool : bestPool.filter(p => p.category === this.state.tab))
+      .slice(0, 4)
+      .map((p, i) => toCard(p, { rank: String(i + 1).padStart(2, '0'), cat: p.category, bg: p.bg || '#f4f5f3' }));
+
+    /* ---- Гүйдэг мөр (PC хувилбартай ижил дүрэм) ---- */
+    const marqueeMsgs = (Array.isArray(cms.marquee) ? cms.marquee : [])
+      .map(t => String(t || '').trim()).filter(Boolean);
+    const marqueeBase = (marqueeMsgs.length ? marqueeMsgs : NudemaStore.DEFAULTS.content.marquee);
+    const marqueeRepeated = [].concat(marqueeBase, marqueeBase, marqueeBase);
+    const marqueeLoop = [].concat(marqueeRepeated, marqueeRepeated)
+      .map((text, i) => ({ id: i, text }));
+
+    /* ---- Сэтгэгдэл (админд нуусныг хасна) ---- */
+    const reviewsRaw = allReviews.filter(r => !r.hidden);
+    const avgRating = reviewsRaw.length
+      ? (reviewsRaw.reduce((a, r) => a + Number(r.rating || 5), 0) / reviewsRaw.length).toFixed(1)
+      : '5.0';
+    const reviewLoop = [...reviewsRaw, ...reviewsRaw].map((r, i) => ({
+      ...r, id: i, initial: r.name.charAt(0),
+      stars: '★★★★★'.slice(0, Math.max(1, Math.round(Number(r.rating || 5)))),
+      hasReply: !!r.reply,
+    }));
+
+    const events = [
+      { id: 1, sub: '2 сард Nudema бэлэглэнэ', title: 'Latte Maker × Nudema' },
+      { id: 2, sub: 'Гишүүдэд 46% хямдралтай', title: 'Арьс арчилгааны багц!' },
+      { id: 3, sub: 'Чийгшлийн хэмжээ MAX', title: 'ШИНЭ! Чийгшүүлэгч серум' },
+    ];
+
+    const instaPosts = [
+      { id: 1, likes: '1,204' }, { id: 2, likes: '892' }, { id: 3, likes: '2,015' },
+      { id: 4, likes: '743' }, { id: 5, likes: '1,538' }, { id: 6, likes: '967' },
+    ];
+
+    const menuLinks = [
+      { label: 'BEST', href: 'Nudema%20Mongolia.dc.html' },
+      { label: 'Анхны худалдан авалт', href: 'Nudema%20Mongolia.dc.html' },
+      { label: 'Төрлөөр', href: 'Nudema%20Search.dc.html' },
+      { label: 'Арьсны асуудлаар', href: 'Nudema%20Search.dc.html' },
+      { label: 'Брэндийн түүх', href: 'Nudema%20Brand%20Story.dc.html' },
+      { label: 'Хайх', href: 'Nudema%20Search.dc.html' },
+      { label: 'Миний хуудас', href: 'Nudema%20Account.dc.html' },
+    ];
+
+    const embedUrl = this.toEmbed(cms.brandVideo || '');
+
+    return {
+      heroSlides, heroTrackStyle, heroDots, heroCount: heroSlides.length,
+      quickLinks, officialProducts, tabs, bestFiltered, bestEmpty: bestFiltered.length === 0,
+      reviewLoop, events, instaPosts, menuLinks, marqueeLoop,
+      hasVideo: !!embedUrl, noVideo: !embedUrl, embedUrl,
+      reviewSummary: `${money(reviewsRaw.length * 4500)}+ үнэлгээ · ★ ${avgRating}`,
+      shopName: settings.shopName,
+      footerCompany: `${settings.shopName} ХХК · Улаанбаатар хот`,
+      footerLine: `И-мэйл: ${settings.email} · Утас: ${settings.phone}`,
+      toggleMenu: () => this.setState(s => ({ menu: !s.menu })),
+      closeMenu: () => this.setState({ menu: false }),
+      scrimStyle: `position:absolute;inset:0;background:rgba(16,37,95,.42);z-index:40;transition:opacity .3s;opacity:${this.state.menu ? 1 : 0};pointer-events:${this.state.menu ? 'auto' : 'none'};`,
+      drawerStyle: `position:absolute;top:0;left:0;height:100%;width:290px;background:#fff;box-shadow:2px 0 30px rgba(16,37,95,.18);z-index:41;transition:transform .32s cubic-bezier(.4,0,.2,1);transform:translateX(${this.state.menu ? '0' : '-100%'});`,
+    };
+  }
+}
+</script>
+</body>
+</html>
