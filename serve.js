@@ -28,8 +28,14 @@ const server = http.createServer((req, res) => {
     res.writeHead(400); return res.end('Bad request');
   }
 
-  // Индекс — хуудсуудын жагсаалт
+  // index.html байвал түүнийг л үйлчилнэ (production-той ижил байхын тулд)
   if (rel === '/' || rel === '/index.html') {
+    const indexPath = path.join(ROOT, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      res.writeHead(200, { 'Content-Type': TYPES['.html'], 'Cache-Control': 'no-store' });
+      return res.end(fs.readFileSync(indexPath));
+    }
+    // Байхгүй бол хуудсуудын жагсаалтыг үүсгэнэ
     const pages = fs.readdirSync(ROOT).filter(f => f.endsWith('.dc.html')).sort();
     const links = pages.map(p =>
       `<li><a href="/${encodeURIComponent(p)}">${p.replace('.dc.html', '')}</a></li>`).join('');
