@@ -185,7 +185,7 @@ check('нуусан сэтгэгдэл алга', !m.reviewLoop.some((r) => r.na
 check('сэтгэгдлийн хариу гарсан', m.reviewLoop.some((r) => r.hasReply));
 check('футерт шинэ утас', m.footerLine.includes('9999-1234'), m.footerLine);
 check('дээд мөрөнд дэлгүүрийн нэр', m.shopName === 'Nudema MN', m.shopName);
-check('quickLinks 7', m.quickLinks.length === 7, m.quickLinks.length);
+check('quickLinks устгагдсан', m.quickLinks === undefined);
 check('эвент 3', m.events.length === 3);
 check('instagram 6', m.instaPosts.length === 6);
 

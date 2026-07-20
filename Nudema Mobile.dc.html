@@ -87,16 +87,6 @@
     </div>
   </section>
 
-  <!-- quick links -->
-  <section style="display:flex;gap:14px;overflow-x:auto;padding:18px 16px 4px;" class="mScroll">
-    <sc-for list="{{ quickLinks }}" as="q" hint-placeholder-count="7">
-      <a href="#" style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:7px;width:62px;">
-        <span style="width:50px;height:50px;border-radius:50%;background:#eef2ff;color:#2a54e6;display:flex;align-items:center;justify-content:center;font-size:19px;">{{ q.icon }}</span>
-        <span style="font-size:10.5px;font-weight:600;line-height:1.3;text-align:center;color:#4a5266;">{{ q.label }}</span>
-      </a>
-    </sc-for>
-  </section>
-
   <!-- official products -->
   <section style="padding:22px 16px 24px;">
     <h2 style="font-size:18px;font-weight:800;color:#16255f;margin:0 0 4px;">Албан ёсны дэлгүүр</h2>
@@ -355,16 +345,6 @@ class Component extends DCLogic {
       style: `width:${i === hi ? 18 : 7}px;height:7px;border-radius:4px;background:${i === hi ? '#fff' : 'rgba(255,255,255,.55)'};transition:all .3s;cursor:pointer;`,
     }));
 
-    const quickLinks = [
-      { icon: '♡', label: 'Гишүүнчлэл' },
-      { icon: '◈', label: 'Албан ёсны' },
-      { icon: '✦', label: 'Шинэ бараа' },
-      { icon: '❏', label: 'Онцлох' },
-      { icon: '％', label: 'Купон' },
-      { icon: '▤', label: 'Эвент' },
-      { icon: '⌘', label: 'Бэлэг' },
-    ];
-
     /* ---- Бүтээгдэхүүн (PC хувилбартай ижил дүрэм) ---- */
     const toCard = (p, extra) => ({
       id: p.id, badge: p.badge || '', rating: p.rating, count: p.count, title: p.title,
@@ -440,7 +420,7 @@ class Component extends DCLogic {
 
     return {
       heroSlides, heroTrackStyle, heroDots, heroCount: heroSlides.length,
-      quickLinks, officialProducts, tabs, bestFiltered, bestEmpty: bestFiltered.length === 0,
+      officialProducts, tabs, bestFiltered, bestEmpty: bestFiltered.length === 0,
       reviewLoop, events, instaPosts, menuLinks, marqueeLoop,
       hasVideo: !!embedUrl, noVideo: !embedUrl, embedUrl,
       reviewSummary: `${money(reviewsRaw.length * 4500)}+ үнэлгээ · ★ ${avgRating}`,
