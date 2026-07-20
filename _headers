@@ -1,0 +1,19 @@
+# Cloudflare Pages — HTML-ийг кэшлүүлэхгүй.
+# Шинэчлэлт хийхэд хуучин хуудас утсан дээр үлдэхээс сэргийлнэ
+# (ялангуяа апп доторх хөтчүүд түрэмгий кэшилдэг).
+
+/
+  Cache-Control: no-cache, must-revalidate
+
+/index.html
+  Cache-Control: no-cache, must-revalidate
+
+/*.html
+  Cache-Control: no-cache, must-revalidate
+
+# Runtime ба төлөв өөрчлөгддөг JS
+/nudema-store.js
+  Cache-Control: no-cache, must-revalidate
+
+/nudema-menu.js
+  Cache-Control: no-cache, must-revalidate

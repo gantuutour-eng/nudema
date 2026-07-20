@@ -5,24 +5,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nudema Mongolia</title>
 <!-- Үндсэн хаяг: төхөөрөмжөөс хамаарч PC эсвэл мобайл хувилбар руу шилжинэ.
-     Бүх хуудсын жагсаалт: /menu.html -->
+     Бүх хуудсын жагсаалт: /menu.html · Оношилгоо: /whoami.html -->
 <link rel="canonical" href="./Nudema%20Mongolia.dc.html">
 <script>
   (function () {
     var PC = './Nudema%20Mongolia.dc.html';
     var MOBILE = './Nudema%20Mobile.dc.html';
 
-    // ?v=pc / ?v=mobile гэж хүчээр сонгож болно (тест хийхэд хэрэгтэй)
+    // ?v=pc / ?v=mobile гэж хүчээр сонгож болно
     var forced = (location.search.match(/[?&]v=(pc|mobile)/) || [])[1];
     if (forced) { location.replace(forced === 'mobile' ? MOBILE : PC); return; }
 
     var ua = navigator.userAgent || '';
-    // iPad-ын шинэ хувилбарууд desktop UA илгээдэг тул мэдрэгчээр нь давхар шалгана
-    var iPadOS = /Macintosh/.test(ua) && navigator.maxTouchPoints > 1;
-    var phoneUA = /Android|iPhone|iPod|Windows Phone|IEMobile|BlackBerry|Opera Mini/i.test(ua);
-    var narrow = Math.min(window.innerWidth || 0, window.screen ? window.screen.width : 0) < 820;
+    var uaData = navigator.userAgentData;
 
-    location.replace((phoneUA || iPadOS || narrow) ? MOBILE : PC);
+    // 1) Chromium-д хамгийн найдвартай дохио (Android, апп доторх хөтөч ч мөн)
+    if (uaData && uaData.mobile === true) { location.replace(MOBILE); return; }
+
+    // 2) UA — "Mobi" нь ихэнх мобайл ба апп доторх хөтчид байдаг
+    if (/Android|iPhone|iPod|IEMobile|BlackBerry|Opera Mini|Mobi/i.test(ua)) {
+      location.replace(MOBILE); return;
+    }
+
+    // 3) Шинэ iPad-ууд desktop UA илгээдэг тул мэдрэгчээр нь
+    if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) { location.replace(MOBILE); return; }
+
+    // 4) Өргөнөөр. screen.width нь Android дээр физик пиксел заадаг тул
+    //    зөвхөн layout-ийн өргөнийг ашиглана.
+    var w = Math.min(
+      document.documentElement.clientWidth || 99999,
+      window.innerWidth || 99999
+    );
+    if (w < 820) { location.replace(MOBILE); return; }
+
+    // 5) Хуруугаар удирддаг жижиг дэлгэц
+    if (window.matchMedia && matchMedia('(pointer: coarse)').matches && w < 1024) {
+      location.replace(MOBILE); return;
+    }
+
+    location.replace(PC);
   })();
 </script>
 <noscript><meta http-equiv="refresh" content="0; url=./Nudema%20Mongolia.dc.html"></noscript>
@@ -37,8 +58,8 @@
 </head>
 <body>
   <p>Дэлгүүр рүү шилжиж байна…<br>
-    <a href="./Nudema%20Mongolia.dc.html">PC хувилбар</a> ·
-    <a href="./Nudema%20Mobile.dc.html">Мобайл хувилбар</a>
+    <a href="./Nudema%20Mobile.dc.html">Мобайл хувилбар</a> ·
+    <a href="./Nudema%20Mongolia.dc.html">PC хувилбар</a>
   </p>
 </body>
 </html>

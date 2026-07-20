@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Төхөөрөмж таних — оношилгоо</title>
+<style>
+  body { margin:0; padding:20px; background:#0f1f4b; color:#dfe6fb;
+         font:14px/1.6 -apple-system,'Segoe UI',sans-serif; -webkit-text-size-adjust:100%; }
+  h1 { font-size:17px; margin:0 0 4px; color:#fff; }
+  p.sub { margin:0 0 18px; font-size:12.5px; color:#8fa0d0; }
+  .verdict { padding:14px 16px; border-radius:12px; font-weight:700; font-size:16px; margin-bottom:18px; }
+  .m { background:#12934f; color:#fff; }
+  .p { background:#e0730a; color:#fff; }
+  table { width:100%; border-collapse:collapse; }
+  td { padding:9px 8px; border-bottom:1px solid rgba(255,255,255,.1); vertical-align:top; font-size:12.5px; }
+  td.k { color:#8fa0d0; width:44%; }
+  td.v { color:#fff; font-weight:600; word-break:break-all; }
+  .yes { color:#4ade80; } .no { color:#f87171; }
+  button { width:100%; margin-top:16px; padding:13px; border:none; border-radius:10px;
+           background:#2a54e6; color:#fff; font-size:14px; font-weight:700; }
+  a { color:#9db4ff; }
+</style>
+</head>
+<body>
+  <h1>Төхөөрөмж таних оношилгоо</h1>
+  <p class="sub">Энэ хуудсыг утсан дээрээ нээгээд доорх утгуудыг илгээнэ үү.</p>
+  <div id="verdict" class="verdict"></div>
+  <table id="t"></table>
+  <button onclick="copyAll()">Хуулах</button>
+  <p class="sub" style="margin-top:14px;">
+    <a href="./?v=mobile">Мобайл хувилбар албадах</a> ·
+    <a href="./?v=pc">PC хувилбар албадах</a>
+  </p>
+
+<script>
+  var ua = navigator.userAgent || '';
+  var uaData = navigator.userAgentData || null;
+
+  var rows = {
+    'userAgent': ua,
+    'userAgentData.mobile': uaData ? String(uaData.mobile) : '(дэмжихгүй)',
+    'platform': navigator.platform || '(байхгүй)',
+    'maxTouchPoints': String(navigator.maxTouchPoints),
+    'window.innerWidth': String(window.innerWidth),
+    'documentElement.clientWidth': String(document.documentElement.clientWidth),
+    'screen.width': String(window.screen ? window.screen.width : '?'),
+    'devicePixelRatio': String(window.devicePixelRatio),
+    'pointer: coarse': String(window.matchMedia && matchMedia('(pointer: coarse)').matches),
+    'max-width: 820px': String(window.matchMedia && matchMedia('(max-width: 820px)').matches)
+  };
+
+  // index.html-тэй ЯГ ижил дүрэм
+  function isMobile() {
+    if (uaData && typeof uaData.mobile === 'boolean' && uaData.mobile) return 'userAgentData.mobile';
+    if (/Android|iPhone|iPod|IEMobile|BlackBerry|Opera Mini|Mobi/i.test(ua)) return 'userAgent';
+    if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) return 'iPadOS';
+    var w = Math.min(
+      document.documentElement.clientWidth || 99999,
+      window.innerWidth || 99999
+    );
+    if (w && w < 820) return 'өргөн ' + w + 'px';
+    if (window.matchMedia && matchMedia('(pointer: coarse)').matches && w < 1024) return 'coarse pointer';
+    return null;
+  }
+
+  var reason = isMobile();
+  var v = document.getElementById('verdict');
+  v.className = 'verdict ' + (reason ? 'm' : 'p');
+  v.textContent = reason ? ('МОБАЙЛ → ' + reason) : 'PC (мобайл гэж танихгүй байна)';
+  rows['ШИЙДВЭР'] = reason ? 'МОБАЙЛ (' + reason + ')' : 'PC';
+
+  var html = '';
+  for (var k in rows) {
+    html += '<tr><td class="k">' + k + '</td><td class="v">' + rows[k] + '</td></tr>';
+  }
+  document.getElementById('t').innerHTML = html;
+
+  function copyAll() {
+    var txt = '';
+    for (var k in rows) txt += k + ': ' + rows[k] + '\n';
+    var ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); alert('Хуулагдлаа. Чатад буулгана уу.'); }
+    catch (e) { alert(txt); }
+    ta.remove();
+  }
+</script>
+</body>
+</html>
