@@ -1,0 +1,51 @@
+/* Хуваалцсан хуудсуудыг (бүтээгдэхүүн, төлбөр) утсанд тохируулна.
+ *
+ * Эдгээр хуудсанд PC/мобайл гэсэн тусдаа хувилбар байхгүй тул нэг хуудсаа
+ * хоёуланд нь ажиллуулна. Загварууд нь inline style тул media query-д
+ * !important шаардлагатай.
+ */
+
+@media (max-width: 820px) {
+
+  /* ---- Ерөнхий ---- */
+  .rs-pad { padding-left: 16px !important; padding-right: 16px !important; }
+
+  /* ---- Бүтээгдэхүүний хуудас ---- */
+  /* Галерей ба мэдээллийг дээр доор нь */
+  .pd-top {
+    grid-template-columns: 1fr !important;
+    gap: 26px !important;
+    padding: 18px 16px 40px !important;
+  }
+  .pd-title { font-size: 22px !important; }
+  .pd-price { font-size: 27px !important; }
+  /* Худалдан авах товчнууд багтахгүй тул мөр таслана */
+  .pd-actions { flex-wrap: wrap !important; gap: 10px !important; }
+  .pd-actions > a, .pd-actions > span { flex: 1 1 100% !important; }
+  .pd-related { grid-template-columns: repeat(2, 1fr) !important; gap: 16px !important; }
+  .pd-tabpanel { padding: 32px 16px 24px !important; }
+  .pd-tab { padding: 15px 14px !important; font-size: 13.5px !important; }
+  /* Хоёр баганат блокуудыг нэг багана болгоно */
+  .pd-split { grid-template-columns: 1fr !important; gap: 14px !important; }
+
+  /* ---- Төлбөрийн хуудас ---- */
+  .co-grid {
+    grid-template-columns: 1fr !important;
+    gap: 18px !important;
+    padding: 22px 16px 60px !important;
+  }
+  /* Хураангуй нь наалдац хийхгүй, доод талд нь орно */
+  .co-summary { position: static !important; }
+  .co-two { grid-template-columns: 1fr !important; }
+  .co-card { padding: 20px 18px !important; }
+
+  /* ---- Толгой ба хөл ---- */
+  .rs-header { padding: 14px 16px !important; }
+  .rs-footer { padding: 34px 16px 30px !important; }
+  .rs-footer-row { flex-direction: column !important; gap: 20px !important; }
+}
+
+/* Маш нарийн дэлгэц */
+@media (max-width: 380px) {
+  .pd-related { grid-template-columns: 1fr !important; }
+}

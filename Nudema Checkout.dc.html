@@ -19,6 +19,7 @@
   a:hover { color: #1e46c8; }
   input::placeholder { color: #b3bab4; }
 </style>
+<link rel="stylesheet" href="./responsive.css">
 <script src="./image-slot.js"></script>
 <script src="./mn-regions.js"></script>
 <script src="./nudema-store.js"></script>
@@ -26,7 +27,7 @@
 <div style="width:100%;background:#fff;">
 
   <header style="border-bottom:1px solid #eee;background:#fff;">
-   <div style="max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:20px 34px;position:relative;">
+   <div class="rs-header" style="max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:20px 34px;position:relative;">
     <div style="display:flex;align-items:center;gap:22px;">
       <x-import component-from-global-scope="nudema-menu" from="./nudema-menu.js" hint-size="24px,24px"></x-import>
       <a href="Nudema%20Mongolia.dc.html" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:26px;font-weight:800;letter-spacing:0.08em;color:#2a54e6;">NUDEMA</a>
@@ -39,7 +40,7 @@
 
   <!-- checkout body -->
   <sc-if value="{{ notDone }}" hint-placeholder-val="{{ true }}">
-    <section style="max-width:1080px;margin:0 auto;padding:40px 40px 80px;display:grid;grid-template-columns:1fr 360px;gap:32px;align-items:start;">
+    <section class="co-grid" style="max-width:1080px;margin:0 auto;padding:40px 40px 80px;display:grid;grid-template-columns:1fr 360px;gap:32px;align-items:start;">
       <div>
         <!-- delivery -->
         <div style="border:1px solid #eee;border-radius:16px;padding:26px 28px;margin-bottom:22px;">
@@ -62,7 +63,7 @@
           <sc-if value="{{ notGift }}" hint-placeholder-val="{{ true }}">
             <div>
               <h2 style="font-size:17px;font-weight:800;margin:0 0 16px;color:#2a54e6;">Захиалагчийн мэдээлэл</h2>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:26px;">
+              <div class="co-two" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:26px;">
                 <div>
                   <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Овог нэр <span style="color:#e0392f;">*</span></label>
                   <input placeholder="Овог нэрээ бичнэ үү" style="width:100%;height:48px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
@@ -94,7 +95,7 @@
                 </select>
               </div>
 
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+              <div class="co-two" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
                 <div>
                   <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Сум / Дүүрэг <span style="color:#e0392f;">*</span></label>
                   <select style="width:100%;height:48px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;background:#fff;color:#2a302b;">
@@ -149,7 +150,7 @@
         <!-- payment method -->
         <div style="border:1px solid #eee;border-radius:16px;padding:26px 28px;">
           <h2 style="font-size:18px;font-weight:800;margin:0 0 20px;color:#16255f;">Төлбөрийн хэрэгсэл</h2>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="co-two" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
             <sc-for list="{{ methods }}" as="m" hint-placeholder-count="2">
               <button onClick="{{ m.onClick }}" style="{{ m.style }}">{{ m.label }}</button>
             </sc-for>
@@ -187,7 +188,7 @@
       </div>
 
       <!-- summary -->
-      <aside style="background:#f7f8f6;border-radius:16px;padding:26px 24px;position:sticky;top:20px;">
+      <aside class="co-summary" style="background:#f7f8f6;border-radius:16px;padding:26px 24px;position:sticky;top:20px;">
         <h3 style="font-size:16px;font-weight:800;margin:0 0 20px;color:#16255f;">Төлбөрийн дүн</h3>
         <div style="display:flex;flex-direction:column;gap:14px;font-size:14px;">
           <div style="display:flex;justify-content:space-between;"><span style="color:#8a938c;">Барааны үнэ</span><span style="font-weight:600;">{{ subtotal }}</span></div>
@@ -288,7 +289,7 @@
   </sc-if>
 
   <footer style="background:#2a54e6;color:#d3ddfb;">
-   <div style="max-width:1280px;margin:0 auto;padding:50px 40px 46px;">
+   <div class="rs-footer" style="max-width:1280px;margin:0 auto;padding:50px 40px 46px;">
     <div style="font-size:22px;font-weight:800;letter-spacing:0.08em;color:#fff;margin-bottom:24px;">NUDEMA</div>
     <div style="display:flex;gap:26px;font-size:13px;font-weight:600;margin-bottom:26px;flex-wrap:wrap;">
       <a href="#" style="color:#e6ecff;">Үйлчилгээний нөхцөл</a>
@@ -296,7 +297,7 @@
       <a href="#" style="color:#fff;">Хувийн мэдээлэл боловсруулах бодлого</a>
       <a href="#" style="color:#e6ecff;">Хэрэглэгчийн төв</a>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:40px;flex-wrap:wrap;">
+    <div class="rs-footer-row" style="display:flex;justify-content:space-between;align-items:flex-start;gap:40px;flex-wrap:wrap;">
       <div style="font-size:12px;line-height:1.9;color:#b7c4ee;max-width:560px;">
         {{ footerCompany }}<br>
         Захирал: Б.Оюунбилэг · Улсын бүртгэлийн дугаар: 106-86-43373<br>

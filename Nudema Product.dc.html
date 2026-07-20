@@ -18,6 +18,7 @@
   a { color: inherit; text-decoration: none; }
   a:hover { color: #1e46c8; }
 </style>
+<link rel="stylesheet" href="./responsive.css">
 <script src="./image-slot.js"></script>
 <script src="./nudema-store.js"></script>
 </helmet>
@@ -26,7 +27,7 @@
 
   <!-- header -->
   <header style="border-bottom:1px solid #eee;background:#fff;">
-   <div style="max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:20px 34px;position:relative;">
+   <div class="rs-header" style="max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:20px 34px;position:relative;">
     <div style="display:flex;align-items:center;gap:22px;">
       <x-import component-from-global-scope="nudema-menu" from="./nudema-menu.js" hint-size="24px,24px"></x-import>
       <a href="Nudema%20Mongolia.dc.html" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:26px;font-weight:800;letter-spacing:0.08em;color:#2a54e6;">NUDEMA</a>
@@ -58,7 +59,7 @@
   </div>
 
   <!-- product top -->
-  <section style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:52px;padding:28px 40px 64px;">
+  <section class="pd-top" style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:52px;padding:28px 40px 64px;">
     <!-- gallery -->
     <div>
       <div style="position:relative;background:#f4f5f3;border-radius:16px;aspect-ratio:1/1;overflow:hidden;">
@@ -86,7 +87,7 @@
     <!-- info -->
     <div>
       <div style="font-size:13px;font-weight:700;color:#2a54e6;letter-spacing:0.04em;">NUDEMA</div>
-      <h1 style="font-size:28px;font-weight:800;line-height:1.32;margin:10px 0 14px;color:#16255f;">{{ title }}</h1>
+      <h1 class="pd-title" style="font-size:28px;font-weight:800;line-height:1.32;margin:10px 0 14px;color:#16255f;">{{ title }}</h1>
       <div style="display:flex;align-items:center;gap:10px;font-size:13px;margin-bottom:22px;">
         <span style="color:#e0a020;font-weight:700;">★★★★★ {{ rating }}</span>
         <span style="color:#9aa39c;">Сэтгэгдэл {{ count }}</span>
@@ -98,7 +99,7 @@
           <span style="font-size:15px;color:#e0392f;font-weight:800;">{{ discountPct }}</span>
         </div>
       </sc-if>
-      <div style="font-size:32px;font-weight:800;color:#111;margin-bottom:22px;">{{ price }}</div>
+      <div class="pd-price" style="font-size:32px;font-weight:800;color:#111;margin-bottom:22px;">{{ price }}</div>
 
       <div style="border-top:1px solid #eee;border-bottom:1px solid #eee;padding:18px 0;display:flex;flex-direction:column;gap:12px;font-size:14px;">
         <sc-if value="{{ hasDiscount }}" hint-placeholder-val="{{ true }}">
@@ -148,7 +149,7 @@
       </div>
 
       <!-- buttons -->
-      <div style="margin-top:44px;display:flex;gap:12px;">
+      <div class="pd-actions" style="margin-top:44px;display:flex;gap:12px;">
         <div style="position:relative;flex:0 0 58px;">
           <div style="position:absolute;bottom:64px;left:50%;transform:translateX(-50%);white-space:nowrap;background:#fee500;color:#3a1d1d;font-size:12px;font-weight:700;padding:7px 12px;border-radius:16px;box-shadow:0 4px 12px rgba(16,37,95,.14);">Бэлэглэх</div>
           <button onClick="{{ openGift }}" title="Бэлэглэх" style="width:58px;height:56px;border:1px solid #cfd6d0;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;">
@@ -176,7 +177,7 @@
       </sc-for>
     </div>
 
-    <div style="max-width:820px;margin:0 auto;padding:56px 40px 30px;text-align:center;">
+    <div class="pd-tabpanel" style="max-width:820px;margin:0 auto;padding:56px 40px 30px;text-align:center;">
       <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ true }}">
         <div>
           <h2 style="font-size:24px;font-weight:800;color:#16255f;margin:0 0 16px;">{{ title }}</h2>
@@ -200,19 +201,19 @@
                     </div>
                   </sc-if>
                   <sc-if value="{{ d.isImageText }}" hint-placeholder-val="{{ false }}">
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;">
+                    <div class="pd-split" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;">
                       <img src="{{ d.img }}" style="display:block;width:100%;border-radius:14px;">
                       <p style="font-size:15px;line-height:1.85;color:#5c6660;margin:0;text-align:left;">{{ d.text }}</p>
                     </div>
                   </sc-if>
                   <sc-if value="{{ d.isTextImage }}" hint-placeholder-val="{{ false }}">
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;">
+                    <div class="pd-split" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;">
                       <p style="font-size:15px;line-height:1.85;color:#5c6660;margin:0;text-align:left;">{{ d.text }}</p>
                       <img src="{{ d.img }}" style="display:block;width:100%;border-radius:14px;">
                     </div>
                   </sc-if>
                   <sc-if value="{{ d.isTwoImages }}" hint-placeholder-val="{{ false }}">
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                    <div class="pd-split" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
                       <img src="{{ d.img }}" style="display:block;width:100%;border-radius:14px;">
                       <img src="{{ d.img2 }}" style="display:block;width:100%;border-radius:14px;">
                     </div>
@@ -269,7 +270,7 @@
   <!-- related -->
   <section style="max-width:1280px;margin:0 auto;padding:40px 40px 70px;">
     <h2 style="font-size:20px;font-weight:800;margin:0 0 26px;color:#16255f;">Хамт худалдан авдаг бүтээгдэхүүн</h2>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">
+    <div class="pd-related" style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">
       <sc-for list="{{ related }}" as="p" hint-placeholder-count="4">
         <div style="display:block;">
           <a href="{{ p.href }}" style="position:relative;display:block;background:#f4f5f3;border-radius:14px;aspect-ratio:1/1;overflow:hidden;">
@@ -287,7 +288,7 @@
 
   <!-- footer -->
   <footer style="background:#2a54e6;color:#d3ddfb;">
-   <div style="max-width:1280px;margin:0 auto;padding:50px 40px 46px;">
+   <div class="rs-footer" style="max-width:1280px;margin:0 auto;padding:50px 40px 46px;">
     <div style="font-size:22px;font-weight:800;letter-spacing:0.08em;color:#fff;margin-bottom:24px;">NUDEMA</div>
     <div style="display:flex;gap:26px;font-size:13px;font-weight:600;margin-bottom:26px;flex-wrap:wrap;">
       <a href="#" style="color:#e6ecff;">Үйлчилгээний нөхцөл</a>
@@ -295,7 +296,7 @@
       <a href="#" style="color:#fff;">Хувийн мэдээлэл боловсруулах бодлого</a>
       <a href="#" style="color:#e6ecff;">Хэрэглэгчийн төв</a>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:40px;flex-wrap:wrap;">
+    <div class="rs-footer-row" style="display:flex;justify-content:space-between;align-items:flex-start;gap:40px;flex-wrap:wrap;">
       <div style="font-size:12px;line-height:1.9;color:#b7c4ee;max-width:560px;">
         {{ footerCompany }}<br>
         Захирал: Б.Оюунбилэг · Улсын бүртгэлийн дугаар: 106-86-43373<br>
