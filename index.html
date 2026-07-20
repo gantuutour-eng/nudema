@@ -4,23 +4,41 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nudema Mongolia</title>
-<!-- Үндсэн хаяг нь дэлгүүрийн нүүр хуудас руу шилжинэ.
+<!-- Үндсэн хаяг: төхөөрөмжөөс хамаарч PC эсвэл мобайл хувилбар руу шилжинэ.
      Бүх хуудсын жагсаалт: /menu.html -->
-<meta http-equiv="refresh" content="0; url=./Nudema%20Mongolia.dc.html">
 <link rel="canonical" href="./Nudema%20Mongolia.dc.html">
-<script>location.replace('./Nudema%20Mongolia.dc.html');</script>
+<script>
+  (function () {
+    var PC = './Nudema%20Mongolia.dc.html';
+    var MOBILE = './Nudema%20Mobile.dc.html';
+
+    // ?v=pc / ?v=mobile гэж хүчээр сонгож болно (тест хийхэд хэрэгтэй)
+    var forced = (location.search.match(/[?&]v=(pc|mobile)/) || [])[1];
+    if (forced) { location.replace(forced === 'mobile' ? MOBILE : PC); return; }
+
+    var ua = navigator.userAgent || '';
+    // iPad-ын шинэ хувилбарууд desktop UA илгээдэг тул мэдрэгчээр нь давхар шалгана
+    var iPadOS = /Macintosh/.test(ua) && navigator.maxTouchPoints > 1;
+    var phoneUA = /Android|iPhone|iPod|Windows Phone|IEMobile|BlackBerry|Opera Mini/i.test(ua);
+    var narrow = Math.min(window.innerWidth || 0, window.screen ? window.screen.width : 0) < 820;
+
+    location.replace((phoneUA || iPadOS || narrow) ? MOBILE : PC);
+  })();
+</script>
+<noscript><meta http-equiv="refresh" content="0; url=./Nudema%20Mongolia.dc.html"></noscript>
 <style>
   body {
     margin: 0; min-height: 100vh; background: #0f1f4b; color: #8fa0d0;
     font-family: 'Manrope', -apple-system, sans-serif;
-    display: flex; align-items: center; justify-content: center; text-align: center;
+    display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px;
   }
   a { color: #fff; }
 </style>
 </head>
 <body>
   <p>Дэлгүүр рүү шилжиж байна…<br>
-    <a href="./Nudema%20Mongolia.dc.html">Автоматаар шилжихгүй бол энд дарна уу</a>
+    <a href="./Nudema%20Mongolia.dc.html">PC хувилбар</a> ·
+    <a href="./Nudema%20Mobile.dc.html">Мобайл хувилбар</a>
   </p>
 </body>
 </html>
