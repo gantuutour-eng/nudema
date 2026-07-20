@@ -10,6 +10,8 @@
 
 | 파일 | 설명 |
 |---|---|
+| `index.html` | 루트 → PC 홈으로 이동 |
+| `menu.html` | 전체 페이지 목록 (개발·시연용) |
 | `Nudema Mongolia.dc.html` | PC 홈 |
 | `Nudema Mobile.dc.html` | 모바일 홈 (390px) |
 | `Nudema Product.dc.html` | 상품 상세 (`?id=1`) |
