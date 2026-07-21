@@ -17,8 +17,10 @@ npx wrangler d1 migrations apply nudemadata --remote
 ```
 
 Migration `0002_customer_auth.sql` adds customer accounts, HttpOnly sessions, and
-the user-to-order relationship. Pages Functions also create the same tables on
-first use, but applying migrations remains the recommended production workflow.
+the user-to-order relationship. Migration `0003_google_oauth.sql` adds one-time
+OAuth state and external identity mappings. Pages Functions also create the same
+tables on first use, but applying migrations remains the recommended production
+workflow.
 
 For local Functions testing:
 
@@ -49,7 +51,24 @@ Add these production variables:
 
 If the Pages project uses the dashboard instead of `wrangler.jsonc`, create the same D1 binding and variables in both Production and Preview environments. Redeploy after changing bindings.
 
-## 3. Protect the admin routes
+## 3. Configure Google login
+
+In Google Cloud Console, create an OAuth 2.0 client with application type **Web application**.
+
+- Authorized JavaScript origin: `https://nudema.pages.dev`
+- Authorized redirect URI: `https://nudema.pages.dev/api/auth/google/callback`
+
+Add these values under Pages → Settings → Variables and Secrets → Production:
+
+- `GOOGLE_CLIENT_ID`: the Web application client ID
+- `GOOGLE_CLIENT_SECRET`: add as an encrypted secret, never commit it
+- `GOOGLE_REDIRECT_URI`: `https://nudema.pages.dev/api/auth/google/callback`
+
+If a custom domain becomes the primary domain, add its callback URI in Google and
+set `GOOGLE_REDIRECT_URI` to that exact URI. Google requires an exact redirect URI
+match. Redeploy after changing these values.
+
+## 4. Protect the admin routes
 
 Create Cloudflare Access applications/policies for both the custom domain and the `pages.dev` domain. Protect:
 
@@ -58,7 +77,7 @@ Create Cloudflare Access applications/policies for both the custom domain and th
 
 Only the addresses listed in `ADMIN_EMAILS` should be allowed. The public storefront and `/api/orders` must remain public.
 
-## 4. Initialize the database
+## 5. Initialize the database
 
 After the first deployment and migration:
 
@@ -70,7 +89,7 @@ After the first deployment and migration:
 
 Do not initialize from multiple browsers at the same time. Once D1 has data, normal clients only synchronize with it.
 
-## 5. Deployment checks
+## 6. Deployment checks
 
 - Product edits in Admin appear in another browser within 15 seconds.
 - A checkout submission returns a new `NDM-YYYYMMDD-xxxxxx` order number.
@@ -89,6 +108,8 @@ Do not initialize from multiple browsers at the same time. Once D1 has data, nor
 | `POST /api/auth/login` | Public | Create an HttpOnly customer session |
 | `GET /api/auth/account` | Customer session | Profile, points, and linked orders |
 | `POST /api/auth/logout` | Customer session | Revoke the current session |
+| `GET /api/auth/google/start` | Public | Start Google OAuth with state and PKCE |
+| `GET /api/auth/google/callback` | Public | Link/create customer and issue session |
 | `GET /api/images/:key` | Public | Immutable R2 image delivery |
 | `GET /api/admin/state` | Cloudflare Access | Full admin state |
 | `POST /api/admin/state` | Cloudflare Access | First-time D1 bootstrap |

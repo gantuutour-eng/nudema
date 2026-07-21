@@ -38,5 +38,25 @@
     return ({ pending: 'Хүлээгдэж буй', paid: 'Төлбөр төлсөн', shipping: 'Хүргэлтэд', done: 'Хүргэгдсэн', cancelled: 'Цуцлагдсан' })[status] || status || 'Хүлээгдэж буй';
   }
 
-  window.NudemaAuth = { api: api, showMessage: showMessage, setBusy: setBusy, money: money, statusLabel: statusLabel };
+  function showOauthError(element) {
+    var code = new URLSearchParams(location.search).get('oauth_error');
+    if (!code) return;
+    var messages = {
+      not_configured: 'Google нэвтрэлт одоогоор тохируулагдаагүй байна.',
+      cancelled: 'Google нэвтрэлтийг цуцаллаа.',
+      expired: 'Нэвтрэх хүсэлтийн хугацаа дууссан. Дахин оролдоно уу.',
+      unverified_email: 'Баталгаажсан Google и-мэйл шаардлагатай.',
+      invalid_response: 'Google-ээс ирсэн нэвтрэх мэдээлэл дутуу байна.',
+      start_failed: 'Google нэвтрэлтийг эхлүүлж чадсангүй.',
+      callback_failed: 'Google нэвтрэлтийг дуусгаж чадсангүй. Дахин оролдоно уу.',
+    };
+    showMessage(element, messages[code] || 'Google нэвтрэлт амжилтгүй боллоо.');
+    try {
+      var clean = new URL(location.href);
+      clean.searchParams.delete('oauth_error');
+      history.replaceState(null, '', clean.pathname + clean.search + clean.hash);
+    } catch (ignore) {}
+  }
+
+  window.NudemaAuth = { api: api, showMessage: showMessage, showOauthError: showOauthError, setBusy: setBusy, money: money, statusLabel: statusLabel };
 })();

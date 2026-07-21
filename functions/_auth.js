@@ -13,13 +13,13 @@ function fromHex(value) {
   return new Uint8Array(text.match(/.{2}/g).map((pair) => parseInt(pair, 16)));
 }
 
-function randomHex(size = 32) {
+export function randomHex(size = 32) {
   const bytes = new Uint8Array(size);
   crypto.getRandomValues(bytes);
   return toHex(bytes);
 }
 
-async function sha256(value) {
+export async function sha256(value) {
   return toHex(new Uint8Array(await crypto.subtle.digest('SHA-256', encoder.encode(value))));
 }
 
@@ -98,10 +98,11 @@ export async function sessionUser(db, request) {
 }
 
 export function publicUser(row) {
+  const phone = String(row && row.phone || '');
   return row ? {
     id: row.id,
     email: row.email,
-    phone: row.phone,
+    phone: phone.startsWith('google_') ? '' : phone,
     name: row.name,
     marketing: Number(row.marketing) === 1,
     createdAt: row.created_at,
