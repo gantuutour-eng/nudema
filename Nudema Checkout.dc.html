@@ -56,7 +56,7 @@
               </div>
               <div style="margin-top:16px;">
                 <label style="font-size:12px;font-weight:600;color:#8a938c;display:block;margin-bottom:6px;">Таны утасны дугаар (мэдэгдэл авах)</label>
-                <input placeholder="99xxxxxx" style="width:100%;height:46px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
+                <input value="{{ phone }}" onChange="{{ onPhone }}" inputmode="tel" autocomplete="tel" placeholder="99xxxxxx" style="width:100%;height:46px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
               </div>
             </div>
           </sc-if>
@@ -66,11 +66,11 @@
               <div class="co-two" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:26px;">
                 <div>
                   <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Овог нэр <span style="color:#e0392f;">*</span></label>
-                  <input placeholder="Овог нэрээ бичнэ үү" style="width:100%;height:48px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
+                  <input value="{{ customerName }}" onChange="{{ onCustomerName }}" autocomplete="name" placeholder="Овог нэрээ бичнэ үү" style="width:100%;height:48px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
                 </div>
                 <div>
                   <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Утасны дугаар <span style="color:#e0392f;">*</span></label>
-                  <input placeholder="99xxxxxx" style="width:100%;height:48px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
+                  <input value="{{ phone }}" onChange="{{ onPhone }}" inputmode="tel" autocomplete="tel" placeholder="99xxxxxx" style="width:100%;height:48px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
                 </div>
               </div>
 
@@ -88,7 +88,7 @@
 
               <div style="margin-bottom:16px;">
                 <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Хот / Аймаг <span style="color:#e0392f;">*</span></label>
-                <select onChange="{{ onCity }}" style="width:100%;height:48px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;background:#fff;color:#2a302b;">
+                <select value="{{ city }}" onChange="{{ onCity }}" style="width:100%;height:48px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;background:#fff;color:#2a302b;">
                   <sc-for list="{{ cities }}" as="c" hint-placeholder-count="22">
                     <option value="{{ c }}">{{ c }}</option>
                   </sc-for>
@@ -98,7 +98,7 @@
               <div class="co-two" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
                 <div>
                   <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Сум / Дүүрэг <span style="color:#e0392f;">*</span></label>
-                  <select style="width:100%;height:48px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;background:#fff;color:#2a302b;">
+                  <select value="{{ district }}" onChange="{{ onDistrict }}" style="width:100%;height:48px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;background:#fff;color:#2a302b;">
                     <option value="">Сум/Дүүрэг сонгох</option>
                     <sc-for list="{{ districts }}" as="d" hint-placeholder-count="9">
                       <option value="{{ d }}">{{ d }}</option>
@@ -107,7 +107,7 @@
                 </div>
                 <div>
                   <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Баг / Хороо <span style="color:#e0392f;">*</span></label>
-                  <select style="width:100%;height:48px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;background:#fff;color:#2a302b;">
+                  <select value="{{ khoroo }}" onChange="{{ onKhoroo }}" style="width:100%;height:48px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;background:#fff;color:#2a302b;">
                     <option value="">Баг/Хороо сонгох</option>
                     <sc-for list="{{ khoroos }}" as="k" hint-placeholder-count="12">
                       <option value="{{ k }}">{{ k }}</option>
@@ -118,12 +118,12 @@
 
               <div style="margin-bottom:16px;">
                 <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Хүргэлтийн хаяг <span style="color:#e0392f;">*</span></label>
-                <textarea placeholder="Байр, орц, давхар, тоот дэлгэрэнгүй бичнэ үү" style="width:100%;height:84px;border:1px solid #d7ddd7;border-radius:10px;padding:12px 14px;font-family:inherit;font-size:14px;resize:none;"></textarea>
+                <textarea value="{{ address }}" onChange="{{ onAddress }}" autocomplete="street-address" placeholder="Байр, орц, давхар, тоот дэлгэрэнгүй бичнэ үү" style="width:100%;height:84px;border:1px solid #d7ddd7;border-radius:10px;padding:12px 14px;font-family:inherit;font-size:14px;resize:none;"></textarea>
               </div>
 
               <div style="margin-bottom:16px;">
                 <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Нэмэлт мэдээлэл</label>
-                <textarea placeholder="Жишээ: Хаалганы код, ажлын цаг г.м" style="width:100%;height:74px;border:1px solid #d7ddd7;border-radius:10px;padding:12px 14px;font-family:inherit;font-size:14px;resize:none;"></textarea>
+                <textarea value="{{ note }}" onChange="{{ onNote }}" placeholder="Жишээ: Хаалганы код, ажлын цаг г.м" style="width:100%;height:74px;border:1px solid #d7ddd7;border-radius:10px;padding:12px 14px;font-family:inherit;font-size:14px;resize:none;"></textarea>
               </div>
             </div>
           </sc-if>
@@ -177,7 +177,7 @@
 
               <div style="margin-top:16px;">
                 <label style="font-size:12px;font-weight:600;color:#8a90a3;display:block;margin-bottom:6px;">Гүйлгээний утга (нэр)</label>
-                <input placeholder="Жишээ: Отгонцэцэг" style="width:100%;height:44px;border:1px solid #cdd5ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;background:#fff;">
+                <input value="{{ payerName }}" onChange="{{ onPayerName }}" placeholder="Жишээ: Отгонцэцэг" style="width:100%;height:44px;border:1px solid #cdd5ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;background:#fff;">
               </div>
               <sc-if value="{{ hasBankNote }}" hint-placeholder-val="{{ true }}">
                 <p style="font-size:12px;color:#8a90a3;line-height:1.7;margin:14px 0 0;">{{ bankNote }}</p>
@@ -199,7 +199,10 @@
           <span style="font-size:15px;font-weight:700;">Нийт төлбөр</span>
           <span style="font-size:24px;font-weight:800;color:#2a54e6;">{{ total }}</span>
         </div>
-        <button onClick="{{ pay }}" style="width:100%;height:54px;background:#2a54e6;color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:12px;">{{ payLabel }}</button>
+        <sc-if value="{{ hasOrderError }}" hint-placeholder-val="{{ false }}">
+          <div style="margin:0 0 12px;padding:10px 12px;border:1px solid #f3b6b6;background:#fff4f4;color:#b42318;border-radius:9px;font-size:12px;line-height:1.5;text-align:left;">{{ orderError }}</div>
+        </sc-if>
+        <button disabled="{{ submitting }}" onClick="{{ pay }}" style="{{ payBtnStyle }}">{{ payLabel }}</button>
         <a href="Nudema%20Cart.dc.html" style="display:block;text-align:center;height:50px;line-height:50px;border:1px solid #cfd6d0;border-radius:12px;font-size:14px;font-weight:700;color:#3a423c;">Сагс руу буцах</a>
         <p style="font-size:11px;color:#9aa39c;line-height:1.6;margin:16px 0 0;text-align:center;">Захиалга баталгаажуулснаар үйлчилгээний нөхцөл, хувийн мэдээлэл боловсруулах бодлогыг зөвшөөрсөнд тооцно.</p>
       </aside>
@@ -317,7 +320,11 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  state = { method: 'bank', done: false, copied: '', linkCopied: false, city: 'Улаанбаатар' };
+  state = {
+    method: 'bank', done: false, copied: '', linkCopied: false,
+    city: 'Улаанбаатар', district: '', khoroo: '', customerName: '', phone: '',
+    address: '', note: '', payerName: '', submitting: false, orderError: '', orderNo: '',
+  };
 
   componentDidMount() {
     this.reload();
@@ -341,6 +348,29 @@ class Component extends DCLogic {
 
   fmt(n) { return NudemaStore.money(n) + '₮'; }
   parseAmount(v) { return Number(String(v == null ? '' : v).replace(/[^\d]/g, '')) || 0; }
+
+  submitOrder(payload) {
+    if (this.state.submitting) return;
+    const phone = String(this.state.phone || '').trim();
+    const name = String(this.state.customerName || '').trim();
+    const address = String(this.state.address || '').trim();
+    if (!phone) return this.setState({ orderError: 'Утасны дугаараа оруулна уу.' });
+    if (!payload.gift && !name) return this.setState({ orderError: 'Овог нэрээ оруулна уу.' });
+    if (!payload.gift && !this.state.district) return this.setState({ orderError: 'Сум / Дүүргээ сонгоно уу.' });
+    if (!payload.gift && !this.state.khoroo) return this.setState({ orderError: 'Баг / Хороогоо сонгоно уу.' });
+    if (!payload.gift && !address) return this.setState({ orderError: 'Хүргэлтийн хаягаа оруулна уу.' });
+
+    this.setState({ submitting: true, orderError: '' });
+    NudemaStore.createOrder(payload).then((order) => {
+      this.setState({ submitting: false, done: true, orderNo: order && order.no ? order.no : '' });
+      if (typeof window !== 'undefined') window.scrollTo(0, 0);
+    }).catch((cause) => {
+      this.setState({
+        submitting: false,
+        orderError: cause && cause.message ? cause.message : 'Захиалга үүсгэж чадсангүй. Дахин оролдоно уу.',
+      });
+    });
+  }
 
   copy(text, key) {
     const flag = () => { this.setState({ copied: key }); clearTimeout(this._ct); this._ct = setTimeout(() => this.setState({ copied: '' }), 1500); };
@@ -432,8 +462,18 @@ class Component extends DCLogic {
       done: this.state.done,
       isGift: gift,
       notGift: !gift,
-      cities, districts, khoroos,
-      onCity: (e) => this.setState({ city: e.target.value }),
+      cities, districts, khoroos, city,
+      customerName: this.state.customerName || '', phone: this.state.phone || '',
+      district: this.state.district || '', khoroo: this.state.khoroo || '',
+      address: this.state.address || '', note: this.state.note || '', payerName: this.state.payerName || '',
+      onCustomerName: (e) => this.setState({ customerName: e.target.value, orderError: '' }),
+      onPhone: (e) => this.setState({ phone: e.target.value, orderError: '' }),
+      onCity: (e) => this.setState({ city: e.target.value, district: '', khoroo: '', orderError: '' }),
+      onDistrict: (e) => this.setState({ district: e.target.value, orderError: '' }),
+      onKhoroo: (e) => this.setState({ khoroo: e.target.value, orderError: '' }),
+      onAddress: (e) => this.setState({ address: e.target.value, orderError: '' }),
+      onNote: (e) => this.setState({ note: e.target.value }),
+      onPayerName: (e) => this.setState({ payerName: e.target.value }),
 
       bankAccounts,
       bankNote: settings.bankNote || '',
@@ -442,7 +482,7 @@ class Component extends DCLogic {
       isBankNotGift: methodKey === 'bank' && !gift,
       isSuccessNotGift: methodKey !== 'bank' && !gift,
 
-      orderNo: 'NDM-20260720-4417',
+      orderNo: this.state.orderNo || 'NDM-20260720-4417',
       copyBtnStyle: 'border:1px solid #cdd5ee;background:#fff;color:#2a54e6;font-family:inherit;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;',
       copyAmount: () => this.copy(String(grand), 'amt'),
       copyAmountLabel: this.state.copied === 'amt' ? '✓ Хууллаа' : 'Хуулах',
@@ -465,10 +505,23 @@ class Component extends DCLogic {
         if (ok) { this.setState({ linkCopied: true }); clearTimeout(this._lt); this._lt = setTimeout(() => this.setState({ linkCopied: false }), 1500); }
         else if (navigator.clipboard) { navigator.clipboard.writeText(text).then(() => this.setState({ linkCopied: true }), () => {}); }
       },
-      payLabel: gift
+      submitting: !!this.state.submitting,
+      hasOrderError: !!this.state.orderError,
+      orderError: this.state.orderError || '',
+      payBtnStyle: `width:100%;height:54px;background:${this.state.submitting ? '#8fa5ee' : '#2a54e6'};color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:16px;font-weight:800;cursor:${this.state.submitting ? 'wait' : 'pointer'};margin-bottom:12px;`,
+      payLabel: this.state.submitting ? 'Захиалга үүсгэж байна…' : (gift
         ? (methodKey === 'bank' ? 'Бэлгийн захиалга баталгаажуулах' : this.fmt(grand) + ' төлж бэлэг илгээх')
-        : (methodKey === 'bank' ? 'Захиалга баталгаажуулах' : this.fmt(grand) + ' төлөх'),
-      pay: () => { this.setState({ done: true }); if (typeof window !== 'undefined') window.scrollTo(0, 0); },
+        : (methodKey === 'bank' ? 'Захиалга баталгаажуулах' : this.fmt(grand) + ' төлөх')),
+      pay: () => this.submitOrder({
+        gift,
+        method: methodKey === 'bank' ? 'Данс шилжүүлэг' : 'QPay',
+        items: rawItems.map((item) => ({ id: item.id, qty: item.qty })),
+        customer: {
+          name: this.state.customerName || '', phone: this.state.phone || '', email: '',
+          address: gift ? '' : [city, this.state.district, this.state.khoroo, this.state.address].filter(Boolean).join(', '),
+          note: this.state.note || '', payerName: this.state.payerName || '',
+        },
+      }),
     };
   }
 }

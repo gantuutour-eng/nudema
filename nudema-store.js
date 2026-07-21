@@ -1,5 +1,5 @@
 /* Nudema — админ ба дэлгүүрийн хуудсуудын хооронд хуваалцах өгөгдлийн сан.
- * localStorage дээр суурилсан. Админ бичнэ, дэлгүүрийн хуудсууд уншина.
+ * Cloudflare D1-ийг үндсэн сан, localStorage-ийг хурдан cache/fallback болгон ашиглана.
  *
  * Ижил табд localStorage-ийн "storage" event ажилладаггүй тул
  * бичих бүрд "nudema:change" custom event нэмж илгээнэ.
@@ -157,6 +157,17 @@
 
   var clone = function (v) { return JSON.parse(JSON.stringify(v)); };
 
+  var PUBLIC_NAMES = ['products', 'settings', 'taxonomy', 'reviews', 'content'];
+  var ADMIN_NAMES = PUBLIC_NAMES.concat(['orders', 'statuses', 'admin']);
+  var remoteStatus = { enabled: false, syncing: false, ready: false, error: '', updatedAt: null };
+  var locationInfo = (typeof window !== 'undefined' && window.location) ? window.location : {};
+  var pathname = '';
+  try { pathname = decodeURIComponent(locationInfo.pathname || ''); } catch (e) { pathname = locationInfo.pathname || ''; }
+  var isAdminPage = /Nudema\s+Admin\.dc(?:\.html)?$/i.test(pathname);
+  var isPlainLocalServer = /^(localhost|127\.0\.0\.1)$/i.test(locationInfo.hostname || '') && String(locationInfo.port || '') === '4321';
+  var canFetchRemote = typeof fetch === 'function' && /^https?:$/i.test(locationInfo.protocol || '') && !isPlainLocalServer;
+  remoteStatus.enabled = canFetchRemote;
+
   var read = function (name) {
     var key = KEYS[name];
     var def = DEFAULTS[name];
@@ -191,6 +202,7 @@
     try {
       window.dispatchEvent(new CustomEvent('nudema:change', { detail: { name: name, key: key, ok: ok } }));
     } catch (e) {}
+    if (ok) pushRemote(name, value);
     return ok;
   };
 
@@ -208,12 +220,178 @@
     };
   };
 
+  var emitRemote = function (name, ok, message) {
+    try {
+      window.dispatchEvent(new CustomEvent(ok ? 'nudema:remote' : 'nudema:remote-error', {
+        detail: { name: name || null, ok: ok, message: message || '' },
+      }));
+    } catch (e) {}
+  };
+
+  var applyRemote = function (data) {
+    if (!data || typeof data !== 'object') return;
+    var allowed = isAdminPage ? ADMIN_NAMES : PUBLIC_NAMES;
+    allowed.forEach(function (name) {
+      if (!Object.prototype.hasOwnProperty.call(data, name)) return;
+      var key = KEYS[name];
+      var next;
+      try { next = JSON.stringify(data[name]); } catch (e) { return; }
+      try {
+        if (localStorage.getItem(key) === next) return;
+        localStorage.setItem(key, next);
+        window.dispatchEvent(new CustomEvent('nudema:change', {
+          detail: { name: name, key: key, ok: true, remote: true },
+        }));
+      } catch (e) {}
+    });
+  };
+
+  var remoteRequest = function (url, options) {
+    return fetch(url, Object.assign({
+      credentials: 'same-origin',
+      headers: { 'Accept': 'application/json' },
+    }, options || {})).then(function (response) {
+      return response.json().catch(function () { return {}; }).then(function (body) {
+        if (!response.ok) throw new Error(body.error || ('HTTP ' + response.status));
+        return body;
+      });
+    });
+  };
+
+  var bootstrapRemote = function () {
+    var data = {};
+    ADMIN_NAMES.forEach(function (name) { data[name] = read(name); });
+    return remoteRequest('/api/admin/state', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: data }),
+    });
+  };
+
+  var syncRemote = function () {
+    if (!canFetchRemote || remoteStatus.syncing) return Promise.resolve(false);
+    remoteStatus.syncing = true;
+    var url = isAdminPage ? '/api/admin/state' : '/api/storefront';
+    return remoteRequest(url).then(function (body) {
+      if (isAdminPage && body.empty) {
+        return bootstrapRemote().then(function () { return remoteRequest(url); });
+      }
+      return body;
+    }).then(function (body) {
+      applyRemote(body.data || {});
+      remoteStatus.ready = true;
+      remoteStatus.error = '';
+      remoteStatus.updatedAt = new Date().toISOString();
+      emitRemote(null, true, '');
+      return true;
+    }).catch(function (cause) {
+      remoteStatus.error = cause && cause.message ? cause.message : String(cause || 'Remote sync failed');
+      emitRemote(null, false, remoteStatus.error);
+      return false;
+    }).then(function (result) {
+      remoteStatus.syncing = false;
+      return result;
+    });
+  };
+
+  var pushRemote = function (name, value) {
+    if (!canFetchRemote || !isAdminPage || ADMIN_NAMES.indexOf(name) < 0) return;
+    remoteRequest('/api/admin/store/' + encodeURIComponent(name), {
+      method: 'PUT',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: value }),
+    }).then(function () {
+      remoteStatus.ready = true;
+      remoteStatus.error = '';
+      remoteStatus.updatedAt = new Date().toISOString();
+      emitRemote(name, true, '');
+    }).catch(function (cause) {
+      remoteStatus.error = cause && cause.message ? cause.message : String(cause || 'Remote save failed');
+      emitRemote(name, false, remoteStatus.error);
+    });
+  };
+
+  var createLocalOrder = function (payload) {
+    var now = new Date();
+    var items = (payload.items || []).map(function (item) { return { pid: Number(item.id || item.pid), qty: Number(item.qty) || 1 }; });
+    var order = {
+      no: 'NDM-' + now.toISOString().slice(0, 10).replace(/-/g, '') + '-' + String(now.getTime()).slice(-6),
+      customer: payload.customer && payload.customer.name ? payload.customer.name : 'Бэлгийн захиалга',
+      email: payload.customer && payload.customer.email ? payload.customer.email : '',
+      phone: payload.customer && payload.customer.phone ? payload.customer.phone : '',
+      address: payload.customer && payload.customer.address ? payload.customer.address : '',
+      note: payload.customer && payload.customer.note ? payload.customer.note : '',
+      date: now.toISOString().slice(0, 10), hour: now.getHours(), minute: now.getMinutes(),
+      method: payload.method || 'Данс шилжүүлэг', items: items, gift: payload.gift === true, status: 'pending',
+    };
+    var orders = read('orders');
+    orders.unshift(order);
+    write('orders', orders);
+    return order;
+  };
+
+  var createOrder = function (payload) {
+    if (!canFetchRemote) return Promise.resolve(createLocalOrder(payload || {}));
+    return remoteRequest('/api/orders', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload || {}),
+    }).then(function (body) {
+      var order = body.order;
+      if (order) {
+        try {
+          var orders = read('orders');
+          orders = orders.filter(function (item) { return item.no !== order.no; });
+          orders.unshift(order);
+          localStorage.setItem(KEYS.orders, JSON.stringify(orders));
+        } catch (e) {}
+      }
+      emitRemote('orders', true, '');
+      return order;
+    });
+  };
+
+  var uploadImage = function (file, filename) {
+    if (!canFetchRemote || !isAdminPage) return Promise.reject(new Error('R2 upload is only available on the deployed admin page.'));
+    var form = new FormData();
+    form.append('file', file, filename || file.name || 'nudema-image.jpg');
+    return remoteRequest('/api/admin/images', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+      body: form,
+    });
+  };
+
+  var deleteImage = function (url) {
+    if (!canFetchRemote || !isAdminPage) return Promise.resolve(false);
+    var match = String(url || '').match(/\/api\/images\/([^/?#]+)/);
+    if (!match) return Promise.resolve(false);
+    return remoteRequest('/api/admin/images/' + encodeURIComponent(decodeURIComponent(match[1])), {
+      method: 'DELETE',
+    }).then(function () { return true; });
+  };
+
+  if (canFetchRemote) {
+    setTimeout(syncRemote, 25);
+    setInterval(syncRemote, 15000);
+    try {
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') syncRemote();
+      });
+    } catch (e) {}
+  }
+
   window.NudemaStore = {
     KEYS: KEYS,
     DEFAULTS: DEFAULTS,
     read: read,
     write: write,
     subscribe: subscribe,
+    sync: syncRemote,
+    createOrder: createOrder,
+    uploadImage: uploadImage,
+    deleteImage: deleteImage,
+    remoteStatus: remoteStatus,
     money: money,
     // Дараагийн чөлөөт id
     nextId: function (list) {

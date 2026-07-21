@@ -3,8 +3,9 @@
 몽골 화장품 브랜드 **Nudema**의 쇼핑몰 + 관리자 페이지 프로토타입.
 
 [Claude Design](https://claude.ai/design)의 `.dc.html` 형식으로 작성되었으며,
-모든 페이지가 하나의 클라이언트 사이드 저장소(`nudema-store.js`)를 공유합니다.
-관리자에서 수정하면 고객 화면에 즉시 반영됩니다.
+모든 페이지가 `nudema-store.js`를 통해 같은 데이터를 사용합니다.
+Cloudflare 배포에서는 Pages Functions + D1이 기기 간 공유 저장소이며,
+`localStorage`는 빠른 로딩과 로컬 미리보기를 위한 캐시/폴백으로 사용됩니다.
 
 ## 페이지
 
@@ -39,6 +40,8 @@ node serve.js
 `.dc.html`은 `support.js`(DC 런타임)가 있어야 렌더링됩니다.
 런타임이 React·Babel을 CDN에서 불러오므로 **인터넷 연결이 필요**합니다.
 
+Cloudflare Pages + D1 배포 방법은 [`CLOUDFLARE.md`](./CLOUDFLARE.md)를 참고하세요.
+
 ## 개발용 스크립트
 
 ```bash
@@ -63,6 +66,6 @@ node .check-bindings.js  # 템플릿 바인딩 누락 검사
 ## ⚠️ 알아두실 점
 
 - **관리자 로그인은 실제 보안이 아닙니다.** 비밀번호가 브라우저에 평문 저장되고 검증도 클라이언트에서만 이뤄집니다. 개발자도구로 우회 가능합니다. 실제 운영에는 서버 측 인증이 필요합니다.
-- **데이터는 localStorage에만 저장됩니다.** 브라우저·기기별로 따로 놀고, 용량 한도(약 5MB)가 있습니다. 실제 운영에는 서버 API가 필요합니다.
+- 일반 정적 서버(`node serve.js`)에서는 데이터가 `localStorage`에만 저장됩니다. Cloudflare 운영 배포에는 `DB` 이름의 D1 바인딩과 migrations 적용이 필요합니다.
 - 주문·회원·리뷰의 시드 데이터는 **데모용 가상 데이터**입니다.
 - `support.js`, `image-slot.js`는 Claude Design이 생성한 런타임 파일입니다 (직접 수정하지 마세요).

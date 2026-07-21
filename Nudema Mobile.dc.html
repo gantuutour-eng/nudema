@@ -13,19 +13,37 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
+  html, body { margin: 0; padding: 0; min-width: 0; }
+  html, body { overflow-x: clip; }
   body { font-family: 'Manrope', -apple-system, sans-serif; color: #1a1c1a; background: #eef0f4; -webkit-font-smoothing: antialiased; }
   a { color: inherit; text-decoration: none; }
   a:hover { color: #1e46c8; }
+  button, a { -webkit-tap-highlight-color: transparent; }
+  .mScroll { scrollbar-width: none; overscroll-behavior-inline: contain; }
   .mScroll::-webkit-scrollbar { display: none; }
+  .m-shell { min-height: 100vh; min-height: 100dvh; }
+  .m-header { padding-left: max(16px, env(safe-area-inset-left)) !important; padding-right: max(16px, env(safe-area-inset-right)) !important; }
+  .m-product-card { min-width: 0; overflow-wrap: anywhere; }
+  .m-fixed-layer { left: max(0px, calc((100vw - 430px) / 2)) !important; }
+  .m-bottom-nav { width: min(100%, 430px) !important; padding-left: env(safe-area-inset-left) !important; padding-right: env(safe-area-inset-right) !important; }
   @keyframes m-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+  @media (max-width: 350px) {
+    .m-product-grid { gap: 10px !important; }
+    .m-header { padding-left: 12px !important; padding-right: 12px !important; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [style*="animation:m-marquee"] { animation-play-state: paused !important; }
+    [style*="transition:transform"] { transition: none !important; }
+  }
 </style>
 <script src="./image-slot.js"></script>
 <script src="./nudema-store.js"></script>
 </helmet>
 <!-- Жинхэнэ утсан дээр 360px ч бай багтахаар уян хатан өргөнтэй -->
 <!-- Доод талын тогтмол таб бааранд дарагдахгүйн тулд padding-bottom -->
-<div style="width:100%;max-width:430px;margin:0 auto;background:#fff;min-height:100vh;overflow:hidden;position:relative;padding-bottom:calc(74px + env(safe-area-inset-bottom));">
+<div class="m-shell" style="width:100%;max-width:430px;margin:0 auto;background:#fff;position:relative;padding-bottom:calc(74px + env(safe-area-inset-bottom));">
 
   <!-- top bar -->
   <div style="background:#2a54e6;overflow:hidden;white-space:nowrap;">
@@ -37,13 +55,13 @@
   </div>
 
   <!-- header -->
-  <header style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee;position:sticky;top:0;background:#fff;z-index:20;">
+  <header class="m-header" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee;position:sticky;top:0;background:#fff;z-index:20;">
     <button onClick="{{ toggleMenu }}" style="display:flex;flex-direction:column;gap:4px;background:none;border:none;padding:4px;cursor:pointer;">
       <span style="width:20px;height:2px;background:#1a1c1a;display:block;"></span>
       <span style="width:20px;height:2px;background:#1a1c1a;display:block;"></span>
       <span style="width:20px;height:2px;background:#1a1c1a;display:block;"></span>
     </button>
-    <a href="Nudema%20Mongolia.dc.html" style="font-size:21px;font-weight:800;letter-spacing:0.08em;color:#2a54e6;">NUDEMA</a>
+    <a href="Nudema%20Mobile.dc.html" style="font-size:21px;font-weight:800;letter-spacing:0.08em;color:#2a54e6;">NUDEMA</a>
     <div style="display:flex;align-items:center;gap:14px;">
       <a href="Nudema%20Search.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg></a>
       <a href="Nudema%20Cart.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg></a>
@@ -51,8 +69,8 @@
   </header>
 
   <!-- slide-in menu -->
-  <div onClick="{{ closeMenu }}" style="{{ scrimStyle }}"></div>
-  <aside style="{{ drawerStyle }}">
+  <div class="m-fixed-layer" onClick="{{ closeMenu }}" style="{{ scrimStyle }}"></div>
+  <aside class="m-fixed-layer" style="{{ drawerStyle }}">
     <div style="padding:20px 20px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;">
       <span style="font-size:20px;font-weight:800;letter-spacing:.08em;color:#2a54e6;">NUDEMA</span>
       <button onClick="{{ closeMenu }}" style="background:none;border:none;font-size:24px;color:#1a1c1a;cursor:pointer;">&times;</button>
@@ -92,9 +110,9 @@
   <section style="padding:22px 16px 24px;">
     <h2 style="font-size:18px;font-weight:800;color:#16255f;margin:0 0 4px;">Албан ёсны дэлгүүр</h2>
     <p style="font-size:12px;color:#8a90a3;margin:0 0 16px;">Зөвхөн энд, албан ёсны дэлгүүрт!</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    <div class="m-product-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;">
       <sc-for list="{{ officialProducts }}" as="p" hint-placeholder-count="4">
-        <a href="{{ p.href }}" style="display:block;">
+        <a class="m-product-card" href="{{ p.href }}" style="display:block;">
           <div style="position:relative;background:#f4f5f3;border-radius:12px;aspect-ratio:1/1;overflow:hidden;">
             <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></sc-if>
             <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><image-slot id="m-prod-{{ p.id }}" shape="rect" fit="contain" placeholder="Зураг"></image-slot></sc-if>
@@ -263,8 +281,8 @@
   <!-- bottom tab bar -->
   <!-- position:sticky нь дээрх overflow:hidden сав дотор ажиллахгүй тул fixed.
        Хүрээ голлосон учир left:50% + translateX-ээр байрлуулна. -->
-  <nav style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:9px 0 calc(12px + env(safe-area-inset-bottom));z-index:20;">
-    <a href="Nudema%20Mongolia.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#2a54e6;">
+  <nav class="m-bottom-nav" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:9px 0 calc(12px + env(safe-area-inset-bottom));z-index:20;">
+    <a href="Nudema%20Mobile.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#2a54e6;">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2a54e6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Нүүр
     </a>
     <a href="Nudema%20Search.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#8a90a3;">
@@ -410,8 +428,8 @@ class Component extends DCLogic {
     ];
 
     const menuLinks = [
-      { label: 'BEST', href: 'Nudema%20Mongolia.dc.html' },
-      { label: 'Анхны худалдан авалт', href: 'Nudema%20Mongolia.dc.html' },
+      { label: 'BEST', href: 'Nudema%20Mobile.dc.html' },
+      { label: 'Анхны худалдан авалт', href: 'Nudema%20Mobile.dc.html' },
       { label: 'Төрлөөр', href: 'Nudema%20Search.dc.html' },
       { label: 'Арьсны асуудлаар', href: 'Nudema%20Search.dc.html' },
       { label: 'Брэндийн түүх', href: 'Nudema%20Brand%20Story.dc.html' },
@@ -432,8 +450,8 @@ class Component extends DCLogic {
       footerLine: `И-мэйл: ${settings.email} · Утас: ${settings.phone}`,
       toggleMenu: () => this.setState(s => ({ menu: !s.menu })),
       closeMenu: () => this.setState({ menu: false }),
-      scrimStyle: `position:absolute;inset:0;background:rgba(16,37,95,.42);z-index:40;transition:opacity .3s;opacity:${this.state.menu ? 1 : 0};pointer-events:${this.state.menu ? 'auto' : 'none'};`,
-      drawerStyle: `position:absolute;top:0;left:0;height:100%;width:290px;background:#fff;box-shadow:2px 0 30px rgba(16,37,95,.18);z-index:41;transition:transform .32s cubic-bezier(.4,0,.2,1);transform:translateX(${this.state.menu ? '0' : '-100%'});`,
+      scrimStyle: `position:fixed;top:0;bottom:0;width:min(100vw,430px);background:rgba(16,37,95,.42);z-index:40;transition:opacity .3s;opacity:${this.state.menu ? 1 : 0};pointer-events:${this.state.menu ? 'auto' : 'none'};`,
+      drawerStyle: `position:fixed;top:0;height:100vh;height:100dvh;width:min(290px,86vw);overflow-y:auto;overscroll-behavior:contain;background:#fff;box-shadow:2px 0 30px rgba(16,37,95,.18);z-index:41;transition:transform .32s cubic-bezier(.4,0,.2,1);transform:translateX(${this.state.menu ? '0' : '-100%'});`,
     };
   }
 }
