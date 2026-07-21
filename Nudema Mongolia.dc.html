@@ -25,6 +25,9 @@
 </style>
 <script src="./image-slot.js"></script>
 <script src="./nudema-store.js"></script>
+<script src="./nudema-cart.js"></script>
+<link rel="stylesheet" href="./user-ui.css">
+<script src="./user-ui.js"></script>
 </helmet>
 <!-- Өнгөт туузууд (марки, инстаграм, футер) дэлгэц дүүрэн; доторх агуулга 1280px -->
 <div style="width:100%;background:#fff;">
@@ -43,10 +46,10 @@
    <div style="max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:20px 34px;position:relative;">
     <div style="display:flex;align-items:center;gap:22px;">
       <x-import component-from-global-scope="nudema-menu" from="./nudema-menu.js" hint-size="24px,24px"></x-import>
-      <a href="#" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:26px;font-weight:800;letter-spacing:0.08em;color:#2a54e6;">NUDEMA</a>
+      <a href="Nudema%20Mongolia.dc.html" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:26px;font-weight:800;letter-spacing:0.08em;color:#2a54e6;">NUDEMA</a>
     </div>
     <div style="display:flex;align-items:center;gap:18px;">
-      <a href="Nudema%20Brand%20Story.dc.html" style="background:#2a54e6;color:#fff;font-size:13px;font-weight:700;padding:9px 16px;border-radius:20px;">Брэндийн түүх</a>
+      <a href="#brand-story" style="background:#2a54e6;color:#fff;font-size:13px;font-weight:700;padding:9px 16px;border-radius:20px;">Брэндийн түүх</a>
       <a href="Nudema%20Search.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.2-3.2"></path></svg></a>
       <a href="Nudema%20Account.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path></svg></a>
       <a href="Nudema%20Cart.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"></path><path d="M9 8a3 3 0 0 1 6 0"></path></svg></a>
@@ -219,7 +222,7 @@
   </section>
 
   <!-- brand story -->
-  <section style="max-width:1280px;margin:0 auto;padding:70px 40px;">
+  <section id="brand-story" style="max-width:1280px;margin:0 auto;padding:70px 40px;scroll-margin-top:80px;">
     <h2 style="text-align:center;font-size:26px;font-weight:800;margin:0 0 40px;color:#16255f;">Брэндийн түүх</h2>
     <div style="position:relative;max-width:640px;margin:0 auto;border-radius:8px;overflow:hidden;aspect-ratio:16/9;background:#c9d0cd;">
       <sc-if value="{{ hasVideo }}" hint-placeholder-val="{{ false }}">
@@ -236,7 +239,7 @@
       </sc-if>
     </div>
     <div style="text-align:center;margin-top:40px;">
-      <a href="Nudema%20Brand%20Story.dc.html" style="display:inline-block;border:1px solid #cfd6d0;border-radius:24px;padding:13px 34px;font-size:14px;font-weight:700;" style-hover="border-color:#2a54e6;color:#2a54e6;">Брэндийн түүх үзэх ›</a>
+      <a href="#brand-story" style="display:inline-block;border:1px solid #cfd6d0;border-radius:24px;padding:13px 34px;font-size:14px;font-weight:700;" style-hover="border-color:#2a54e6;color:#2a54e6;">Брэндийн түүх үзэх ›</a>
     </div>
   </section>
 
@@ -245,10 +248,10 @@
    <div style="max-width:1280px;margin:0 auto;padding:50px 40px 46px;">
     <div style="font-size:22px;font-weight:800;letter-spacing:0.08em;color:#fff;margin-bottom:24px;">NUDEMA</div>
     <div style="display:flex;gap:26px;font-size:13px;font-weight:600;margin-bottom:26px;flex-wrap:wrap;">
-      <a href="#" style="color:#e6ecff;">Үйлчилгээний нөхцөл</a>
-      <a href="#" style="color:#e6ecff;">Компанийн мэдээлэл</a>
-      <a href="#" style="color:#fff;">Хувийн мэдээлэл боловсруулах бодлого</a>
-      <a href="#" style="color:#e6ecff;">Хэрэглэгчийн төв</a>
+      <a href="Nudema%20Terms.dc.html" style="color:#e6ecff;">Үйлчилгээний нөхцөл</a>
+      <a href="#brand-story" style="color:#e6ecff;">Компанийн мэдээлэл</a>
+      <a href="Nudema%20Privacy.dc.html" style="color:#fff;">Хувийн мэдээлэл боловсруулах бодлого</a>
+      <a href="mailto:help@nudema.mn" style="color:#e6ecff;">Хэрэглэгчийн төв</a>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:40px;flex-wrap:wrap;">
       <div style="font-size:12px;line-height:1.9;color:#b7c4ee;max-width:560px;">

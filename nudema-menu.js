@@ -10,7 +10,7 @@
     { label: 'Эвент', href: 'Nudema%20Mongolia.dc.html' },
   ];
   const SUB = [
-    { label: 'Брэндийн түүх', href: 'Nudema%20Brand%20Story.dc.html' },
+    { label: 'Брэндийн түүх', href: 'Nudema%20Mongolia.dc.html#brand-story' },
     { label: 'Хайх', href: 'Nudema%20Search.dc.html' },
     { label: 'Миний хуудас', href: 'Nudema%20Account.dc.html' },
     { label: 'Сагс', href: 'Nudema%20Cart.dc.html' },

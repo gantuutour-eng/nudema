@@ -24,6 +24,8 @@
 <script src="./mn-regions.js"></script>
 <script src="./nudema-store.js"></script>
 <script src="./nudema-cart.js"></script>
+<link rel="stylesheet" href="./user-ui.css">
+<script src="./user-ui.js"></script>
 </helmet>
 <div style="width:100%;background:#fff;">
 
@@ -203,7 +205,7 @@
         <sc-if value="{{ hasOrderError }}" hint-placeholder-val="{{ false }}">
           <div style="margin:0 0 12px;padding:10px 12px;border:1px solid #f3b6b6;background:#fff4f4;color:#b42318;border-radius:9px;font-size:12px;line-height:1.5;text-align:left;">{{ orderError }}</div>
         </sc-if>
-        <button disabled="{{ submitting }}" onClick="{{ pay }}" style="{{ payBtnStyle }}">{{ payLabel }}</button>
+        <button disabled="{{ payDisabled }}" onClick="{{ pay }}" style="{{ payBtnStyle }}">{{ payLabel }}</button>
         <a href="Nudema%20Cart.dc.html" style="display:block;text-align:center;height:50px;line-height:50px;border:1px solid #cfd6d0;border-radius:12px;font-size:14px;font-weight:700;color:#3a423c;">Сагс руу буцах</a>
         <p style="font-size:11px;color:#9aa39c;line-height:1.6;margin:16px 0 0;text-align:center;">Захиалга баталгаажуулснаар үйлчилгээний нөхцөл, хувийн мэдээлэл боловсруулах бодлогыг зөвшөөрсөнд тооцно.</p>
       </aside>
@@ -267,7 +269,7 @@
           </sc-if>
           <div style="display:flex;gap:12px;justify-content:center;">
             <a href="Nudema%20Mongolia.dc.html" style="display:inline-block;background:#2a54e6;color:#fff;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Дэлгүүр рүү буцах</a>
-            <a href="Nudema%20Order.dc.html" style="display:inline-block;border:1px solid #cfd6d0;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Захиалга харах</a>
+            <a href="Nudema%20Account.dc.html" style="display:inline-block;border:1px solid #cfd6d0;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Захиалга харах</a>
           </div>
         </div>
       </sc-if>
@@ -285,7 +287,7 @@
           </div>
           <div style="display:flex;gap:12px;justify-content:center;">
             <a href="Nudema%20Mongolia.dc.html" style="display:inline-block;background:#2a54e6;color:#fff;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Дэлгүүр рүү буцах</a>
-            <a href="Nudema%20Order.dc.html" style="display:inline-block;border:1px solid #cfd6d0;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Захиалга харах</a>
+            <a href="Nudema%20Account.dc.html" style="display:inline-block;border:1px solid #cfd6d0;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Захиалга харах</a>
           </div>
         </div>
       </sc-if>
@@ -296,10 +298,10 @@
    <div class="rs-footer" style="max-width:1280px;margin:0 auto;padding:50px 40px 46px;">
     <div style="font-size:22px;font-weight:800;letter-spacing:0.08em;color:#fff;margin-bottom:24px;">NUDEMA</div>
     <div style="display:flex;gap:26px;font-size:13px;font-weight:600;margin-bottom:26px;flex-wrap:wrap;">
-      <a href="#" style="color:#e6ecff;">Үйлчилгээний нөхцөл</a>
-      <a href="#" style="color:#e6ecff;">Компанийн мэдээлэл</a>
-      <a href="#" style="color:#fff;">Хувийн мэдээлэл боловсруулах бодлого</a>
-      <a href="#" style="color:#e6ecff;">Хэрэглэгчийн төв</a>
+      <a href="Nudema%20Terms.dc.html" style="color:#e6ecff;">Үйлчилгээний нөхцөл</a>
+      <a href="Nudema%20Mongolia.dc.html#brand-story" style="color:#e6ecff;">Компанийн мэдээлэл</a>
+      <a href="Nudema%20Privacy.dc.html" style="color:#fff;">Хувийн мэдээлэл боловсруулах бодлого</a>
+      <a href="mailto:help@nudema.mn" style="color:#e6ecff;">Хэрэглэгчийн төв</a>
     </div>
     <div class="rs-footer-row" style="display:flex;justify-content:space-between;align-items:flex-start;gap:40px;flex-wrap:wrap;">
       <div style="font-size:12px;line-height:1.9;color:#b7c4ee;max-width:560px;">
@@ -373,6 +375,7 @@ class Component extends DCLogic {
 
   submitOrder(payload) {
     if (this.state.submitting) return;
+    if (!payload.items || !payload.items.length) return this.setState({ orderError: 'Сагс хоосон байна.' });
     const phone = String(this.state.phone || '').trim();
     const name = String(this.state.customerName || '').trim();
     const address = String(this.state.address || '').trim();
@@ -534,12 +537,13 @@ class Component extends DCLogic {
         else if (navigator.clipboard) { navigator.clipboard.writeText(text).then(() => this.setState({ linkCopied: true }), () => {}); }
       },
       submitting: !!this.state.submitting,
+      payDisabled: !!this.state.submitting || !rawItems.length,
       hasOrderError: !!this.state.orderError,
       orderError: this.state.orderError || '',
-      payBtnStyle: `width:100%;height:54px;background:${this.state.submitting ? '#8fa5ee' : '#2a54e6'};color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:16px;font-weight:800;cursor:${this.state.submitting ? 'wait' : 'pointer'};margin-bottom:12px;`,
-      payLabel: this.state.submitting ? 'Захиалга үүсгэж байна…' : (gift
+      payBtnStyle: `width:100%;height:54px;background:${this.state.submitting || !rawItems.length ? '#8fa5ee' : '#2a54e6'};color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:16px;font-weight:800;cursor:${this.state.submitting ? 'wait' : (!rawItems.length ? 'not-allowed' : 'pointer')};margin-bottom:12px;`,
+      payLabel: !rawItems.length ? 'Сагс хоосон байна' : (this.state.submitting ? 'Захиалга үүсгэж байна…' : (gift
         ? (methodKey === 'bank' ? 'Бэлгийн захиалга баталгаажуулах' : this.fmt(grand) + ' төлж бэлэг илгээх')
-        : (methodKey === 'bank' ? 'Захиалга баталгаажуулах' : this.fmt(grand) + ' төлөх')),
+        : (methodKey === 'bank' ? 'Захиалга баталгаажуулах' : this.fmt(grand) + ' төлөх'))),
       pay: () => this.submitOrder({
         gift,
         method: methodKey === 'bank' ? 'Данс шилжүүлэг' : 'QPay',
