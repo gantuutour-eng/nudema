@@ -40,9 +40,26 @@
   .co-card { padding: 20px 18px !important; }
 
   /* ---- Толгой ба хөл ---- */
-  .rs-header { padding: 14px 16px !important; }
+  .rs-header { padding: 10px 12px !important; min-height: 60px; }
+  .rs-header-left { gap: 12px !important; min-width: 0; }
+  .rs-logo { position: static !important; transform: none !important; font-size: 21px !important; white-space: nowrap; }
+  .rs-brand-story { display: none !important; }
+  .rs-header-actions { gap: 4px !important; }
+  .rs-header-icon { width: 34px;height:34px;display:flex;align-items:center;justify-content:center;position:relative;flex:0 0 auto; }
+  .rs-cart-count { position:absolute;right:-1px;top:-2px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#2a54e6;color:#fff;font-size:9px;font-weight:800;line-height:17px;text-align:center; }
+  .pd-page { padding-bottom: calc(74px + env(safe-area-inset-bottom)) !important; }
+  .product-bottom-nav { position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,430px);background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;padding:9px 0 calc(11px + env(safe-area-inset-bottom));z-index:50; }
+  .product-bottom-nav a { display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#8a90a3;position:relative; }
+  .product-bottom-nav svg { width:22px;height:22px; }
+  .product-cart-tab .rs-cart-count { right:4px;top:-7px; }
   .rs-footer { padding: 34px 16px 30px !important; }
   .rs-footer-row { flex-direction: column !important; gap: 20px !important; }
+}
+
+@media (min-width: 821px) {
+  .product-bottom-nav { display: none; }
+  .rs-cart-count { position:absolute;right:-8px;top:-8px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#2a54e6;color:#fff;font-size:9px;font-weight:800;line-height:17px;text-align:center; }
+  .rs-cart-icon { position: relative; }
 }
 
 /* Маш нарийн дэлгэц */
