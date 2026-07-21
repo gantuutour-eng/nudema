@@ -329,6 +329,17 @@ class Component extends DCLogic {
   componentDidMount() {
     this.reload();
     this._unsub = NudemaStore.subscribe(() => this.reload());
+    if (typeof fetch === 'function') {
+      fetch('/api/auth/account', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+        .then((response) => response.ok ? response.json() : null)
+        .then((body) => {
+          if (!body || !body.user) return;
+          this.setState({
+            customerName: this.state.customerName || body.user.name || '',
+            phone: this.state.phone || body.user.phone || '',
+          });
+        }).catch(() => {});
+    }
   }
   componentWillUnmount() {
     if (this._unsub) this._unsub();

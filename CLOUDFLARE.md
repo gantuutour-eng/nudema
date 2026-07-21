@@ -16,6 +16,10 @@ Apply the schema:
 npx wrangler d1 migrations apply nudemadata --remote
 ```
 
+Migration `0002_customer_auth.sql` adds customer accounts, HttpOnly sessions, and
+the user-to-order relationship. Pages Functions also create the same tables on
+first use, but applying migrations remains the recommended production workflow.
+
 For local Functions testing:
 
 ```bash
@@ -81,6 +85,10 @@ Do not initialize from multiple browsers at the same time. Once D1 has data, nor
 | `GET /api/health` | Public | D1 readiness check |
 | `GET /api/storefront` | Public | Products and public storefront state |
 | `POST /api/orders` | Public | Validated order creation |
+| `POST /api/auth/signup` | Public | Create a password-hashed customer account |
+| `POST /api/auth/login` | Public | Create an HttpOnly customer session |
+| `GET /api/auth/account` | Customer session | Profile, points, and linked orders |
+| `POST /api/auth/logout` | Customer session | Revoke the current session |
 | `GET /api/images/:key` | Public | Immutable R2 image delivery |
 | `GET /api/admin/state` | Cloudflare Access | Full admin state |
 | `POST /api/admin/state` | Cloudflare Access | First-time D1 bootstrap |

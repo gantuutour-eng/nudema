@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Нэвтрэх · Nudema Mongolia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="auth-page.css">
+</head>
+<body><div class="auth-shell">
+<header class="auth-header"><a class="auth-back" href="Nudema%20Mongolia.dc.html">← <span>Дэлгүүр рүү буцах</span></a><a class="auth-logo" href="Nudema%20Mongolia.dc.html">NUDEMA</a><a class="auth-home" href="Nudema%20Account.dc.html"><span>Миний хуудас</span> ♙</a></header>
+<main class="auth-main"><section class="auth-card">
+<h1 class="auth-title">Нэвтрэх</h1><p class="auth-subtitle">Nudema-д тавтай морил</p>
+<div id="loginError" class="auth-error" role="alert"></div>
+<form id="loginForm">
+<div class="auth-fields"><input id="identifier" class="auth-input" autocomplete="username" placeholder="И-мэйл эсвэл утасны дугаар" required><input id="password" class="auth-input" type="password" autocomplete="current-password" placeholder="Нууц үг" required></div>
+<div class="auth-row"><label class="auth-check"><input id="remember" type="checkbox" checked>Намайг сана</label><span style="color:#a2a8a3">Нууц үг мартсан?</span></div>
+<button id="loginButton" class="auth-primary" type="submit">Нэвтрэх</button>
+</form>
+<div class="auth-divider"><span></span>эсвэл<span></span></div>
+<div class="auth-social"><button type="button" disabled>G&nbsp; Google-ээр нэвтрэх · Тун удахгүй</button><button type="button" disabled style="background:#fffbea">💬 Kakao-гаар нэвтрэх · Тун удахгүй</button></div>
+<p class="auth-footnote">Шинэ хэрэглэгч үү? <a class="auth-link" href="Nudema%20Signup.dc.html">Бүртгүүлэх</a></p>
+</section></main>
+<footer class="auth-footer"><div class="auth-footer-logo">NUDEMA</div>Nudema Mongolia ХХК · Улаанбаатар хот<br>И-мэйл: help@nudema.mn · Утас: 7011-5007</footer>
+</div><script src="nudema-auth.js"></script><script>
+(function(){var form=document.getElementById('loginForm'),error=document.getElementById('loginError'),button=document.getElementById('loginButton');
+NudemaAuth.api('/api/auth/account').then(function(){location.replace('Nudema%20Account.dc.html');}).catch(function(){});
+form.addEventListener('submit',function(e){e.preventDefault();NudemaAuth.showMessage(error,'');NudemaAuth.setBusy(button,true,'Нэвтэрч байна...');NudemaAuth.api('/api/auth/login',{method:'POST',body:JSON.stringify({identifier:document.getElementById('identifier').value,password:document.getElementById('password').value,remember:document.getElementById('remember').checked})}).then(function(){location.replace('Nudema%20Account.dc.html');}).catch(function(cause){NudemaAuth.showMessage(error,cause.message);NudemaAuth.setBusy(button,false);});});})();
+</script></body></html>
