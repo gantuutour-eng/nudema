@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Бүртгүүлэх · Nudema Mongolia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="auth-page.css">
+</head>
+<body><div class="auth-shell">
+<header class="auth-header"><a class="auth-back" href="Nudema%20Mongolia.dc.html">← <span>Дэлгүүр рүү буцах</span></a><a class="auth-logo" href="Nudema%20Mongolia.dc.html">NUDEMA</a><a class="auth-home" href="Nudema%20Login.dc.html"><span>Нэвтрэх</span> ♙</a></header>
+<main class="auth-main"><section class="auth-card">
+<h1 class="auth-title">Бүртгүүлэх</h1><p class="auth-subtitle">Nudema гишүүн болоод онцгой хямдрал аваарай</p>
+<div id="signupError" class="auth-error" role="alert"></div>
+<form id="signupForm"><div class="auth-fields">
+<div class="auth-field"><label>И-мэйл <span class="auth-required">*</span></label><input id="email" class="auth-input" type="email" autocomplete="email" placeholder="name@example.com" required></div>
+<div class="auth-field"><label>Нэр <span class="auth-required">*</span></label><input id="name" class="auth-input" autocomplete="name" placeholder="Таны нэр" maxlength="120" required></div>
+<div class="auth-field"><label>Утасны дугаар <span class="auth-required">*</span></label><div class="auth-phone"><span class="auth-prefix">+976</span><input id="phone" class="auth-input" inputmode="numeric" autocomplete="tel" placeholder="99000000" maxlength="15" required></div></div>
+<div class="auth-field"><label>Нууц үг <span class="auth-required">*</span></label><input id="password" class="auth-input" type="password" autocomplete="new-password" placeholder="8+ тэмдэгт" minlength="8" maxlength="128" required></div>
+<div class="auth-field"><label>Нууц үг давтах <span class="auth-required">*</span></label><input id="confirmPassword" class="auth-input" type="password" autocomplete="new-password" placeholder="Нууц үгээ дахин оруулна уу" minlength="8" maxlength="128" required></div>
+</div><div class="auth-agreements"><label class="auth-check"><input id="terms" type="checkbox" required><span><a class="auth-link" href="#">Үйлчилгээний нөхцөл</a> болон <a class="auth-link" href="#">Хувийн мэдээллийн бодлого</a>-той танилцаж зөвшөөрсөн <span class="auth-required">(заавал)</span></span></label><label class="auth-check"><input id="marketing" type="checkbox">Маркетинг мэдээлэл хүлээн авах (сонголтоор)</label></div>
+<button id="signupButton" class="auth-primary" type="submit">Бүртгүүлэх</button></form>
+<p class="auth-footnote">Бүртгэлтэй юу? <a class="auth-link" href="Nudema%20Login.dc.html">Нэвтрэх</a></p>
+</section></main>
+<footer class="auth-footer"><div class="auth-footer-logo">NUDEMA</div>Nudema Mongolia ХХК · Улаанбаатар хот<br>И-мэйл: help@nudema.mn · Утас: 7011-5007</footer>
+</div><script src="nudema-auth.js"></script><script>
+(function(){var form=document.getElementById('signupForm'),error=document.getElementById('signupError'),button=document.getElementById('signupButton');
+form.addEventListener('submit',function(e){e.preventDefault();NudemaAuth.showMessage(error,'');var password=document.getElementById('password').value;if(password!==document.getElementById('confirmPassword').value){return NudemaAuth.showMessage(error,'Нууц үг таарахгүй байна.');}NudemaAuth.setBusy(button,true,'Бүртгэж байна...');NudemaAuth.api('/api/auth/signup',{method:'POST',body:JSON.stringify({email:document.getElementById('email').value,name:document.getElementById('name').value,phone:document.getElementById('phone').value,password:password,terms:document.getElementById('terms').checked,marketing:document.getElementById('marketing').checked})}).then(function(){location.replace('Nudema%20Account.dc.html');}).catch(function(cause){NudemaAuth.showMessage(error,cause.message);NudemaAuth.setBusy(button,false);});});})();
+</script></body></html>

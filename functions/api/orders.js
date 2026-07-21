@@ -1,4 +1,5 @@
 import { dbFrom, ensureSchema, json, error, makeOrderNo, readState } from '../_lib.js';
+import { sessionUser } from '../_auth.js';
 
 function cleanText(value, max = 300) {
   return String(value == null ? '' : value).trim().slice(0, max);
@@ -12,6 +13,7 @@ export async function onRequestPost(context) {
 
     const db = dbFrom(context);
     await ensureSchema(db);
+    const account = await sessionUser(db, context.request);
     const state = await readState(db, ['products', 'settings']);
     const products = Array.isArray(state.data.products) ? state.data.products : [];
     const settings = state.data.settings || {};
@@ -33,7 +35,7 @@ export async function onRequestPost(context) {
     const isGift = body.gift === true;
     const name = cleanText(customer.name, 120);
     const phone = cleanText(customer.phone, 40);
-    const email = cleanText(customer.email, 160);
+    const email = account ? account.email : cleanText(customer.email, 160);
     const address = cleanText(customer.address, 500);
     if (!phone) return error('Phone number is required.');
     if (!isGift && (!name || !address)) return error('Name and delivery address are required.');
@@ -67,6 +69,9 @@ export async function onRequestPost(context) {
        (order_no, status, customer_email, customer_phone, payload, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
     ).bind(order.no, order.status, order.email, order.phone, JSON.stringify(order), order.createdAt).run();
+    if (account) {
+      await db.prepare('INSERT INTO user_orders (order_no, user_id) VALUES (?, ?)').bind(order.no, account.id).run();
+    }
 
     return json({ ok: true, order }, 201);
   } catch (cause) {

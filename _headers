@@ -27,3 +27,9 @@
 
 /nudema-menu.js
   Cache-Control: no-cache, must-revalidate
+
+/nudema-auth.js
+  Cache-Control: no-cache, must-revalidate
+
+/auth-page.css
+  Cache-Control: no-cache, must-revalidate
