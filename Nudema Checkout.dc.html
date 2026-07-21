@@ -23,6 +23,7 @@
 <script src="./image-slot.js"></script>
 <script src="./mn-regions.js"></script>
 <script src="./nudema-store.js"></script>
+<script src="./nudema-cart.js"></script>
 </helmet>
 <div style="width:100%;background:#fff;">
 
@@ -327,6 +328,16 @@ class Component extends DCLogic {
   };
 
   componentDidMount() {
+    try {
+      const params = new URLSearchParams(window.location.search || '');
+      const add = params.get('add');
+      if (add && typeof NudemaCart !== 'undefined') {
+        NudemaCart.add(add, params.get('qty') || 1, params.get('option') || 0);
+        params.delete('add'); params.delete('qty'); params.delete('option');
+        const query = params.toString();
+        window.history.replaceState(null, '', window.location.pathname + (query ? '?' + query : ''));
+      }
+    } catch (e) {}
     this.reload();
     this._unsub = NudemaStore.subscribe(() => this.reload());
     if (typeof fetch === 'function') {
@@ -373,6 +384,7 @@ class Component extends DCLogic {
 
     this.setState({ submitting: true, orderError: '' });
     NudemaStore.createOrder(payload).then((order) => {
+      if (typeof NudemaCart !== 'undefined') NudemaCart.clear();
       this.setState({ submitting: false, done: true, orderNo: order && order.no ? order.no : '' });
       if (typeof window !== 'undefined') window.scrollTo(0, 0);
     }).catch((cause) => {
@@ -407,10 +419,15 @@ class Component extends DCLogic {
     const settings = this.state.settings || NudemaStore.read('settings');
     const catalog = this.state.products || NudemaStore.read('products');
 
-    // Сагсны бараа — каталогийн эхний хоёроор жишээлнэ
-    const rawItems = catalog.slice(0, 2).map((p, i) => ({
+    // Бодит сагсны бараа. Хуучин preview runner-д helper байхгүй бол demo fallback ашиглана.
+    const cartRows = typeof NudemaCart !== 'undefined' ? NudemaCart.details(catalog) : null;
+    const sourceItems = cartRows === null ? catalog.slice(0, 2).map((p, i) => ({
       id: p.id, title: p.title, option: 'Стандарт', unit: p.price,
-      original: p.original || p.price, qty: i === 1 ? 2 : 1,
+      original: p.original || p.price, qty: i === 1 ? 2 : 1, img: p.img || '',
+    })) : cartRows;
+    const rawItems = sourceItems.map((p) => ({
+      id: p.id, title: p.title, option: p.option || 'Стандарт', unit: p.unit == null ? p.price : p.unit,
+      original: p.original || p.unit || p.price, qty: p.qty || 1,
       img: p.img || '', hasImg: !!p.img, noImg: !p.img,
     }));
     const items = rawItems.map(it => ({ ...it, lineTotal: this.fmt(it.unit * it.qty) }));

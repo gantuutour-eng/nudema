@@ -21,6 +21,7 @@
 <link rel="stylesheet" href="./responsive.css">
 <script src="./image-slot.js"></script>
 <script src="./nudema-store.js"></script>
+<script src="./nudema-cart.js"></script>
 </helmet>
 <!-- Өнгөт туузууд дэлгэц дүүрэн; доторх агуулга 1280px -->
 <div style="width:100%;background:#fff;">
@@ -157,10 +158,10 @@
           </button>
         </div>
         <sc-if value="{{ inStock }}" hint-placeholder-val="{{ true }}">
-          <a href="Nudema%20Cart.dc.html" style="flex:1;height:56px;line-height:56px;text-align:center;border:1px solid #2a54e6;border-radius:12px;background:#fff;color:#2a54e6;font-size:16px;font-weight:800;">Сагсанд нэмэх</a>
+          <a href="{{ cartHref }}" style="flex:1;height:56px;line-height:56px;text-align:center;border:1px solid #2a54e6;border-radius:12px;background:#fff;color:#2a54e6;font-size:16px;font-weight:800;">Сагсанд нэмэх</a>
         </sc-if>
         <sc-if value="{{ inStock }}" hint-placeholder-val="{{ true }}">
-          <a href="Nudema%20Checkout.dc.html" style="flex:1;height:56px;line-height:56px;text-align:center;border:none;border-radius:12px;background:#2a54e6;color:#fff;font-size:16px;font-weight:800;">Худалдан авах</a>
+          <a href="{{ checkoutHref }}" style="flex:1;height:56px;line-height:56px;text-align:center;border:none;border-radius:12px;background:#2a54e6;color:#fff;font-size:16px;font-weight:800;">Худалдан авах</a>
         </sc-if>
         <sc-if value="{{ soldOut }}" hint-placeholder-val="{{ false }}">
           <span style="flex:1;height:56px;line-height:56px;text-align:center;border:none;border-radius:12px;background:#eceff6;color:#9aa39c;font-size:16px;font-weight:800;cursor:not-allowed;">Дууссан</span>
@@ -596,6 +597,8 @@ class Component extends DCLogic {
       optionLabel: hasOptions ? optionDefs[oi].label : 'Тоо ширхэг',
       qty,
       lineTotal: fmt(total),
+      cartHref: `Nudema%20Cart.dc.html?add=${encodeURIComponent(product.id)}&qty=${qty}&option=${oi}`,
+      checkoutHref: `Nudema%20Checkout.dc.html?add=${encodeURIComponent(product.id)}&qty=${qty}&option=${oi}`,
       inc: () => this.setState(s => ({ qty: Math.min(maxQty, s.qty + 1) })),
       dec: () => this.setState(s => ({ qty: Math.max(1, s.qty - 1) })),
 

@@ -40,6 +40,7 @@
 </style>
 <script src="./image-slot.js"></script>
 <script src="./nudema-store.js"></script>
+<script src="./nudema-cart.js"></script>
 </helmet>
 <!-- Жинхэнэ утсан дээр 360px ч бай багтахаар уян хатан өргөнтэй -->
 <!-- Доод талын тогтмол таб бааранд дарагдахгүйн тулд padding-bottom -->
@@ -63,8 +64,8 @@
     </button>
     <a href="Nudema%20Mobile.dc.html" style="font-size:21px;font-weight:800;letter-spacing:0.08em;color:#2a54e6;">NUDEMA</a>
     <div style="display:flex;align-items:center;gap:14px;">
-      <a href="Nudema%20Search.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg></a>
-      <a href="Nudema%20Cart.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg></a>
+      <a href="Nudema%20Search.dc.html" aria-label="Хайх" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg></a>
+      <a href="Nudema%20Cart.dc.html" aria-label="Сагс" style="position:relative;width:32px;height:32px;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span data-cart-count hidden style="position:absolute;right:-3px;top:-4px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#2a54e6;color:#fff;font-size:9px;font-weight:800;line-height:17px;text-align:center;">0</span></a>
     </div>
   </header>
 
@@ -288,8 +289,8 @@
     <a href="Nudema%20Search.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#8a90a3;">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8a90a3" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>Хайх
     </a>
-    <a href="Nudema%20Cart.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#8a90a3;">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8a90a3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg>Сагс
+    <a href="Nudema%20Cart.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#8a90a3;position:relative;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8a90a3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span data-cart-count hidden style="position:absolute;right:5px;top:-7px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#2a54e6;color:#fff;font-size:9px;font-weight:800;line-height:17px;text-align:center;">0</span>Сагс
     </a>
     <a href="Nudema%20Account.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;font-weight:600;color:#8a90a3;">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8a90a3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Профайл
