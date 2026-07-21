@@ -1122,49 +1122,57 @@ class Component extends DCLogic {
   }
 
   /* ---- Зураг байршуулах ----
-   * Файлыг canvas-аар багасгаад Cloudflare дээр R2 руу байршуулна.
-   * Энгийн локал сервер дээр ажиллахдаа хуучин data URL fallback-аа ашиглана.
+   * Файлыг base64 болголгүй object URL-аар canvas-д нээгээд WebP blob болгон
+   * багасгана. Blob нь R2 руу multipart binary хэлбэрээр байршуулж, бүтээгдэхүүнд
+   * зөвхөн /api/images/... URL хадгална.
    */
   readImageFile(file, cb) {
     if (!file) return cb('Файл сонгогдоогүй байна.');
     if (!/^image\//.test(file.type)) return cb('Зөвхөн зураг файл оруулна уу.');
     if (file.size > 12 * 1024 * 1024) return cb('Зургийн хэмжээ 12MB-аас бага байх ёстой.');
+    if (!(NudemaStore.remoteStatus && NudemaStore.remoteStatus.enabled)) {
+      return cb('Зураг байршуулахын тулд Cloudflare Pages дээрх админ хуудсыг ашиглана уу.');
+    }
+    if (!window.URL || !URL.createObjectURL) {
+      return cb('Энэ хөтөч WebP зураг хөрвүүлэлтийг дэмжихгүй байна.');
+    }
 
-    const fr = new FileReader();
-    fr.onerror = () => cb('Файлыг уншиж чадсангүй.');
-    fr.onload = () => {
-      const im = new Image();
-      im.onerror = () => cb('Зургийг задлан уншиж чадсангүй.');
-      im.onload = () => {
-        const MAXW = 1600;
-        const scale = Math.min(1, MAXW / (im.width || MAXW));
+    const sourceUrl = URL.createObjectURL(file);
+    const release = () => URL.revokeObjectURL(sourceUrl);
+    const im = new Image();
+    im.onerror = () => {
+      release();
+      cb('Зургийг задлан уншиж чадсангүй.');
+    };
+    im.onload = () => {
+      try {
+        const MAX_EDGE = 1600;
+        const scale = Math.min(1, MAX_EDGE / Math.max(im.width || MAX_EDGE, im.height || MAX_EDGE));
         const w = Math.max(1, Math.round(im.width * scale));
         const h = Math.max(1, Math.round(im.height * scale));
-        try {
-          const c = document.createElement('canvas');
-          c.width = w; c.height = h;
-          const g = c.getContext('2d');
-          g.fillStyle = '#ffffff';
-          g.fillRect(0, 0, w, h); // JPEG-д тунгалаг хэсэг хар болохоос сэргийлнэ
-          g.drawImage(im, 0, 0, w, h);
-          if (NudemaStore.remoteStatus && NudemaStore.remoteStatus.enabled) {
-            if (!c.toBlob) return cb('Энэ хөтөч R2 зураг байршуулалтыг дэмжихгүй байна.');
-            c.toBlob((blob) => {
-              if (!blob) return cb('Зургийг хөрвүүлж чадсангүй.');
-              NudemaStore.uploadImage(blob, file.name || 'nudema-image.jpg')
-                .then((result) => cb(null, result.url))
-                .catch((cause) => cb(cause && cause.message ? cause.message : 'R2-д зураг байршуулж чадсангүй.'));
-            }, 'image/jpeg', 0.82);
-          } else {
-            cb(null, c.toDataURL('image/jpeg', 0.82));
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        const g = c.getContext('2d');
+        if (!g || !c.toBlob) throw new Error('Canvas is unavailable');
+        g.imageSmoothingEnabled = true;
+        g.imageSmoothingQuality = 'high';
+        g.drawImage(im, 0, 0, w, h);
+        release();
+        c.toBlob((blob) => {
+          if (!blob || blob.type !== 'image/webp') {
+            return cb('Энэ хөтөч WebP зураг хөрвүүлэлтийг дэмжихгүй байна.');
           }
-        } catch (e) {
-          cb('Зургийг хөрвүүлж чадсангүй.');
-        }
-      };
-      im.src = fr.result;
+          const baseName = String(file.name || 'nudema-image').replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9_-]+/g, '-');
+          NudemaStore.uploadImage(blob, (baseName || 'nudema-image') + '.webp')
+            .then((result) => cb(null, result.url))
+            .catch((cause) => cb(cause && cause.message ? cause.message : 'R2-д зураг байршуулж чадсангүй.'));
+        }, 'image/webp', 0.82);
+      } catch (e) {
+        release();
+        cb('Зургийг WebP болгон хөрвүүлж чадсангүй.');
+      }
     };
-    fr.readAsDataURL(file);
+    im.src = sourceUrl;
   }
 
   onSlideFile(i, e) {

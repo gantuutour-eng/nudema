@@ -32,6 +32,10 @@ For a Git-connected Pages project:
 - D1 binding name: `DB`
 - D1 database: `nudemadata`
 - R2 binding name: `IMAGES`
+
+New admin image uploads are resized to a maximum edge of 1600px, encoded as WebP
+at 82% quality, and uploaded to R2 as binary multipart data. Product records store
+only the `/api/images/<key>.webp` URL; Base64 image data is not stored in D1.
 - R2 bucket: `nudema-images`
 
 Add these production variables:
