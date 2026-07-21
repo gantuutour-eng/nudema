@@ -2,6 +2,12 @@
 # Шинэчлэлт хийхэд хуучин хуудас утсан дээр үлдэхээс сэргийлнэ
 # (ялангуяа апп доторх хөтчүүд түрэмгий кэшилдэг).
 
+/*
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
 /
   Cache-Control: no-cache, must-revalidate
 
@@ -9,6 +15,10 @@
   Cache-Control: no-cache, must-revalidate
 
 /*.html
+  Cache-Control: no-cache, must-revalidate
+
+# Cloudflare Pages нь .html хаягийг өргөтгөлгүй .dc хаяг руу шилжүүлдэг.
+/*.dc
   Cache-Control: no-cache, must-revalidate
 
 # Runtime ба төлөв өөрчлөгддөг JS

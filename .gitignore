@@ -2,6 +2,10 @@ node_modules/
 .DS_Store
 Thumbs.db
 *.log
+.wrangler/
+.dev.vars
+wrangler.local.jsonc
+wrangler.jsonc
 
 # Claude Design-ийн зургийн sidecar (хөтөч дээр үүсдэг)
 .image-slots.state.json

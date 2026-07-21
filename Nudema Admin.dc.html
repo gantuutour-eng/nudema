@@ -1122,8 +1122,8 @@ class Component extends DCLogic {
   }
 
   /* ---- Зураг байршуулах ----
-   * Файлыг canvas-аар багасгаж data URL болгоно. localStorage-д base64-ээр
-   * хадгалагдах тул хэмжээг барих ёстой.
+   * Файлыг canvas-аар багасгаад Cloudflare дээр R2 руу байршуулна.
+   * Энгийн локал сервер дээр ажиллахдаа хуучин data URL fallback-аа ашиглана.
    */
   readImageFile(file, cb) {
     if (!file) return cb('Файл сонгогдоогүй байна.');
@@ -1147,7 +1147,17 @@ class Component extends DCLogic {
           g.fillStyle = '#ffffff';
           g.fillRect(0, 0, w, h); // JPEG-д тунгалаг хэсэг хар болохоос сэргийлнэ
           g.drawImage(im, 0, 0, w, h);
-          cb(null, c.toDataURL('image/jpeg', 0.82));
+          if (NudemaStore.remoteStatus && NudemaStore.remoteStatus.enabled) {
+            if (!c.toBlob) return cb('Энэ хөтөч R2 зураг байршуулалтыг дэмжихгүй байна.');
+            c.toBlob((blob) => {
+              if (!blob) return cb('Зургийг хөрвүүлж чадсангүй.');
+              NudemaStore.uploadImage(blob, file.name || 'nudema-image.jpg')
+                .then((result) => cb(null, result.url))
+                .catch((cause) => cb(cause && cause.message ? cause.message : 'R2-д зураг байршуулж чадсангүй.'));
+            }, 'image/jpeg', 0.82);
+          } else {
+            cb(null, c.toDataURL('image/jpeg', 0.82));
+          }
         } catch (e) {
           cb('Зургийг хөрвүүлж чадсангүй.');
         }
