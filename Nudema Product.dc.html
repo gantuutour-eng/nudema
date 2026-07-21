@@ -172,7 +172,7 @@
 
   <!-- detail tabs -->
   <section style="border-top:1px solid #eee;">
-    <div style="display:flex;justify-content:center;gap:0;border-bottom:1px solid #eee;">
+    <div class="pd-tabs" style="display:flex;justify-content:center;gap:0;border-bottom:1px solid #eee;">
       <sc-for list="{{ detailTabs }}" as="t" hint-placeholder-count="3">
         <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
       </sc-for>

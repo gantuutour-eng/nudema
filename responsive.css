@@ -25,6 +25,9 @@
   .pd-related { grid-template-columns: repeat(2, 1fr) !important; gap: 16px !important; }
   .pd-tabpanel { padding: 32px 16px 24px !important; }
   .pd-tab { padding: 15px 14px !important; font-size: 13.5px !important; }
+  .pd-tabs { justify-content:flex-start !important;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch; }
+  .pd-tabs::-webkit-scrollbar { display:none; }
+  .pd-tabs button { flex:0 0 auto; }
   /* Хоёр баганат блокуудыг нэг багана болгоно */
   .pd-split { grid-template-columns: 1fr !important; gap: 14px !important; }
 
