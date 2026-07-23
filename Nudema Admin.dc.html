@@ -22,7 +22,7 @@
   .aScroll::-webkit-scrollbar { height: 8px; }
 </style>
 <script src="./image-slot.js"></script>
-<script src="./nudema-store.js"></script>
+<script src="./nudema-store.js?v=20260723-1"></script>
 </helmet>
 <!-- Сайтын өөрийн админ нэвтрэх дэлгэц -->
 <sc-if value="{{ notAuthed }}" hint-placeholder-val="{{ false }}">
@@ -1203,10 +1203,10 @@ class Component extends DCLogic {
     const sourceHeight = Math.max(1, Number(height) || 1);
     if (mode === 'detail') {
       // Урт дэлгэрэнгүй зурагт бичвэр бүдгэрэхээс сэргийлж өргөнийг хадгална.
-      // Canvas санах ойг хэтрүүлэхгүйгээр 24MP / 20,000px дотор багтаана.
-      const maxWidth = 1600;
-      const maxHeight = 20000;
-      const maxPixels = 24000000;
+      // Canvas санах ойг хэтрүүлэхгүйгээр 32MP / 30,000px дотор багтаана.
+      const maxWidth = 2000;
+      const maxHeight = 30000;
+      const maxPixels = 32000000;
       const scale = Math.min(
         1,
         maxWidth / sourceWidth,
@@ -1216,7 +1216,7 @@ class Component extends DCLogic {
       return {
         width: Math.max(1, Math.round(sourceWidth * scale)),
         height: Math.max(1, Math.round(sourceHeight * scale)),
-        quality: 0.92,
+        quality: 0.96,
       };
     }
     const maxEdge = 1600;
@@ -1248,7 +1248,12 @@ class Component extends DCLogic {
     };
     im.onload = () => {
       try {
-        const plan = this.imageResizePlan(im.width, im.height, options && options.mode);
+        const mode = options && options.mode;
+        if (mode === 'detail' && im.width < 720) {
+          release();
+          return cb('Дэлгэрэнгүй зургийн эх өргөн хамгийн багадаа 720px байх ёстой. Илүү өндөр нягтралтай эх зургаа сонгоно уу.');
+        }
+        const plan = this.imageResizePlan(im.width, im.height, mode);
         const w = plan.width;
         const h = plan.height;
         const c = document.createElement('canvas');
@@ -1264,7 +1269,11 @@ class Component extends DCLogic {
             return cb('Энэ хөтөч WebP зураг хөрвүүлэлтийг дэмжихгүй байна.');
           }
           const baseName = String(file.name || 'nudema-image').replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9_-]+/g, '-');
-          NudemaStore.uploadImage(blob, (baseName || 'nudema-image') + '.webp')
+          NudemaStore.uploadImage(blob, (baseName || 'nudema-image') + '.webp', {
+            profile: mode === 'detail' ? 'detail-v3' : 'standard-v1',
+            width: w,
+            height: h,
+          })
             .then((result) => cb(null, result.url))
             .catch((cause) => cb(cause && cause.message ? cause.message : 'R2-д зураг байршуулж чадсангүй.'));
         }, 'image/webp', plan.quality);

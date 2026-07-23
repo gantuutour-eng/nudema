@@ -356,11 +356,14 @@
     });
   };
 
-  var uploadImage = function (file, filename) {
+  var uploadImage = function (file, filename, metadata) {
     if (!canFetchRemote || !isAdminPage) return Promise.reject(new Error('R2 upload is only available on the deployed admin page.'));
     if (!file || file.type !== 'image/webp') return Promise.reject(new Error('Only optimized WebP images can be uploaded.'));
     var form = new FormData();
     form.append('file', file, filename || file.name || 'nudema-image.webp');
+    form.append('profile', String(metadata && metadata.profile || ''));
+    form.append('width', String(metadata && metadata.width || ''));
+    form.append('height', String(metadata && metadata.height || ''));
     return remoteRequest('/api/admin/images', {
       method: 'POST',
       headers: { 'Accept': 'application/json' },

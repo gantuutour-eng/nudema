@@ -7,7 +7,19 @@ export async function onRequestPost(context) {
 
     const form = await context.request.formData();
     const file = form.get('file');
+    const profile = String(form.get('profile') || '');
+    const width = Number(form.get('width'));
+    const height = Number(form.get('height'));
     if (!file || typeof file.arrayBuffer !== 'function') return error('An image file is required.');
+    if (!['standard-v1', 'detail-v3'].includes(profile)) {
+      return error('Админ хуудсыг шинэчлээд зургийг дахин байршуулна уу.', 409);
+    }
+    if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1) {
+      return error('Image dimensions are required.');
+    }
+    if (profile === 'detail-v3' && width < 720) {
+      return error('Detail images must be at least 720px wide.');
+    }
     if (file.type !== 'image/webp') return error('Only optimized WebP images are allowed.');
     if (file.size > 12 * 1024 * 1024) return error('The image must be smaller than 12MB.');
 
@@ -25,6 +37,9 @@ export async function onRequestPost(context) {
       customMetadata: {
         uploadedBy: context.data.admin && context.data.admin.email ? context.data.admin.email : 'local-admin',
         originalName: String(file.name || '').slice(0, 180),
+        profile,
+        width: String(width),
+        height: String(height),
       },
     });
 

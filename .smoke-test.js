@@ -573,8 +573,8 @@ const detailImagePlan = admin.imageResizePlan(1080, 8000, 'detail');
 const wideDetailPlan = admin.imageResizePlan(3000, 12000, 'detail');
 check('ердийн урт зураг 1600px ирмэгт багтсан', regularImagePlan.width === 216 && regularImagePlan.height === 1600);
 check('урт дэлгэрэнгүй зураг өргөнөө хадгалсан', detailImagePlan.width === 1080 && detailImagePlan.height === 8000);
-check('дэлгэрэнгүй зураг WebP 92% чанартай', detailImagePlan.quality === 0.92);
-check('хэт өргөн дэлгэрэнгүй зураг 1600px болсон', wideDetailPlan.width === 1600 && wideDetailPlan.height === 6400);
+check('дэлгэрэнгүй зураг WebP 96% чанартай', detailImagePlan.quality === 0.96);
+check('хэт өргөн дэлгэрэнгүй зураг 2000px болсон', wideDetailPlan.width === 2000 && wideDetailPlan.height === 8000);
 
 const noDetail = openProduct('?id=1').renderVals();
 check('блокгүй үед хоосон төлөв', noDetail.noDetailBlocks === true && noDetail.detailBlocks.length === 0);
