@@ -150,39 +150,6 @@
     </div>
   </section>
 
-  <!-- best products -->
-  <section style="padding:0 0 26px;">
-    <div style="padding:0 16px;margin-bottom:14px;">
-      <h2 style="font-size:18px;font-weight:800;color:#16255f;margin:0 0 4px;">Хамгийн эрэлттэй</h2>
-      <p style="font-size:12px;color:#8a90a3;margin:0;">Энэ долоо хоногт хамгийн их зарагдсан</p>
-    </div>
-    <div style="display:flex;gap:8px;overflow-x:auto;padding:0 16px 14px;" class="mScroll">
-      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
-        <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
-      </sc-for>
-    </div>
-    <div style="display:flex;gap:12px;overflow-x:auto;padding:0 16px;" class="mScroll">
-      <sc-for list="{{ bestFiltered }}" as="p" hint-placeholder-count="4">
-        <a href="{{ p.href }}" style="flex:0 0 150px;display:block;">
-          <div style="position:relative;background:{{ p.bg }};border-radius:12px;aspect-ratio:1/1;overflow:hidden;">
-            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></sc-if>
-            <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><image-slot id="m-best-{{ p.id }}" shape="rect" fit="contain" placeholder="Зураг"></image-slot></sc-if>
-            <span style="position:absolute;top:8px;left:8px;background:rgba(16,37,95,.72);color:#fff;font-size:11px;font-weight:800;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:3;">{{ p.rank }}</span>
-          </div>
-          <div style="margin-top:9px;font-size:11px;color:#e0a020;font-weight:700;">★ {{ p.rating }} <span style="color:#9aa39c;font-weight:500;">({{ p.count }})</span></div>
-          <div style="margin-top:4px;font-size:13px;font-weight:600;line-height:1.35;color:#2a302b;">{{ p.title }}</div>
-          <div style="margin-top:6px;display:flex;align-items:baseline;gap:6px;">
-            <span style="font-size:15px;font-weight:800;color:#111;">{{ p.price }}</span>
-            <sc-if value="{{ p.hasOriginal }}" hint-placeholder-val="{{ true }}"><span style="font-size:11px;color:#b3bab4;text-decoration:line-through;">{{ p.original }}</span></sc-if>
-          </div>
-        </a>
-      </sc-for>
-    </div>
-    <sc-if value="{{ bestEmpty }}" hint-placeholder-val="{{ false }}">
-      <p style="text-align:center;font-size:13px;color:#9aa39c;padding:26px 16px 6px;margin:0;">Энэ ангилалд бүтээгдэхүүн алга байна.</p>
-    </sc-if>
-  </section>
-
   <!-- reviews marquee -->
   <section style="padding:6px 0 26px;overflow:hidden;">
     <div style="padding:0 16px;margin-bottom:14px;">
@@ -207,28 +174,6 @@
             </div>
           </sc-if>
         </div>
-      </sc-for>
-    </div>
-  </section>
-
-  <!-- events -->
-  <section style="padding:0 0 26px;">
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;padding:0 16px;margin-bottom:14px;">
-      <h2 style="font-size:18px;font-weight:800;color:#16255f;margin:0;">Эвент</h2>
-      <a href="Nudema%20Search.dc.html" style="font-size:12px;font-weight:700;color:#2a54e6;">Бүгд ›</a>
-    </div>
-    <div style="display:flex;gap:12px;overflow-x:auto;padding:0 16px;" class="mScroll">
-      <sc-for list="{{ events }}" as="e" hint-placeholder-count="3">
-        <a href="Nudema%20Search.dc.html" style="flex:0 0 230px;display:block;">
-          <div style="position:relative;border-radius:14px;overflow:hidden;aspect-ratio:4/3;background:#eef0f7;">
-            <image-slot id="m-event-{{ e.id }}" shape="rect" fit="cover" placeholder="Эвент зураг"></image-slot>
-            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,37,95,0) 42%,rgba(16,37,95,.7) 100%);"></div>
-            <div style="position:absolute;left:14px;right:14px;bottom:13px;">
-              <p style="font-size:10.5px;font-weight:700;color:#c7d4ff;margin:0 0 4px;">{{ e.sub }}</p>
-              <h3 style="font-size:14px;font-weight:800;line-height:1.35;color:#fff;margin:0;">{{ e.title }}</h3>
-            </div>
-          </div>
-        </a>
       </sc-for>
     </div>
   </section>
