@@ -835,63 +835,20 @@ check('устгагдсан бараа эвдрээгүй',
   admin.renderVals().odItems.map((it) => it.title).join(' / ').slice(0, 46));
 admin.setState({ expanded: '' });
 
-console.log('\n[28] Админы нэвтрэлт');
-const sessionMem = new Map();
-win.sessionStorage = {
-  getItem: (k) => (sessionMem.has(k) ? sessionMem.get(k) : null),
-  setItem: (k, v) => sessionMem.set(k, String(v)),
-  removeItem: (k) => sessionMem.delete(k),
-};
-ctx.sessionStorage = win.sessionStorage;
-mem.delete('nudema_admin');
+console.log('\n[28] Cloudflare Access админы нэвтрэлт');
+const adminSource = fs.readFileSync('Nudema Admin.dc.html', 'utf8');
+check('client-side нууц үг байхгүй', !/type="password"|nudema2026|nudema_admin_session/.test(adminSource));
+check('Cloudflare Access шалгалттай', adminSource.includes('NudemaStore.sync()') && adminSource.includes('/cdn-cgi/access/logout'));
+check('admin store key устсан', !Object.prototype.hasOwnProperty.call(win.NudemaStore.KEYS, 'admin'));
 
 loadComponent('Nudema Admin.dc.html', 'AdminC2');
 const gate = vm.runInContext('new AdminC2()', ctx);
 gate.componentDidMount();
 let gv = gate.renderVals();
-check('эхлээд нэвтрээгүй', gv.authed === false && gv.notAuthed === true);
-
-gate.setState({ loginEmail: 'admin@nudema.mn', loginPass: 'buruu' });
-gate.login();
+check('баталгаажаагүй үед dashboard хаалттай', gv.authed === false && gv.notAuthed === true);
+gate.setState({ authed: true, authLoading: false, adminEmail: 'owner@nudema.mn' });
 gv = gate.renderVals();
-check('буруу нууц үг блоклов', gv.hasLoginError === true && gv.authed === false, gv.loginError);
-
-gate.setState({ loginEmail: '', loginPass: '' });
-gate.login();
-check('хоосон талбар блоклов', gate.renderVals().hasLoginError === true);
-
-gate.setState({ loginEmail: 'ADMIN@Nudema.MN', loginPass: 'nudema2026' });
-gate.login();
-gv = gate.renderVals();
-check('зөв мэдээллээр нэвтэрлээ', gv.authed === true, 'authed=' + gv.authed);
-check('том/жижиг үсэг мэдрэмжгүй', gv.hasLoginError === false);
-check('session хадгалагдсан', sessionMem.get('nudema_admin_session') === '1');
-check('нэр сайдбарт', gv.adminName === 'Б.Оюунбилэг', gv.adminName);
-check('эхний үсэг', gv.adminInitial === 'Б');
-
-// Гарах
-gv.askLogout();
-check('гарах баталгаа асуув', gate.renderVals().isAskingLogout === true);
-gate.renderVals().cancelLogout();
-check('цуцлахад нэвтэрсэн хэвээр', gate.renderVals().authed === true);
-gate.renderVals().askLogout();
-gate.renderVals().doLogout();
-gv = gate.renderVals();
-check('гарсан', gv.authed === false);
-check('session цэвэрлэгдсэн', sessionMem.get('nudema_admin_session') === undefined);
-
-// Бүртгэл солиод дахин нэвтрэх
-gate.setState({ authed: true });
-gate.updAdmin({ email: 'shine@nudema.mn', password: 'shine123' });
-gate.saveAccount();
-check('бүртгэл store-д хадгалагдсан', NudemaStore_read('admin').email === 'shine@nudema.mn');
-gate.logout();
-gate.setState({ loginEmail: 'admin@nudema.mn', loginPass: 'nudema2026' });
-gate.login();
-check('хуучин нууц үг ажиллахаа больсон', gate.renderVals().authed === false);
-gate.setState({ loginEmail: 'shine@nudema.mn', loginPass: 'shine123' });
-gate.login();
-check('шинэ бүртгэлээр нэвтэрлээ', gate.renderVals().authed === true);
+check('Access identity sidebar-т харагдана', gv.adminName === 'owner' && gv.adminEmail === 'owner@nudema.mn', gv.adminEmail);
 
 console.log('\n[29] Сэтгэгдлийн модерац');
 mem.delete('nudema_reviews');
@@ -932,6 +889,11 @@ check('нүүр хуудсанд устгагдсан нь алга', !hRev.revi
 
 console.log('\n[30] Самбар / статистик / хэрэглэгчид — захиалгаас тооцоолсон');
 ['nudema_orders', 'nudema_products', 'nudema_order_statuses'].forEach((k) => mem.delete(k));
+const runtimeNow = new Date();
+const runtimeToday = [runtimeNow.getFullYear(), String(runtimeNow.getMonth() + 1).padStart(2, '0'), String(runtimeNow.getDate()).padStart(2, '0')].join('-');
+const runtimeOrders = NudemaStore_read('orders');
+runtimeOrders[0] = { ...runtimeOrders[0], date: runtimeToday, status: 'pending' };
+vm.runInContext('window.NudemaStore.write("orders", ' + JSON.stringify(runtimeOrders) + ')', ctx);
 admin.reload();
 admin.setState({ section: 'dashboard', q: '', ofilter: 'all', expanded: '' });
 
@@ -942,7 +904,7 @@ const totalOf = (o) => (o.items || []).reduce((a, it) => a + priceOf(it.pid) * i
 const notCancelled = ords.filter((o) => o.status !== 'cancel');
 
 let dv = admin.renderVals();
-const expectToday = notCancelled.filter((o) => o.date === '2026-07-20').reduce((a, o) => a + totalOf(o), 0);
+const expectToday = notCancelled.filter((o) => o.date === runtimeToday).reduce((a, o) => a + totalOf(o), 0);
 check('өнөөдрийн орлого тооцоологдсон', dv.kpis[0].value === '₮ ' + expectToday.toLocaleString('en-US'), dv.kpis[0].value);
 check('KPI 4 ширхэг', dv.kpis.length === 4);
 check('хэрэглэгчийн тоо жинхэнэ', dv.kpis[2].value === String(new Set(ords.map((o) => o.customer)).size), dv.kpis[2].value);
@@ -974,7 +936,7 @@ check('ангиллын хувь ~100', pctSum >= 97 && pctSum <= 103, pctSum + 
 
 // Төлөв солиход үзүүлэлт дагах ёстой
 admin.setState({ section: 'dashboard' });
-const todayOrder = admin.renderVals().ordersFull.find((o) => o.rawDate === '2026-07-20' && o.key !== 'cancel');
+const todayOrder = admin.renderVals().ordersFull.find((o) => o.rawDate === runtimeToday && o.key !== 'cancel');
 const beforeRevenue = admin.renderVals().kpis[0].value;
 admin.setStatus(todayOrder.no, 'cancel');
 const afterRevenue = admin.renderVals().kpis[0].value;

@@ -9,7 +9,6 @@
     products: 'nudema_products',
     settings: 'nudema_settings',
     taxonomy: 'nudema_taxonomy',
-    admin: 'nudema_admin',
     orders: 'nudema_orders',
     reviews: 'nudema_reviews',
     content: 'nudema_content',
@@ -100,16 +99,6 @@
       { id: 7, title: 'Хиалуроны чийгийн эссенс', cat: 'toner', category: 'Тонер / Эссенс', badge: '', price: 49500, original: 68000, stock: 17, rating: '4.8', count: '1,104', sold: 287, showOnHome: false, bg: '#3f6bb0', img: '', desc: '', ingredients: '', shipping: '', pointsRate: 0, options: [] },
       { id: 8, title: 'Наранаас хамгаалах SPF50+ тос', cat: 'cleanser', category: 'Нар хамгаалалт', badge: '', price: 42000, original: 58000, stock: 133, rating: '4.9', count: '2,208', sold: 265, showOnHome: true, bg: '#f4f5f3', img: '', desc: '', ingredients: '', shipping: '', pointsRate: 0, options: [] },
     ],
-    // ⚠️ Админы нэвтрэлт нь зөвхөн үзүүлэн (demo) зориулалттай.
-    // Нууц үг хөтөч дээр задгай хадгалагдана — жинхэнэ хамгаалалт БИШ.
-    // Бодит ашиглалтад сервер талын нэвтрэлт шаардлагатай.
-    admin: {
-      name: 'Б.Оюунбилэг',
-      email: 'admin@nudema.mn',
-      password: 'nudema2026',
-      role: 'Админ',
-    },
-
     // Ангилал ба таг — админаас нэмэх/засах/устгах боломжтой.
     // Ангилал нь нүүр хуудасны "Хамгийн эрэлттэй" табыг мөн тодорхойлно.
     // "Байхгүй" таг нь "таг байхгүй" гэсэн утгатай тул энд хадгалагдахгүй.
@@ -155,11 +144,27 @@
     statuses: {},
   };
 
+  // Production-ийн D1 хоосон эсвэл түр ачаалж байгаа үед үзүүлэх schema-only төлөв.
+  // DEFAULTS дахь жишээ өгөгдөл нь зөвхөн file:// болон smoke test-д ашиглагдана.
+  var EMPTY_DEFAULTS = {
+    products: [],
+    settings: {
+      shopName: '', phone: '', email: '', shippingFee: '', freeThreshold: '',
+      orderNotify: false, bankAccounts: [], bankNote: '',
+    },
+    taxonomy: { categories: [], badges: [] },
+    reviews: [],
+    content: { brandVideo: '', marquee: [], slides: [] },
+    orders: [],
+    statuses: {},
+  };
+
   var clone = function (v) { return JSON.parse(JSON.stringify(v)); };
 
   var PUBLIC_NAMES = ['products', 'settings', 'taxonomy', 'reviews', 'content'];
-  var ADMIN_NAMES = PUBLIC_NAMES.concat(['orders', 'statuses', 'admin']);
-  var remoteStatus = { enabled: false, syncing: false, ready: false, error: '', updatedAt: null };
+  var ADMIN_NAMES = PUBLIC_NAMES.concat(['orders', 'statuses']);
+  var remoteStatus = { enabled: false, syncing: false, ready: false, error: '', updatedAt: null, identity: null };
+  var remotePromise = null;
   var locationInfo = (typeof window !== 'undefined' && window.location) ? window.location : {};
   var pathname = '';
   try { pathname = decodeURIComponent(locationInfo.pathname || ''); } catch (e) { pathname = locationInfo.pathname || ''; }
@@ -168,9 +173,16 @@
   var canFetchRemote = typeof fetch === 'function' && /^https?:$/i.test(locationInfo.protocol || '') && !isPlainLocalServer;
   remoteStatus.enabled = canFetchRemote;
 
+  // Хуучин demo нэвтрэлтийн нууц үгийг deployed admin хөтчөөс цэвэрлэнэ.
+  if (canFetchRemote && isAdminPage) {
+    try { localStorage.removeItem('nudema_admin'); } catch (e) {}
+  }
+
   var read = function (name) {
     var key = KEYS[name];
-    var def = DEFAULTS[name];
+    var def = canFetchRemote ? EMPTY_DEFAULTS[name] : DEFAULTS[name];
+    // Admin нь D1 баталгаажихаас өмнө хуучин localStorage cache-ийг огт үзүүлэхгүй.
+    if (canFetchRemote && isAdminPage && !remoteStatus.ready) return clone(def);
     try {
       var raw = localStorage.getItem(key);
       if (!raw) return clone(def);
@@ -232,10 +244,10 @@
     if (!data || typeof data !== 'object') return;
     var allowed = isAdminPage ? ADMIN_NAMES : PUBLIC_NAMES;
     allowed.forEach(function (name) {
-      if (!Object.prototype.hasOwnProperty.call(data, name)) return;
       var key = KEYS[name];
+      var value = Object.prototype.hasOwnProperty.call(data, name) ? data[name] : EMPTY_DEFAULTS[name];
       var next;
-      try { next = JSON.stringify(data[name]); } catch (e) { return; }
+      try { next = JSON.stringify(value); } catch (e) { return; }
       try {
         if (localStorage.getItem(key) === next) return;
         localStorage.setItem(key, next);
@@ -258,27 +270,14 @@
     });
   };
 
-  var bootstrapRemote = function () {
-    var data = {};
-    ADMIN_NAMES.forEach(function (name) { data[name] = read(name); });
-    return remoteRequest('/api/admin/state', {
-      method: 'POST',
-      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data: data }),
-    });
-  };
-
   var syncRemote = function () {
-    if (!canFetchRemote || remoteStatus.syncing) return Promise.resolve(false);
+    if (!canFetchRemote) return Promise.resolve(false);
+    if (remoteStatus.syncing) return remotePromise || Promise.resolve(false);
     remoteStatus.syncing = true;
     var url = isAdminPage ? '/api/admin/state' : '/api/storefront';
-    return remoteRequest(url).then(function (body) {
-      if (isAdminPage && body.empty) {
-        return bootstrapRemote().then(function () { return remoteRequest(url); });
-      }
-      return body;
-    }).then(function (body) {
+    remotePromise = remoteRequest(url).then(function (body) {
       applyRemote(body.data || {});
+      remoteStatus.identity = body.identity || null;
       remoteStatus.ready = true;
       remoteStatus.error = '';
       remoteStatus.updatedAt = new Date().toISOString();
@@ -286,12 +285,18 @@
       return true;
     }).catch(function (cause) {
       remoteStatus.error = cause && cause.message ? cause.message : String(cause || 'Remote sync failed');
+      if (isAdminPage) {
+        remoteStatus.ready = false;
+        remoteStatus.identity = null;
+      }
       emitRemote(null, false, remoteStatus.error);
       return false;
     }).then(function (result) {
       remoteStatus.syncing = false;
+      remotePromise = null;
       return result;
     });
+    return remotePromise;
   };
 
   var pushRemote = function (name, value) {
@@ -373,7 +378,8 @@
   };
 
   if (canFetchRemote) {
-    setTimeout(syncRemote, 25);
+    // Admin component өөрөө Access баталгаажуулалтыг эхлүүлнэ.
+    if (!isAdminPage) setTimeout(syncRemote, 25);
     setInterval(syncRemote, 15000);
     try {
       document.addEventListener('visibilitychange', function () {
@@ -385,6 +391,7 @@
   window.NudemaStore = {
     KEYS: KEYS,
     DEFAULTS: DEFAULTS,
+    EMPTY_DEFAULTS: EMPTY_DEFAULTS,
     read: read,
     write: write,
     subscribe: subscribe,

@@ -2,6 +2,7 @@ import { adminIdentity, error, isLocalRequest } from '../../_lib.js';
 
 export async function onRequest(context) {
   if (isLocalRequest(context.request) && context.env.ALLOW_LOCAL_ADMIN !== 'false') {
+    context.data.admin = { email: 'local-development@nudema.local', local: true };
     return context.next();
   }
 
@@ -12,4 +13,3 @@ export async function onRequest(context) {
   context.data.admin = identity;
   return context.next();
 }
-

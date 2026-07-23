@@ -22,35 +22,21 @@
 <script src="./image-slot.js"></script>
 <script src="./nudema-store.js"></script>
 </helmet>
-<!-- нэвтрэх дэлгэц -->
+<!-- Cloudflare Access / D1 баталгаажуулалтын дэлгэц -->
 <sc-if value="{{ notAuthed }}" hint-placeholder-val="{{ false }}">
   <div style="min-height:100vh;background:#0f1f4b;display:flex;align-items:center;justify-content:center;padding:40px 20px;">
     <div style="width:380px;max-width:100%;background:#fff;border-radius:18px;padding:36px 34px;box-shadow:0 24px 70px rgba(8,18,50,.4);">
       <div style="font-size:24px;font-weight:800;letter-spacing:.08em;color:#2a54e6;margin-bottom:4px;">NUDEMA <span style="font-size:11px;font-weight:600;color:#9aa5c8;letter-spacing:.12em;">ADMIN</span></div>
-      <p style="font-size:13px;color:#8a90a3;margin:0 0 24px;">Удирдлагын хэсэгт нэвтрэх</p>
+      <p style="font-size:13px;color:#8a90a3;margin:0 0 24px;">Cloudflare Access болон D1 холболтыг шалгаж байна.</p>
 
-      <div style="display:flex;flex-direction:column;gap:13px;">
-        <div>
-          <label style="font-size:12px;font-weight:700;color:#8a90a3;display:block;margin-bottom:6px;">И-мэйл</label>
-          <input value="{{ loginEmail }}" onInput="{{ onLoginEmail }}" placeholder="admin@nudema.mn" style="width:100%;height:46px;border:1px solid #e0e4ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
-        </div>
-        <div>
-          <label style="font-size:12px;font-weight:700;color:#8a90a3;display:block;margin-bottom:6px;">Нууц үг</label>
-          <input type="password" value="{{ loginPass }}" onInput="{{ onLoginPass }}" placeholder="••••••••" style="width:100%;height:46px;border:1px solid #e0e4ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
-        </div>
-      </div>
-
-      <sc-if value="{{ hasLoginError }}" hint-placeholder-val="{{ false }}">
-        <div style="background:#fef2f2;border:1px solid #f5d5d3;color:#e0392f;font-size:12.5px;font-weight:600;padding:10px 13px;border-radius:9px;margin-top:14px;">{{ loginError }}</div>
+      <sc-if value="{{ authLoading }}" hint-placeholder-val="{{ true }}">
+        <div style="background:#eef3ff;border:1px solid #d6e0ff;color:#2447b8;font-size:12.5px;font-weight:700;line-height:1.6;padding:13px 15px;border-radius:10px;">Аюулгүй нэвтрэлт болон өгөгдлийн санг баталгаажуулж байна…</div>
       </sc-if>
-
-      <button onClick="{{ doLogin }}" style="width:100%;height:50px;margin-top:20px;background:#2a54e6;color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;">Нэвтрэх</button>
-
-      <div style="margin-top:20px;background:#fff8ed;border:1px solid #f5e2c3;border-radius:9px;padding:11px 13px;">
-        <div style="font-size:11.5px;font-weight:700;color:#a56a12;margin-bottom:3px;">⚠️ Үзүүлэнгийн нэвтрэлт</div>
-        <div style="font-size:11px;color:#a56a12;line-height:1.55;">Шалгалт нь зөвхөн хөтөч дээр хийгддэг тул жинхэнэ хамгаалалт биш. Бодит ашиглалтад сервер талын нэвтрэлт хэрэгтэй.</div>
-      </div>
-      <div style="font-size:11px;color:#b0b7c3;text-align:center;margin-top:12px;">Анхны нэвтрэх: admin@nudema.mn / nudema2026</div>
+      <sc-if value="{{ authFailed }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fef2f2;border:1px solid #f5d5d3;color:#c8322a;font-size:12.5px;font-weight:600;line-height:1.6;padding:13px 15px;border-radius:10px;">{{ accessError }}</div>
+        <button onClick="{{ retryAccess }}" style="width:100%;height:48px;margin-top:16px;background:#2a54e6;color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;">Дахин шалгах</button>
+      </sc-if>
+      <div style="font-size:11px;color:#9aa5b3;text-align:center;line-height:1.55;margin-top:18px;">Администраторын эрхийг Cloudflare Access дахь зөвшөөрөгдсөн и-мэйлээр удирдана.</div>
     </div>
   </div>
 </sc-if>
@@ -896,26 +882,10 @@
           </div>
 
           <div style="border-top:1px solid #f2f4f9;padding-top:20px;">
-            <div style="font-size:14px;font-weight:800;color:#16255f;margin-bottom:3px;">Админы бүртгэл</div>
-            <div style="background:#fff8ed;border:1px solid #f5e2c3;color:#a56a12;font-size:11.5px;font-weight:600;line-height:1.55;padding:10px 13px;border-radius:9px;margin:10px 0 14px;">⚠️ Нууц үг хөтөч дээр задгай хадгалагдана. Энэ бол үзүүлэнгийн нэвтрэлт бөгөөд жинхэнэ хамгаалалт биш — бодит ашиглалтад сервер талын нэвтрэлт хэрэгтэй.</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-              <div>
-                <label style="font-size:12px;font-weight:600;color:#8a90a3;display:block;margin-bottom:6px;">Нэр</label>
-                <input value="{{ acc.name }}" onInput="{{ onAccName }}" style="width:100%;height:46px;border:1px solid #e0e4ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
-              </div>
-              <div>
-                <label style="font-size:12px;font-weight:600;color:#8a90a3;display:block;margin-bottom:6px;">И-мэйл (нэвтрэх нэр)</label>
-                <input value="{{ acc.email }}" onInput="{{ onAccEmail }}" style="width:100%;height:46px;border:1px solid #e0e4ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
-              </div>
-            </div>
-            <div style="display:flex;gap:14px;align-items:flex-end;">
-              <div style="flex:1;">
-                <label style="font-size:12px;font-weight:600;color:#8a90a3;display:block;margin-bottom:6px;">Нууц үг</label>
-                <input type="password" value="{{ acc.password }}" onInput="{{ onAccPass }}" style="width:100%;height:46px;border:1px solid #e0e4ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
-              </div>
-              <button onClick="{{ saveAccount }}" style="background:#16255f;color:#fff;border:none;font-family:inherit;font-size:13.5px;font-weight:700;padding:13px 22px;border-radius:10px;cursor:pointer;">Бүртгэл хадгалах</button>
-              <sc-if value="{{ accountSaved }}" hint-placeholder-val="{{ false }}"><span style="align-self:center;font-size:13px;font-weight:700;color:#12934f;white-space:nowrap;">✓ Хадгалагдлаа</span></sc-if>
-            </div>
+            <div style="font-size:14px;font-weight:800;color:#16255f;margin-bottom:3px;">Cloudflare Access</div>
+            <div style="background:#eef3ff;border:1px solid #d6e0ff;color:#2447b8;font-size:11.5px;font-weight:600;line-height:1.65;padding:12px 14px;border-radius:9px;margin:10px 0;">Администраторын эрх болон нэвтрэлтийг Cloudflare Access удирдана. Энэ хуудсанд нууц үг хадгалахгүй.</div>
+            <div style="font-size:12px;color:#8a90a3;margin-bottom:5px;">Одоо нэвтэрсэн и-мэйл</div>
+            <div style="font-size:14px;font-weight:800;color:#16255f;">{{ adminEmail }}</div>
           </div>
 
           <sc-if value="{{ hasSettingsError }}" hint-placeholder-val="{{ false }}">
@@ -1039,37 +1009,66 @@ const BLOCK_TYPES = [
 const BLOCK_LABELS = BLOCK_TYPES.reduce((m, t) => { m[t.key] = t.label; return m; }, {});
 
 class Component extends DCLogic {
-  state = { section: 'dashboard', expanded: '', q: '', loaded: false };
+  state = { section: 'dashboard', expanded: '', q: '', loaded: false, authed: false, authLoading: true, accessError: '' };
 
   componentDidMount() {
     this.reload();
-    this.setState({ authed: this.hasSession() });
     this._unsub = NudemaStore.subscribe(() => this.reload());
+    this._onRemoteError = (event) => {
+      const detail = event && event.detail ? event.detail : {};
+      this.setState({
+        authed: false,
+        authLoading: false,
+        accessError: detail.message || 'Cloudflare Access эсвэл D1 холболт тасарлаа.',
+      });
+    };
+    window.addEventListener('nudema:remote-error', this._onRemoteError);
+    this.verifyAccess();
   }
 
-  /* ---- Нэвтрэлт (зөвхөн үзүүлэн — сервер талын хамгаалалт биш) ---- */
-  hasSession() {
-    try { return sessionStorage.getItem('nudema_admin_session') === '1'; }
-    catch (e) { return false; }
-  }
-  login() {
-    const acc = this.data('admin');
-    const email = String(this.state.loginEmail || '').trim().toLowerCase();
-    const pass = String(this.state.loginPass || '');
-    if (!email || !pass) return this.setState({ loginError: 'И-мэйл ба нууц үгээ оруулна уу.' });
-    if (email !== String(acc.email || '').toLowerCase() || pass !== String(acc.password || '')) {
-      return this.setState({ loginError: 'И-мэйл эсвэл нууц үг буруу байна.' });
+  /* ---- Cloudflare Access + D1 баталгаажуулалт ---- */
+  verifyAccess() {
+    if (!NudemaStore.remoteStatus.enabled) {
+      this.setState({
+        authed: false,
+        authLoading: false,
+        accessError: 'Энэ админ хуудас зөвхөн Cloudflare дээр ажиллана. Deployed URL-ээр нээнэ үү.',
+      });
+      return;
     }
-    try { sessionStorage.setItem('nudema_admin_session', '1'); } catch (e) {}
-    this.setState({ authed: true, loginError: '', loginEmail: '', loginPass: '' });
+    this.setState({ authed: false, authLoading: true, accessError: '' });
+    NudemaStore.sync().then((ok) => {
+      const status = NudemaStore.remoteStatus;
+      if (!ok) {
+        this.setState({
+          authed: false,
+          authLoading: false,
+          accessError: status.error || 'Cloudflare Access эсвэл D1 холболтыг баталгаажуулж чадсангүй.',
+        });
+        return;
+      }
+      const identity = status.identity || {};
+      this.reload();
+      this.setState({
+        authed: true,
+        authLoading: false,
+        accessError: '',
+        adminEmail: identity.email || 'Cloudflare Access',
+      });
+    });
   }
   logout() {
-    try { sessionStorage.removeItem('nudema_admin_session'); } catch (e) {}
-    this.setState({ authed: false, askLogout: false, section: 'dashboard', expanded: '' });
+    this.setState({ authed: false, askLogout: false });
+    if (window.location && typeof window.location.assign === 'function') {
+      window.location.assign('/cdn-cgi/access/logout');
+    } else if (window.location) {
+      window.location.href = '/cdn-cgi/access/logout';
+    }
   }
 
   componentWillUnmount() {
     if (this._unsub) this._unsub();
+    if (this._onRemoteError) window.removeEventListener('nudema:remote-error', this._onRemoteError);
     clearTimeout(this._cs); clearTimeout(this._ps); clearTimeout(this._ss);
     clearTimeout(this._cpub); clearTimeout(this._pv);
   }
@@ -1084,7 +1083,6 @@ class Component extends DCLogic {
       content: NudemaStore.read('content'),
       statuses: NudemaStore.read('statuses'),
       taxonomy: NudemaStore.read('taxonomy'),
-      admin: NudemaStore.read('admin'),
       orders: NudemaStore.read('orders'),
     });
   }
@@ -1197,7 +1195,8 @@ class Component extends DCLogic {
   /* ---- Гүйдэг мөр ---- */
   marquee() {
     const m = this.content().marquee;
-    return Array.isArray(m) && m.length ? m : NudemaStore.DEFAULTS.content.marquee;
+    if (Array.isArray(m) && m.length) return m;
+    return NudemaStore.remoteStatus.enabled ? [] : NudemaStore.DEFAULTS.content.marquee;
   }
   updMarquee(i, value) {
     const next = this.marquee().map((t, idx) => idx === i ? value : t);
@@ -1316,16 +1315,6 @@ class Component extends DCLogic {
     this.setState({ reviews: next });
     NudemaStore.write('reviews', next);
   }
-  updAdmin(patch) {
-    this.setState({ admin: { ...this.data('admin'), ...patch }, accountSaved: false });
-  }
-  saveAccount() {
-    const a = this.data('admin');
-    if (!String(a.email || '').trim() || !String(a.password || '').trim()) return;
-    NudemaStore.write('admin', a);
-    this.flash('accountSaved', '_as');
-  }
-
   deleteReview(id) {
     const next = this.reviews().filter(r => r.id !== id);
     this.setState({ reviews: next, askDelReview: null });
@@ -1637,6 +1626,8 @@ class Component extends DCLogic {
 
   renderVals() {
     const content = this.content();
+    const accessEmail = this.state.adminEmail || (NudemaStore.remoteStatus.identity && NudemaStore.remoteStatus.identity.email) || 'Cloudflare Access';
+    const accessName = accessEmail.includes('@') ? accessEmail.split('@')[0] : accessEmail;
     const navDefs = [
       { key: 'dashboard', label: 'Хяналтын самбар', icon: '▦' },
       { key: 'orders', label: 'Захиалга', icon: '🧾', badge: '12' },
@@ -1723,9 +1714,11 @@ class Component extends DCLogic {
     /* ================= Захиалгаас тооцоолсон үзүүлэлтүүд ================= */
     // Цуцлагдсан захиалгыг орлогод оруулахгүй
     const paidOrders = allOrders.filter(o => o.key !== 'cancel');
-    const TODAY = '2026-07-20';
+    const now = new Date();
+    const todayUtc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+    const TODAY = `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
     const dayKey = (n) => {
-      const d = new Date(Date.UTC(2026, 6, 20) - n * 86400000);
+      const d = new Date(todayUtc - n * 86400000);
       return d.toISOString().slice(0, 10);
     };
     const revenueOn = (day) => paidOrders.filter(o => o.rawDate === day).reduce((a, o) => a + o.total, 0);
@@ -1815,7 +1808,7 @@ class Component extends DCLogic {
 
     // Статистик — сарын орлого ба ангиллын хуваарилалт
     const monthKeys = Array.from({ length: 6 }, (_, i) => {
-      const d = new Date(Date.UTC(2026, 6 - (5 - i), 1));
+      const d = new Date(Date.UTC(now.getFullYear(), now.getMonth() - (5 - i), 1));
       return { key: d.toISOString().slice(0, 7), label: (d.getUTCMonth() + 1) + '-р' };
     });
     const monthRevenue = monthKeys.map(m =>
@@ -1923,8 +1916,11 @@ class Component extends DCLogic {
       isHidden: !!r.hidden,
     }));
 
+    const fullDayNames = ['Ням', 'Даваа', 'Мягмар', 'Лхагва', 'Пүрэв', 'Баасан', 'Бямба'];
+    const todayLabel = `${now.getFullYear()} оны ${now.getMonth() + 1}-р сарын ${now.getDate()}, ${fullDayNames[now.getDay()]}`;
+
     return {
-      nav, pageTitle: titleMap[this.state.section], today: '2026 оны 7-р сарын 20, Даваа',
+      nav, pageTitle: titleMap[this.state.section], today: todayLabel,
       kpis, bars, topProducts, orders,
       isDashboard: this.state.section === 'dashboard',
       isOrders: this.state.section === 'orders',
@@ -2060,32 +2056,23 @@ class Component extends DCLogic {
       reviewFilters,
       noReviewsMatch: adminReviews.length === 0,
 
-      // Нэвтрэлт
+      // Cloudflare Access
       authed: !!this.state.authed,
       notAuthed: !this.state.authed,
-      loginEmail: this.state.loginEmail || '',
-      loginPass: this.state.loginPass || '',
-      onLoginEmail: (e) => this.setState({ loginEmail: e.target.value, loginError: '' }),
-      onLoginPass: (e) => this.setState({ loginPass: e.target.value, loginError: '' }),
-      doLogin: () => this.login(),
-      loginError: this.state.loginError || '',
-      hasLoginError: !!this.state.loginError,
-      adminName: this.data('admin').name,
-      adminRole: this.data('admin').role,
-      adminInitial: String(this.data('admin').name || 'A').charAt(0),
+      authLoading: !!this.state.authLoading,
+      authFailed: !this.state.authLoading && !!this.state.accessError,
+      accessError: this.state.accessError || '',
+      retryAccess: () => this.verifyAccess(),
+      adminEmail: accessEmail,
+      adminName: accessName,
+      adminRole: 'Cloudflare Access',
+      adminInitial: String(accessName || 'A').charAt(0).toUpperCase(),
       askLogout: () => this.setState({ askLogout: true }),
       cancelLogout: () => this.setState({ askLogout: false }),
       doLogout: () => this.logout(),
       isAskingLogout: !!this.state.askLogout,
       notAskingLogout: !this.state.askLogout,
 
-      // Админ бүртгэл (Тохиргоо)
-      acc: this.data('admin'),
-      onAccName: (e) => this.updAdmin({ name: e.target.value }),
-      onAccEmail: (e) => this.updAdmin({ email: e.target.value }),
-      onAccPass: (e) => this.updAdmin({ password: e.target.value }),
-      saveAccount: () => this.saveAccount(),
-      accountSaved: !!this.state.accountSaved,
       replyDraft: this.state.replyDraft || '',
       onReplyDraft: (e) => this.setState({ replyDraft: e.target.value }),
       commitReply: () => this.commitReply(),

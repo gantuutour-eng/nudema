@@ -1,5 +1,5 @@
 const PUBLIC_STATE_NAMES = ['products', 'settings', 'taxonomy', 'reviews', 'content'];
-const ADMIN_STATE_NAMES = [...PUBLIC_STATE_NAMES, 'orders', 'statuses', 'admin'];
+const ADMIN_STATE_NAMES = [...PUBLIC_STATE_NAMES, 'orders', 'statuses'];
 
 export { PUBLIC_STATE_NAMES, ADMIN_STATE_NAMES };
 
