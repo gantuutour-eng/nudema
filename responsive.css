@@ -19,13 +19,35 @@
   }
   .pd-title { font-size: 22px !important; }
   .pd-price { font-size: 27px !important; }
-  /* Худалдан авах товчнууд багтахгүй тул мөр таслана */
-  .pd-actions { flex-wrap: wrap !important; gap: 10px !important; }
-  .pd-actions > a, .pd-actions > span { flex: 1 1 100% !important; }
+  /* Худалдан авах үйлдлийг доод навигацын дээр үргэлж харагдуулна */
+  .pd-actions {
+    position: fixed !important;
+    left: 50% !important;
+    bottom: calc(70px + env(safe-area-inset-bottom)) !important;
+    transform: translateX(-50%);
+    width: min(100%, 430px) !important;
+    margin: 0 !important;
+    padding: 8px 12px;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    background: rgba(255,255,255,.98);
+    border-top: 1px solid #e9ecf3;
+    box-shadow: 0 -8px 24px rgba(16,37,95,.08);
+    z-index: 90;
+  }
+  .pd-actions > div { display: none !important; }
+  .pd-actions > a, .pd-actions > span {
+    flex: 1 1 0 !important;
+    height: 48px !important;
+    line-height: 48px !important;
+    border-radius: 10px !important;
+    font-size: 14px !important;
+  }
   .pd-related { grid-template-columns: repeat(2, 1fr) !important; gap: 16px !important; }
   .pd-tabpanel { padding: 32px 16px 24px !important; }
   .pd-tab { padding: 15px 14px !important; font-size: 13.5px !important; }
-  .pd-tabs { justify-content:flex-start !important;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch; }
+  .pd-tabs { position:sticky;top:0;z-index:80;background:#fff;box-shadow:0 4px 14px rgba(16,37,95,.06);justify-content:flex-start !important;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch; }
   .pd-tabs::-webkit-scrollbar { display:none; }
   .pd-tabs button { flex:0 0 auto; }
   /* Хоёр баганат блокуудыг нэг багана болгоно */
@@ -56,6 +78,7 @@
   .product-bottom-nav svg { width:22px;height:22px; }
   .product-cart-tab .rs-cart-count { right:4px;top:-7px; }
   .rs-footer { padding: 34px 16px 30px !important; }
+  .pd-page .nudema-footer-inner { padding-bottom: calc(172px + env(safe-area-inset-bottom)) !important; }
   .rs-footer-row { flex-direction: column !important; gap: 20px !important; }
 }
 
