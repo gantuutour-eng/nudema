@@ -1070,9 +1070,14 @@
   }
 
   // src/cdn.ts
-  var REACT_URL = "https://unpkg.com/react@18.3.1/umd/react.production.min.js";
+  // Deployed browser нь гадаад CDN рүү шууд холбогдохгүй. Cloudflare Pages
+  // Function ижил origin-оос versioned, edge-cached asset болгон дамжуулна.
+  var USE_VENDOR_PROXY = location.protocol === "https:";
+  var REACT_FALLBACK_URL = "https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js";
+  var REACT_DOM_FALLBACK_URL = "https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js";
+  var REACT_URL = USE_VENDOR_PROXY ? "/vendor/react?v=18.3.1" : REACT_FALLBACK_URL;
   var REACT_SRI = "sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z";
-  var REACT_DOM_URL = "https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js";
+  var REACT_DOM_URL = USE_VENDOR_PROXY ? "/vendor/react-dom?v=18.3.1" : REACT_DOM_FALLBACK_URL;
   var REACT_DOM_SRI = "sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1";
   var BABEL_URL = "https://unpkg.com/@babel/standalone@7.29.0/babel.min.js";
   var BABEL_SRI = "sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y";
@@ -1773,7 +1778,10 @@
     return Promise.all([
       loadScript(react.src, react.integrity),
       loadScript(reactDom.src, reactDom.integrity)
-    ]).then(() => void 0);
+    ]).catch(() => Promise.all([
+      loadScript(REACT_FALLBACK_URL, REACT_SRI),
+      loadScript(REACT_DOM_FALLBACK_URL, REACT_DOM_SRI)
+    ])).then(() => void 0);
   }
   function init() {
     const runtime = createRuntime(document);

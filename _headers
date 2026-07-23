@@ -25,6 +25,9 @@
 /nudema-store.js
   Cache-Control: no-cache, must-revalidate
 
+/support.js
+  Cache-Control: no-cache, must-revalidate
+
 /nudema-menu.js
   Cache-Control: no-cache, must-revalidate
 
