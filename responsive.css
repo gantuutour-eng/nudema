@@ -36,7 +36,9 @@
     box-shadow: 0 -8px 24px rgba(16,37,95,.08);
     z-index: 90;
   }
-  .pd-actions > div { display: none !important; }
+  .pd-actions > div { display: block !important; flex: 0 0 48px !important; position: relative !important; }
+  .pd-actions > div > div { display: none !important; }
+  .pd-actions > div > button { width: 48px !important; height: 48px !important; border-radius: 10px !important; }
   .pd-actions > a, .pd-actions > span {
     flex: 1 1 0 !important;
     height: 48px !important;
