@@ -89,24 +89,19 @@ export async function ensureSchema(db) {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     )`),
     db.prepare('CREATE INDEX IF NOT EXISTS idx_oauth_states_expiry ON oauth_states(expires_at)'),
+    db.prepare(`CREATE TABLE IF NOT EXISTS admin_login_attempts (
+      client_key TEXT PRIMARY KEY,
+      failures INTEGER NOT NULL DEFAULT 0,
+      blocked_until INTEGER NOT NULL DEFAULT 0,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )`),
+    db.prepare('CREATE INDEX IF NOT EXISTS idx_admin_login_attempts_updated ON admin_login_attempts(updated_at)'),
   ]);
 }
 
 export function isLocalRequest(request) {
   const host = new URL(request.url).hostname;
   return host === 'localhost' || host === '127.0.0.1' || host === '::1';
-}
-
-export function adminIdentity(request, env = {}) {
-  const email = (request.headers.get('Cf-Access-Authenticated-User-Email') || '').trim().toLowerCase();
-  const allowed = String(env.ADMIN_EMAILS || '')
-    .split(',')
-    .map((value) => value.trim().toLowerCase())
-    .filter(Boolean);
-
-  if (!email) return null;
-  if (allowed.length && !allowed.includes(email)) return null;
-  return { email };
 }
 
 export async function readState(db, names) {

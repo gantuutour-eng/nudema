@@ -18,9 +18,10 @@ npx wrangler d1 migrations apply nudemadata --remote
 
 Migration `0002_customer_auth.sql` adds customer accounts, HttpOnly sessions, and
 the user-to-order relationship. Migration `0003_google_oauth.sql` adds one-time
-OAuth state and external identity mappings. Pages Functions also create the same
-tables on first use, but applying migrations remains the recommended production
-workflow.
+OAuth state and external identity mappings. Migration `0004_admin_login.sql`
+adds the failed-login throttle used by the site administrator form. Pages
+Functions also create the same tables on first use, but applying migrations
+remains the recommended production workflow.
 
 For local Functions testing:
 
@@ -47,6 +48,8 @@ only the `/api/images/<key>.webp` URL; Base64 image data is not stored in D1.
 Add these production variables:
 
 - `ADMIN_EMAILS`: comma-separated email addresses allowed to administer the store
+- `ADMIN_PASSWORD`: add the separate site-admin password as an encrypted secret (minimum 12 characters; do not reuse the Cloudflare account password)
+- `ADMIN_SESSION_SECRET`: add a random value of at least 32 characters as an encrypted secret; rotating it signs out every admin session
 - `ALLOW_LOCAL_ADMIN`: `false`
 
 If the Pages project uses the dashboard instead of `wrangler.jsonc`, create the same D1 binding and variables in both Production and Preview environments. Redeploy after changing bindings.
@@ -68,21 +71,24 @@ If a custom domain becomes the primary domain, add its callback URI in Google an
 set `GOOGLE_REDIRECT_URI` to that exact URI. Google requires an exact redirect URI
 match. Redeploy after changing these values.
 
-## 4. Protect the admin routes
+## 4. Configure the site admin login
 
-Create Cloudflare Access applications/policies for both the custom domain and the `pages.dev` domain. Protect:
+The admin page has its own email/password form and does not require a Cloudflare
+Zero Trust Access application. The login API compares the submitted email with
+`ADMIN_EMAILS` and the password with the encrypted `ADMIN_PASSWORD` secret.
+Successful login creates a signed, `HttpOnly`, `SameSite=Strict` cookie that is
+valid for 12 hours. `ADMIN_SESSION_SECRET` signs the cookie and never reaches the
+browser. D1 rate-limits repeated failed login attempts.
 
-- `/Nudema Admin.dc*`
-- `/api/admin/*`
-
-Only the addresses listed in `ADMIN_EMAILS` should be allowed. The public storefront and `/api/orders` must remain public.
+Do not put the Cloudflare account password into these variables. Use a separate,
+unique password for the Nudema administrator.
 
 ## 5. Initialize the database
 
 After the first deployment and migration:
 
-1. Open the protected admin page in the browser that contains the authoritative current Nudema data.
-2. Sign in to the existing Nudema admin screen.
+1. Open the deployed admin page in the browser that contains the authoritative current Nudema data.
+2. Sign in with the email from `ADMIN_EMAILS` and the separate `ADMIN_PASSWORD` value.
 3. Wait for the page to load. If D1 is empty, the client uploads its current products, content, settings, taxonomy, reviews, orders, statuses, and admin profile once.
 4. Open `/api/health`; it must return `{"ok":true,"database":"connected"}`.
 5. Open the storefront in a private window or on a phone and verify that the same products appear.
@@ -94,7 +100,7 @@ Do not initialize from multiple browsers at the same time. Once D1 has data, nor
 - Product edits in Admin appear in another browser within 15 seconds.
 - A checkout submission returns a new `NDM-YYYYMMDD-xxxxxx` order number.
 - The new order appears in Admin after refresh or synchronization.
-- `/api/admin/state` returns `401` without Cloudflare Access.
+- `/api/admin/state` returns `401` without a valid site-admin session.
 - Missing D1 bindings make `/api/health` return `503`; fix the binding instead of deploying around the error.
 
 ## API routes
@@ -111,8 +117,11 @@ Do not initialize from multiple browsers at the same time. Once D1 has data, nor
 | `GET /api/auth/google/start` | Public | Start Google OAuth with state and PKCE |
 | `GET /api/auth/google/callback` | Public | Link/create customer and issue session |
 | `GET /api/images/:key` | Public | Immutable R2 image delivery |
-| `GET /api/admin/state` | Cloudflare Access | Full admin state |
-| `POST /api/admin/state` | Cloudflare Access | First-time D1 bootstrap |
-| `PUT /api/admin/store/:name` | Cloudflare Access | Admin updates |
-| `POST /api/admin/images` | Cloudflare Access | R2 image upload |
-| `DELETE /api/admin/images/:key` | Cloudflare Access | R2 image deletion |
+| `POST /api/admin-auth/login` | Public, rate-limited | Verify admin credentials and create a signed session |
+| `GET /api/admin-auth/session` | Admin session | Return the active admin identity |
+| `POST /api/admin-auth/logout` | Public | Clear the admin session cookie |
+| `GET /api/admin/state` | Admin session | Full admin state |
+| `POST /api/admin/state` | Admin session | First-time D1 bootstrap |
+| `PUT /api/admin/store/:name` | Admin session | Admin updates |
+| `POST /api/admin/images` | Admin session | R2 image upload |
+| `DELETE /api/admin/images/:key` | Admin session | R2 image deletion |

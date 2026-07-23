@@ -22,21 +22,31 @@
 <script src="./image-slot.js"></script>
 <script src="./nudema-store.js"></script>
 </helmet>
-<!-- Cloudflare Access / D1 баталгаажуулалтын дэлгэц -->
+<!-- Сайтын өөрийн админ нэвтрэх дэлгэц -->
 <sc-if value="{{ notAuthed }}" hint-placeholder-val="{{ false }}">
   <div style="min-height:100vh;background:#0f1f4b;display:flex;align-items:center;justify-content:center;padding:40px 20px;">
     <div style="width:380px;max-width:100%;background:#fff;border-radius:18px;padding:36px 34px;box-shadow:0 24px 70px rgba(8,18,50,.4);">
       <div style="font-size:24px;font-weight:800;letter-spacing:.08em;color:#2a54e6;margin-bottom:4px;">NUDEMA <span style="font-size:11px;font-weight:600;color:#9aa5c8;letter-spacing:.12em;">ADMIN</span></div>
-      <p style="font-size:13px;color:#8a90a3;margin:0 0 24px;">Cloudflare Access болон D1 холболтыг шалгаж байна.</p>
+      <p style="font-size:13px;color:#8a90a3;margin:0 0 24px;">Администраторын и-мэйл болон нууц үгээр нэвтэрнэ үү.</p>
 
       <sc-if value="{{ authLoading }}" hint-placeholder-val="{{ true }}">
-        <div style="background:#eef3ff;border:1px solid #d6e0ff;color:#2447b8;font-size:12.5px;font-weight:700;line-height:1.6;padding:13px 15px;border-radius:10px;">Аюулгүй нэвтрэлт болон өгөгдлийн санг баталгаажуулж байна…</div>
+        <div style="background:#eef3ff;border:1px solid #d6e0ff;color:#2447b8;font-size:12.5px;font-weight:700;line-height:1.6;padding:13px 15px;border-radius:10px;">Нэвтрэх эрхийг шалгаж байна…</div>
       </sc-if>
-      <sc-if value="{{ authFailed }}" hint-placeholder-val="{{ false }}">
-        <div style="background:#fef2f2;border:1px solid #f5d5d3;color:#c8322a;font-size:12.5px;font-weight:600;line-height:1.6;padding:13px 15px;border-radius:10px;">{{ accessError }}</div>
-        <button onClick="{{ retryAccess }}" style="width:100%;height:48px;margin-top:16px;background:#2a54e6;color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;">Дахин шалгах</button>
+
+      <sc-if value="{{ authReady }}" hint-placeholder-val="{{ false }}">
+        <form onSubmit="{{ submitLogin }}">
+          <label style="display:block;font-size:12px;font-weight:700;color:#4f5870;margin-bottom:7px;">И-мэйл</label>
+          <input type="email" name="email" autocomplete="username" value="{{ loginEmail }}" onInput="{{ onLoginEmail }}" placeholder="admin@example.com" style="width:100%;height:48px;border:1px solid #dce1ec;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;color:#16255f;outline:none;margin-bottom:16px;">
+          <label style="display:block;font-size:12px;font-weight:700;color:#4f5870;margin-bottom:7px;">Нууц үг</label>
+          <input type="password" name="password" autocomplete="current-password" value="{{ loginPassword }}" onInput="{{ onLoginPassword }}" placeholder="Нууц үгээ оруулна уу" style="width:100%;height:48px;border:1px solid #dce1ec;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;color:#16255f;outline:none;">
+
+          <sc-if value="{{ authFailed }}" hint-placeholder-val="{{ false }}">
+            <div role="alert" style="background:#fef2f2;border:1px solid #f5d5d3;color:#c8322a;font-size:12.5px;font-weight:600;line-height:1.6;padding:11px 13px;border-radius:10px;margin-top:14px;">{{ loginError }}</div>
+          </sc-if>
+          <button type="submit" disabled="{{ loginBusy }}" style="{{ loginButtonStyle }}">{{ loginButtonLabel }}</button>
+        </form>
       </sc-if>
-      <div style="font-size:11px;color:#9aa5b3;text-align:center;line-height:1.55;margin-top:18px;">Администраторын эрхийг Cloudflare Access дахь зөвшөөрөгдсөн и-мэйлээр удирдана.</div>
+      <div style="font-size:11px;color:#9aa5b3;text-align:center;line-height:1.55;margin-top:18px;">Нэвтрэх мэдээллийг Cloudflare Variables and Secrets хэсгээс удирдана.</div>
     </div>
   </div>
 </sc-if>
@@ -882,8 +892,8 @@
           </div>
 
           <div style="border-top:1px solid #f2f4f9;padding-top:20px;">
-            <div style="font-size:14px;font-weight:800;color:#16255f;margin-bottom:3px;">Cloudflare Access</div>
-            <div style="background:#eef3ff;border:1px solid #d6e0ff;color:#2447b8;font-size:11.5px;font-weight:600;line-height:1.65;padding:12px 14px;border-radius:9px;margin:10px 0;">Администраторын эрх болон нэвтрэлтийг Cloudflare Access удирдана. Энэ хуудсанд нууц үг хадгалахгүй.</div>
+            <div style="font-size:14px;font-weight:800;color:#16255f;margin-bottom:3px;">Администраторын нэвтрэлт</div>
+            <div style="background:#eef3ff;border:1px solid #d6e0ff;color:#2447b8;font-size:11.5px;font-weight:600;line-height:1.65;padding:12px 14px;border-radius:9px;margin:10px 0;">Нууц үгийг Cloudflare Secret-д хадгалж, энэ хуудсанд ил гаргахгүй. Нэвтрэх сесс 12 цаг хүчинтэй.</div>
             <div style="font-size:12px;color:#8a90a3;margin-bottom:5px;">Одоо нэвтэрсэн и-мэйл</div>
             <div style="font-size:14px;font-weight:800;color:#16255f;">{{ adminEmail }}</div>
           </div>
@@ -1009,7 +1019,11 @@ const BLOCK_TYPES = [
 const BLOCK_LABELS = BLOCK_TYPES.reduce((m, t) => { m[t.key] = t.label; return m; }, {});
 
 class Component extends DCLogic {
-  state = { section: 'dashboard', expanded: '', q: '', loaded: false, authed: false, authLoading: true, accessError: '' };
+  state = {
+    section: 'dashboard', expanded: '', q: '', loaded: false,
+    authed: false, authLoading: true, loginBusy: false,
+    loginEmail: '', loginPassword: '', loginError: '',
+  };
 
   componentDidMount() {
     this.reload();
@@ -1019,51 +1033,114 @@ class Component extends DCLogic {
       this.setState({
         authed: false,
         authLoading: false,
-        accessError: detail.message || 'Cloudflare Access эсвэл D1 холболт тасарлаа.',
+        loginBusy: false,
+        loginPassword: '',
+        loginError: detail.message || 'Нэвтрэх сесс дууссан эсвэл D1 холболт тасарлаа.',
       });
     };
     window.addEventListener('nudema:remote-error', this._onRemoteError);
-    this.verifyAccess();
+    this.verifySession();
   }
 
-  /* ---- Cloudflare Access + D1 баталгаажуулалт ---- */
-  verifyAccess() {
+  /* ---- Сайтын өөрийн админ нэвтрэлт ---- */
+  authRequest(url, options) {
+    return fetch(url, Object.assign({
+      credentials: 'same-origin',
+      headers: { 'Accept': 'application/json' },
+    }, options || {})).then((response) => response.json().catch(() => ({})).then((body) => {
+      if (!response.ok) {
+        const problem = new Error(body.error || ('HTTP ' + response.status));
+        problem.status = response.status;
+        problem.details = body.details || '';
+        throw problem;
+      }
+      return body;
+    }));
+  }
+
+  verifySession() {
     if (!NudemaStore.remoteStatus.enabled) {
       this.setState({
         authed: false,
         authLoading: false,
-        accessError: 'Энэ админ хуудас зөвхөн Cloudflare дээр ажиллана. Deployed URL-ээр нээнэ үү.',
+        loginError: 'Энэ админ хуудас Cloudflare дээрх deployed URL-ээр ажиллана.',
       });
       return;
     }
-    this.setState({ authed: false, authLoading: true, accessError: '' });
-    NudemaStore.sync().then((ok) => {
+    this.setState({ authed: false, authLoading: true, loginBusy: false, loginError: '' });
+    this.authRequest('/api/admin-auth/session').then((body) => {
+      return this.finishAuthentication(body.identity || {});
+    }).catch((cause) => {
+      this.setState({
+        authed: false,
+        authLoading: false,
+        loginBusy: false,
+        loginError: cause.status === 401 ? '' : (cause.details || cause.message || 'Нэвтрэх эрхийг шалгаж чадсангүй.'),
+      });
+    });
+  }
+
+  finishAuthentication(identity) {
+    this.setState({ authLoading: true, loginBusy: false, loginError: '' });
+    return NudemaStore.sync().then((ok) => {
       const status = NudemaStore.remoteStatus;
       if (!ok) {
         this.setState({
           authed: false,
           authLoading: false,
-          accessError: status.error || 'Cloudflare Access эсвэл D1 холболтыг баталгаажуулж чадсангүй.',
+          loginBusy: false,
+          loginError: status.error || 'D1 өгөгдлийг ачаалж чадсангүй.',
         });
-        return;
+        return false;
       }
-      const identity = status.identity || {};
+      const activeIdentity = status.identity || identity || {};
       this.reload();
       this.setState({
         authed: true,
         authLoading: false,
-        accessError: '',
-        adminEmail: identity.email || 'Cloudflare Access',
+        loginBusy: false,
+        loginPassword: '',
+        loginError: '',
+        adminEmail: activeIdentity.email || identity.email || '',
+      });
+      return true;
+    });
+  }
+
+  login(event) {
+    if (event && event.preventDefault) event.preventDefault();
+    if (this.state.loginBusy) return;
+    const email = String(this.state.loginEmail || '').trim();
+    const password = String(this.state.loginPassword || '');
+    if (!email || !password) {
+      this.setState({ loginError: 'И-мэйл болон нууц үгээ оруулна уу.' });
+      return;
+    }
+    this.setState({ loginBusy: true, loginError: '' });
+    this.authRequest('/api/admin-auth/login', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    }).then((body) => this.finishAuthentication(body.identity || { email })).catch((cause) => {
+      this.setState({
+        authed: false,
+        authLoading: false,
+        loginBusy: false,
+        loginPassword: '',
+        loginError: cause.details || cause.message || 'Нэвтэрч чадсангүй.',
       });
     });
   }
+
   logout() {
-    this.setState({ authed: false, askLogout: false });
-    if (window.location && typeof window.location.assign === 'function') {
-      window.location.assign('/cdn-cgi/access/logout');
-    } else if (window.location) {
-      window.location.href = '/cdn-cgi/access/logout';
-    }
+    this.authRequest('/api/admin-auth/logout', { method: 'POST' }).catch(() => ({})).then(() => {
+      NudemaStore.remoteStatus.ready = false;
+      NudemaStore.remoteStatus.identity = null;
+      this.setState({
+        authed: false, authLoading: false, askLogout: false,
+        adminEmail: '', loginPassword: '', loginError: '',
+      });
+    });
   }
 
   componentWillUnmount() {
@@ -1626,8 +1703,8 @@ class Component extends DCLogic {
 
   renderVals() {
     const content = this.content();
-    const accessEmail = this.state.adminEmail || (NudemaStore.remoteStatus.identity && NudemaStore.remoteStatus.identity.email) || 'Cloudflare Access';
-    const accessName = accessEmail.includes('@') ? accessEmail.split('@')[0] : accessEmail;
+    const adminEmail = this.state.adminEmail || (NudemaStore.remoteStatus.identity && NudemaStore.remoteStatus.identity.email) || '';
+    const adminName = adminEmail.includes('@') ? adminEmail.split('@')[0] : (adminEmail || 'admin');
     const navDefs = [
       { key: 'dashboard', label: 'Хяналтын самбар', icon: '▦' },
       { key: 'orders', label: 'Захиалга', icon: '🧾', badge: '12' },
@@ -2056,17 +2133,25 @@ class Component extends DCLogic {
       reviewFilters,
       noReviewsMatch: adminReviews.length === 0,
 
-      // Cloudflare Access
+      // Сайтын өөрийн админ нэвтрэлт
       authed: !!this.state.authed,
       notAuthed: !this.state.authed,
       authLoading: !!this.state.authLoading,
-      authFailed: !this.state.authLoading && !!this.state.accessError,
-      accessError: this.state.accessError || '',
-      retryAccess: () => this.verifyAccess(),
-      adminEmail: accessEmail,
-      adminName: accessName,
-      adminRole: 'Cloudflare Access',
-      adminInitial: String(accessName || 'A').charAt(0).toUpperCase(),
+      authReady: !this.state.authLoading,
+      authFailed: !this.state.authLoading && !!this.state.loginError,
+      loginEmail: this.state.loginEmail || '',
+      loginPassword: this.state.loginPassword || '',
+      loginError: this.state.loginError || '',
+      loginBusy: !!this.state.loginBusy,
+      loginButtonLabel: this.state.loginBusy ? 'Нэвтэрч байна…' : 'Нэвтрэх',
+      loginButtonStyle: `width:100%;height:48px;margin-top:18px;background:${this.state.loginBusy ? '#9bace8' : '#2a54e6'};color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:${this.state.loginBusy ? 'wait' : 'pointer'};`,
+      onLoginEmail: (e) => this.setState({ loginEmail: e.target.value, loginError: '' }),
+      onLoginPassword: (e) => this.setState({ loginPassword: e.target.value, loginError: '' }),
+      submitLogin: (e) => this.login(e),
+      adminEmail,
+      adminName,
+      adminRole: 'Администратор',
+      adminInitial: String(adminName || 'A').charAt(0).toUpperCase(),
       askLogout: () => this.setState({ askLogout: true }),
       cancelLogout: () => this.setState({ askLogout: false }),
       doLogout: () => this.logout(),

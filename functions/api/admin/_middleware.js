@@ -1,4 +1,5 @@
-import { adminIdentity, error, isLocalRequest } from '../../_lib.js';
+import { adminSessionIdentity } from '../../_admin-auth.js';
+import { error, isLocalRequest } from '../../_lib.js';
 
 export async function onRequest(context) {
   if (isLocalRequest(context.request) && context.env.ALLOW_LOCAL_ADMIN !== 'false') {
@@ -6,9 +7,9 @@ export async function onRequest(context) {
     return context.next();
   }
 
-  const identity = adminIdentity(context.request, context.env);
+  const identity = await adminSessionIdentity(context.request, context.env);
   if (!identity) {
-    return error('Cloudflare Access authentication is required.', 401);
+    return error('Admin authentication is required.', 401);
   }
   context.data.admin = identity;
   return context.next();

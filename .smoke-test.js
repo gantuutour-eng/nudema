@@ -835,20 +835,30 @@ check('устгагдсан бараа эвдрээгүй',
   admin.renderVals().odItems.map((it) => it.title).join(' / ').slice(0, 46));
 admin.setState({ expanded: '' });
 
-console.log('\n[28] Cloudflare Access админы нэвтрэлт');
+console.log('\n[28] Сайтын өөрийн админ нэвтрэлт');
 const adminSource = fs.readFileSync('Nudema Admin.dc.html', 'utf8');
-check('client-side нууц үг байхгүй', !/type="password"|nudema2026|nudema_admin_session/.test(adminSource));
-check('Cloudflare Access шалгалттай', adminSource.includes('NudemaStore.sync()') && adminSource.includes('/cdn-cgi/access/logout'));
+const adminAuthSource = fs.readFileSync('functions/_admin-auth.js', 'utf8');
+const adminMiddlewareSource = fs.readFileSync('functions/api/admin/_middleware.js', 'utf8');
+check('админ и-мэйл/нууц үгийн маягттай', adminSource.includes('type="email"') && adminSource.includes('type="password"'));
+check('client-side hardcoded нууц үг байхгүй', !/nudema2026|ADMIN_PASSWORD\s*=/.test(adminSource));
+check('өөрийн login/session/logout API ашиглана',
+  adminSource.includes('/api/admin-auth/login') && adminSource.includes('/api/admin-auth/session') && adminSource.includes('/api/admin-auth/logout'));
+check('Cloudflare Access redirect хасагдсан', !adminSource.includes('/cdn-cgi/access/logout') && !adminMiddlewareSource.includes('Cf-Access-Authenticated-User-Email'));
+check('HttpOnly гарын үсэгтэй cookie ашиглана',
+  adminAuthSource.includes("HttpOnly; SameSite=Strict") && adminAuthSource.includes("name: 'HMAC'"));
 check('admin store key устсан', !Object.prototype.hasOwnProperty.call(win.NudemaStore.KEYS, 'admin'));
 
 loadComponent('Nudema Admin.dc.html', 'AdminC2');
 const gate = vm.runInContext('new AdminC2()', ctx);
 gate.componentDidMount();
 let gv = gate.renderVals();
-check('баталгаажаагүй үед dashboard хаалттай', gv.authed === false && gv.notAuthed === true);
+check('баталгаажаагүй үед login маягт харагдана', gv.authed === false && gv.notAuthed === true && gv.authReady === true);
+gate.login({ preventDefault() {} });
+gv = gate.renderVals();
+check('хоосон login-ийг блоклов', gv.authFailed === true && gv.loginError.length > 0, gv.loginError);
 gate.setState({ authed: true, authLoading: false, adminEmail: 'owner@nudema.mn' });
 gv = gate.renderVals();
-check('Access identity sidebar-т харагдана', gv.adminName === 'owner' && gv.adminEmail === 'owner@nudema.mn', gv.adminEmail);
+check('нэвтэрсэн админ sidebar-т харагдана', gv.adminName === 'owner' && gv.adminEmail === 'owner@nudema.mn', gv.adminEmail);
 
 console.log('\n[29] Сэтгэгдлийн модерац');
 mem.delete('nudema_reviews');
