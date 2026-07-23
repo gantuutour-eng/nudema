@@ -1070,14 +1070,19 @@
   }
 
   // src/cdn.ts
-  // Deployed browser нь гадаад CDN рүү шууд холбогдохгүй. Cloudflare Pages
-  // Function ижил origin-оос versioned, edge-cached asset болгон дамжуулна.
-  var USE_VENDOR_PROXY = location.protocol === "https:";
+  // Production нь React-ийг Pages-ийн статик asset-аас уншина. Ингэснээр
+  // mobile browser эхлэх бүрдээ гаднын CDN/Function хүлээж цагаан дэлгэц
+  // үзүүлэхгүй. Proxy ба CDN нь зөвхөн шаталсан нөөц хувилбарууд.
+  var USE_LOCAL_VENDOR = location.protocol === "https:" || /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  var LOCAL_REACT_URL = "/assets/vendor/react-18.3.1.production.min.js";
+  var LOCAL_REACT_DOM_URL = "/assets/vendor/react-dom-18.3.1.production.min.js";
+  var PROXY_REACT_URL = "/vendor/react?v=18.3.1";
+  var PROXY_REACT_DOM_URL = "/vendor/react-dom?v=18.3.1";
   var REACT_FALLBACK_URL = "https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js";
   var REACT_DOM_FALLBACK_URL = "https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js";
-  var REACT_URL = USE_VENDOR_PROXY ? "/vendor/react?v=18.3.1" : REACT_FALLBACK_URL;
+  var REACT_URL = USE_LOCAL_VENDOR ? LOCAL_REACT_URL : REACT_FALLBACK_URL;
   var REACT_SRI = "sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z";
-  var REACT_DOM_URL = USE_VENDOR_PROXY ? "/vendor/react-dom?v=18.3.1" : REACT_DOM_FALLBACK_URL;
+  var REACT_DOM_URL = USE_LOCAL_VENDOR ? LOCAL_REACT_DOM_URL : REACT_DOM_FALLBACK_URL;
   var REACT_DOM_SRI = "sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1";
   var BABEL_URL = "https://unpkg.com/@babel/standalone@7.29.0/babel.min.js";
   var BABEL_SRI = "sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y";
@@ -1752,36 +1757,77 @@
   // src/index.ts
   function hideRawTemplate() {
     const s = document.createElement("style");
-    s.textContent = "x-dc{display:none!important}";
+    s.textContent = `x-dc{display:none!important}
+html.dc-loading body::before{content:"NUDEMA";position:fixed;z-index:2147483646;left:50%;top:46%;transform:translate(-50%,-50%);font:800 24px/1.2 Manrope,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.12em;color:#2a54e6}
+html.dc-loading body::after{content:"";position:fixed;z-index:2147483646;left:50%;top:calc(46% + 48px);width:26px;height:26px;margin:-13px 0 0 -13px;border:3px solid #dbe3ff;border-top-color:#2a54e6;border-radius:50%;animation:dc-boot-spin .8s linear infinite}
+@keyframes dc-boot-spin{to{transform:rotate(360deg)}}`;
     document.head.appendChild(s);
+    document.documentElement.classList.add("dc-loading");
   }
-  function loadScript(src, integrity) {
+  function loadScript(src, integrity, timeoutMs = 8e3) {
     return new Promise((resolve2, reject) => {
       //! nosemgrep: create-script-element
       const s = document.createElement("script");
+      let settled = false;
+      const finish = (error) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        s.onload = null;
+        s.onerror = null;
+        if (error) {
+          s.remove();
+          reject(error);
+        } else resolve2();
+      };
       s.src = src;
       if (integrity) {
         s.integrity = integrity;
         s.crossOrigin = "anonymous";
       }
       s.async = false;
-      s.onload = () => resolve2();
-      s.onerror = () => reject(new Error(`failed to load ${src}`));
+      const timer = setTimeout(() => finish(new Error(`timed out loading ${src}`)), timeoutMs);
+      s.onload = () => finish();
+      s.onerror = () => finish(new Error(`failed to load ${src}`));
       document.head.appendChild(s);
     });
+  }
+  function loadReactPair(reactSrc, reactDomSrc) {
+    const w = window;
+    const reactReady = w.React ? Promise.resolve() : loadScript(reactSrc, REACT_SRI);
+    return reactReady.then(() => w.ReactDOM ? Promise.resolve() : loadScript(reactDomSrc, REACT_DOM_SRI));
   }
   function loadReactUmd() {
     const w = window;
     if (w.React && w.ReactDOM) return Promise.resolve();
-    const react = cdnScriptFor(REACT_URL, REACT_SRI);
-    const reactDom = cdnScriptFor(REACT_DOM_URL, REACT_DOM_SRI);
-    return Promise.all([
-      loadScript(react.src, react.integrity),
-      loadScript(reactDom.src, reactDom.integrity)
-    ]).catch(() => Promise.all([
-      loadScript(REACT_FALLBACK_URL, REACT_SRI),
-      loadScript(REACT_DOM_FALLBACK_URL, REACT_DOM_SRI)
-    ])).then(() => void 0);
+    return loadReactPair(REACT_URL, REACT_DOM_URL)
+      .catch(() => USE_LOCAL_VENDOR ? loadReactPair(PROXY_REACT_URL, PROXY_REACT_DOM_URL) : Promise.reject(new Error("local vendor unavailable")))
+      .catch(() => loadReactPair(REACT_FALLBACK_URL, REACT_DOM_FALLBACK_URL))
+      .then(() => void 0);
+  }
+  function revealRuntime() {
+    document.documentElement.classList.remove("dc-loading");
+  }
+  function showBootError(err) {
+    revealRuntime();
+    if (document.getElementById("dc-boot-error")) return;
+    const box = document.createElement("div");
+    box.id = "dc-boot-error";
+    box.setAttribute("role", "alert");
+    box.style.cssText = "position:fixed;z-index:2147483647;left:50%;top:50%;transform:translate(-50%,-50%);width:min(88vw,360px);padding:28px 24px;border:1px solid #e2e6f2;border-radius:18px;background:#fff;box-shadow:0 18px 50px rgba(16,37,95,.16);text-align:center;font:600 14px/1.55 Manrope,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#16255f";
+    const title = document.createElement("strong");
+    title.textContent = "NUDEMA";
+    title.style.cssText = "display:block;margin-bottom:10px;font-size:22px;letter-spacing:.1em;color:#2a54e6";
+    const message = document.createElement("div");
+    message.textContent = "Хуудсыг ачаалж чадсангүй. Сүлжээгээ шалгаад дахин оролдоно уу.";
+    const retry = document.createElement("button");
+    retry.type = "button";
+    retry.textContent = "Дахин ачаалах";
+    retry.style.cssText = "width:100%;margin-top:18px;padding:12px;border:0;border-radius:10px;background:#2a54e6;color:#fff;font:700 14px/1.2 Manrope,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer";
+    retry.onclick = () => location.reload();
+    box.append(title, message, retry);
+    document.body.appendChild(box);
+    console.error("[dc] failed to load React or boot:", err);
   }
   function init() {
     const runtime = createRuntime(document);
@@ -1827,6 +1873,7 @@
       __dcTemplateSource: (name) => runtime.templateSource(name),
       __dcBoot: () => {
         rootName = boot(runtime, document) ?? rootName;
+        revealRuntime();
         notifyHost();
       },
       __dcRegistry: runtime.registry.entries,
@@ -1838,12 +1885,20 @@
     };
     Object.assign(window, api);
     window.__dcContentKeyed = true;
-    if (document.readyState !== "loading") api.__dcBoot();
-    else document.addEventListener("DOMContentLoaded", () => api.__dcBoot());
+    const safeBoot = () => {
+      try {
+        api.__dcBoot();
+      } catch (err) {
+        showBootError(err);
+      }
+    };
+    if (document.readyState !== "loading") safeBoot();
+    else document.addEventListener("DOMContentLoaded", safeBoot, { once: true });
   }
   hideRawTemplate();
   loadReactUmd().then(init).catch((err) => {
-    console.error("[dc] failed to load React or boot:", err);
-    throw err;
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => showBootError(err), { once: true });
+    } else showBootError(err);
   });
 })();
