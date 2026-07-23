@@ -1755,6 +1755,8 @@
   }
 
   // src/index.ts
+  var bootWatchdog = 0;
+  var bootPollTimer = 0;
   function hideRawTemplate() {
     const s = document.createElement("style");
     s.textContent = `x-dc{display:none!important}
@@ -1806,7 +1808,12 @@ html.dc-loading body::after{content:"";position:fixed;z-index:2147483646;left:50
       .then(() => void 0);
   }
   function revealRuntime() {
+    clearTimeout(bootWatchdog);
+    clearTimeout(bootPollTimer);
+    bootWatchdog = 0;
+    bootPollTimer = 0;
     document.documentElement.classList.remove("dc-loading");
+    document.getElementById("dc-boot-error")?.remove();
   }
   function showBootError(err) {
     revealRuntime();
@@ -1826,7 +1833,7 @@ html.dc-loading body::after{content:"";position:fixed;z-index:2147483646;left:50
     retry.style.cssText = "width:100%;margin-top:18px;padding:12px;border:0;border-radius:10px;background:#2a54e6;color:#fff;font:700 14px/1.2 Manrope,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer";
     retry.onclick = () => location.reload();
     box.append(title, message, retry);
-    document.body.appendChild(box);
+    (document.body || document.documentElement).appendChild(box);
     console.error("[dc] failed to load React or boot:", err);
   }
   function init() {
@@ -1885,20 +1892,33 @@ html.dc-loading body::after{content:"";position:fixed;z-index:2147483646;left:50
     };
     Object.assign(window, api);
     window.__dcContentKeyed = true;
+    let bootStarted = false;
     const safeBoot = () => {
+      if (bootStarted) return;
+      bootStarted = true;
       try {
         api.__dcBoot();
       } catch (err) {
         showBootError(err);
       }
     };
-    if (document.readyState !== "loading") safeBoot();
-    else document.addEventListener("DOMContentLoaded", safeBoot, { once: true });
+    const bootWhenParsed = () => {
+      if (bootStarted) return;
+      if (document.querySelector("x-dc") && document.querySelector("script[data-dc-script]")) {
+        safeBoot();
+        return;
+      }
+      if (document.readyState !== "loading") {
+        safeBoot();
+        return;
+      }
+      bootPollTimer = setTimeout(bootWhenParsed, 16);
+    };
+    bootWhenParsed();
   }
   hideRawTemplate();
-  loadReactUmd().then(init).catch((err) => {
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", () => showBootError(err), { once: true });
-    } else showBootError(err);
-  });
+  bootWatchdog = setTimeout(() => {
+    showBootError(new Error("dc-runtime boot timed out"));
+  }, 1e4);
+  loadReactUmd().then(init).catch(showBootError);
 })();

@@ -90,16 +90,35 @@
   }
 
   function start() {
+    if (window.__nudemaUserUiStarted) return;
+    var target = document.documentElement || document.body;
+    if (!target || !target.nodeType) {
+      setTimeout(start, 25);
+      return;
+    }
+    window.__nudemaUserUiStarted = true;
     apply();
     var observer = new MutationObserver(function () {
       var mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
       if (!document.querySelector('footer[data-nudema-common="1"]') ||
           (mobile && !document.querySelector('.nudema-mobile-nav'))) apply();
     });
-    observer.observe(document.documentElement, { childList: true, subtree: true });
+    observer.observe(target, { childList: true, subtree: true });
     setTimeout(function () { apply(); observer.disconnect(); }, 4000);
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
-  else start();
+  function scheduleStart() {
+    var hasDcRuntime = document.querySelector('x-dc') || document.querySelector('script[data-dc-script]');
+    if (hasDcRuntime && !document.getElementById('dc-root')) {
+      setTimeout(scheduleStart, 25);
+      return;
+    }
+    if (document.readyState === 'loading' && !hasDcRuntime) {
+      document.addEventListener('DOMContentLoaded', start, { once: true });
+      return;
+    }
+    start();
+  }
+
+  scheduleStart();
 }());

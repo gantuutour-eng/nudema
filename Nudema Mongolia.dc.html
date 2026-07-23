@@ -5,14 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- Утсан дээр нээвэл мобайл хувилбар руу шилжүүлнэ (support.js-ээс өмнө ажиллана) -->
 <script src="./device-redirect.js"></script>
-<script src="./support.js?v=20260723-2"></script>
+<script src="./assets/vendor/react-18.3.1.production.min.js"></script>
+<script src="./assets/vendor/react-dom-18.3.1.production.min.js"></script>
+<script src="./support.js?v=20260723-3"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -27,7 +29,7 @@
 <script src="./nudema-store.js"></script>
 <script src="./nudema-cart.js"></script>
 <link rel="stylesheet" href="./user-ui.css?v=20260722-1">
-<script src="./user-ui.js?v=20260723-1"></script>
+<script src="./user-ui.js?v=20260723-2"></script>
 </helmet>
 <!-- Өнгөт туузууд (марки, инстаграм, футер) дэлгэц дүүрэн; доторх агуулга 1280px -->
 <div style="width:100%;background:#fff;">
