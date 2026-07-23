@@ -678,9 +678,9 @@ admin.removeBankAccount(0);
 admin.saveSettings();
 check('админд анхааруулга гарсан', admin.renderVals().noBankAccounts === true);
 const noBank = openCheckout().renderVals();
-check('данс шилжүүлэг алга болсон', !noBank.methods.some((m) => m.label === 'Данс шилжүүлэг'), noBank.methods.map((m) => m.label).join(','));
-check('QPay үлдсэн', noBank.methods.length === 1 && noBank.methods[0].label === 'QPay');
-check('сонголт QPay руу шилжсэн', noBank.isBank === false);
+check('данс шилжүүлэг ганцаар үлдсэн', noBank.methods.length === 1 && noBank.methods[0].label === 'Данс шилжүүлэг', noBank.methods.map((m) => m.label).join(','));
+check('QPay бүрэн хасагдсан', !noBank.methods.some((m) => m.label === 'QPay'));
+check('дансгүй үед төлбөр блоклогдсон', noBank.noBankAccounts === true && noBank.payDisabled === true);
 
 // Дахин нэмэхэд эргэж ирнэ
 admin.addBankAccount();

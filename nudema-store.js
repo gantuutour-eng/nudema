@@ -72,7 +72,7 @@
         date: d.toISOString().slice(0, 10),
         hour: 9 + pick(11),
         minute: pick(60),
-        method: rnd() < 0.55 ? 'QPay' : 'Данс шилжүүлэг',
+        method: 'Данс шилжүүлэг',
         items: items,
         status: status,
       });
@@ -327,7 +327,7 @@
       address: payload.customer && payload.customer.address ? payload.customer.address : '',
       note: payload.customer && payload.customer.note ? payload.customer.note : '',
       date: now.toISOString().slice(0, 10), hour: now.getHours(), minute: now.getMinutes(),
-      method: payload.method || 'Данс шилжүүлэг', items: items, gift: payload.gift === true, status: 'pending',
+      method: 'Данс шилжүүлэг', items: items, gift: payload.gift === true, status: 'pending',
     };
     var orders = read('orders');
     orders.unshift(order);

@@ -55,7 +55,7 @@ export async function onRequestPost(context) {
       createdAt: now.toISOString(),
       hour: now.getUTCHours(),
       minute: now.getUTCMinutes(),
-      method: cleanText(body.method, 60) || 'Банкны шилжүүлэг',
+      method: 'Данс шилжүүлэг',
       items: normalizedItems.map(({ pid, qty }) => ({ pid, qty })),
       subtotal,
       shipping,

@@ -19,6 +19,9 @@
   body { font-family: 'Manrope', -apple-system, sans-serif; color: #1a1c1a; background: #f4f6fb; -webkit-font-smoothing: antialiased; }
   a { color: inherit; text-decoration: none; }
   a:hover { color: #1e46c8; }
+  input:not([type="checkbox"]):not([type="radio"]):focus,
+  textarea:focus,
+  select:focus { outline: none !important; border-color: #2a54e6 !important; box-shadow: 0 0 0 3px rgba(42,84,230,.14) !important; }
   .aScroll::-webkit-scrollbar { height: 8px; }
 </style>
 <script src="./image-slot.js"></script>
@@ -856,10 +859,10 @@
           </div>
           <div style="border-top:1px solid #f2f4f9;padding-top:20px;">
             <div style="font-size:14px;font-weight:800;color:#16255f;margin-bottom:3px;">Дансны мэдээлэл (Данс шилжүүлэг)</div>
-            <p style="font-size:12px;color:#8a90a3;margin:0 0 14px;line-height:1.55;">Худалдан авагчийн төлбөрийн хуудсанд харагдана. Данс оруулаагүй бол "Данс шилжүүлэг" төлбөрийн хэрэгсэл санал болгохгүй.</p>
+            <p style="font-size:12px;color:#8a90a3;margin:0 0 14px;line-height:1.55;">Худалдан авагч зөвхөн данс шилжүүлгээр төлнө. Тиймээс хамгийн багадаа нэг төлбөр хүлээн авах данс заавал бүртгэнэ.</p>
 
             <sc-if value="{{ noBankAccounts }}" hint-placeholder-val="{{ false }}">
-              <div style="background:#fff8ed;border:1px solid #f5e2c3;color:#a56a12;font-size:12.5px;font-weight:600;line-height:1.55;padding:11px 14px;border-radius:10px;margin-bottom:14px;">Данс оруулаагүй тул худалдан авагч зөвхөн QPay-ээр төлөх боломжтой.</div>
+              <div style="background:#fff8ed;border:1px solid #f5e2c3;color:#a56a12;font-size:12.5px;font-weight:600;line-height:1.55;padding:11px 14px;border-radius:10px;margin-bottom:14px;">Төлбөрийн данс заавал бүртгэнэ үү. Дансгүй үед захиалга баталгаажуулах боломжгүй.</div>
             </sc-if>
 
             <div style="display:flex;flex-direction:column;gap:12px;">

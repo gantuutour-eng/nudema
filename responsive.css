@@ -1,3 +1,14 @@
+/* Shared form focus treatment. Inline field styles on checkout/admin pages do
+ * not reset the user-agent outline, which can appear as a thick black border
+ * after a tap. Keep the control's 1px shape and add a subtle brand ring. */
+input:not([type="checkbox"]):not([type="radio"]):focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  border-color: #2a54e6 !important;
+  box-shadow: 0 0 0 3px rgba(42, 84, 230, .14) !important;
+}
+
 /* Хуваалцсан хуудсуудыг (бүтээгдэхүүн, төлбөр) утсанд тохируулна.
  *
  * Эдгээр хуудсанд PC/мобайл гэсэн тусдаа хувилбар байхгүй тул нэг хуудсаа

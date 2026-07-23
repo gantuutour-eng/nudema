@@ -21,7 +21,7 @@
   a:hover { color: #1e46c8; }
   input::placeholder { color: #b3bab4; }
 </style>
-<link rel="stylesheet" href="./responsive.css">
+<link rel="stylesheet" href="./responsive.css?v=20260723-4">
 <script src="./image-slot.js"></script>
 <script src="./mn-regions.js"></script>
 <script src="./nudema-store.js"></script>
@@ -49,7 +49,7 @@
       <div>
         <!-- delivery -->
         <div style="border:1px solid #eee;border-radius:16px;padding:26px 28px;margin-bottom:22px;">
-          <sc-if value="{{ isGift }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ isGiftForm }}" hint-placeholder-val="{{ false }}">
             <div>
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2a54e6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7S9.5 7 8 5.5 8 2.5 9.5 3 12 7 12 7z"></path><path d="M12 7s2.5 0 4-1.5S15.5 2.5 14 3s-2 4-2 4z"></path></svg>
@@ -155,11 +155,15 @@
         <!-- payment method -->
         <div style="border:1px solid #eee;border-radius:16px;padding:26px 28px;">
           <h2 style="font-size:18px;font-weight:800;margin:0 0 20px;color:#16255f;">Төлбөрийн хэрэгсэл</h2>
-          <div class="co-two" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="co-two" style="display:grid;grid-template-columns:1fr;gap:12px;">
             <sc-for list="{{ methods }}" as="m" hint-placeholder-count="2">
               <button onClick="{{ m.onClick }}" style="{{ m.style }}">{{ m.label }}</button>
             </sc-for>
           </div>
+
+          <sc-if value="{{ noBankAccounts }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:16px;background:#fff4f4;border:1px solid #f3b6b6;color:#b42318;border-radius:10px;padding:11px 14px;font-size:12.5px;line-height:1.55;">Төлбөр хүлээн авах банкны данс тохируулаагүй байна. Хэрэглэгчийн төвтэй холбогдоно уу.</div>
+          </sc-if>
 
           <!-- bank transfer details (админы тохиргооноос) -->
           <sc-if value="{{ isBank }}" hint-placeholder-val="{{ true }}">
@@ -444,11 +448,8 @@ class Component extends DCLogic {
     const accounts = (settings.bankAccounts || []).filter(a => a && a.bank && a.number);
     const bankAvailable = accounts.length > 0;
 
-    const methodDefs = [];
-    if (bankAvailable) methodDefs.push({ key: 'bank', label: 'Данс шилжүүлэг' });
-    methodDefs.push({ key: 'qpay', label: 'QPay' });
-    // Данс устгагдсан бол сонголтыг зөв утга руу буцаана
-    const methodKey = methodDefs.some(m => m.key === this.state.method) ? this.state.method : methodDefs[0].key;
+    const methodDefs = [{ key: 'bank', label: 'Данс шилжүүлэг' }];
+    const methodKey = 'bank';
 
     const methods = methodDefs.map(m => ({
       label: m.label,
@@ -493,7 +494,8 @@ class Component extends DCLogic {
       freeThreshold: settings.freeThreshold,
       notDone: !this.state.done,
       done: this.state.done,
-      isGift: gift,
+      isGiftForm: gift,
+      isGift: false,
       notGift: !gift,
       cities, districts, khoroos, city,
       customerName: this.state.customerName || '', phone: this.state.phone || '',
@@ -509,11 +511,12 @@ class Component extends DCLogic {
       onPayerName: (e) => this.setState({ payerName: e.target.value }),
 
       bankAccounts,
+      noBankAccounts: !bankAvailable,
       bankNote: settings.bankNote || '',
       hasBankNote: !!String(settings.bankNote || '').trim(),
-      isBank: methodKey === 'bank',
-      isBankNotGift: methodKey === 'bank' && !gift,
-      isSuccessNotGift: methodKey !== 'bank' && !gift,
+      isBank: bankAvailable,
+      isBankNotGift: this.state.done && bankAvailable,
+      isSuccessNotGift: false,
 
       orderNo: this.state.orderNo || 'NDM-20260720-4417',
       copyBtnStyle: 'border:1px solid #cdd5ee;background:#fff;color:#2a54e6;font-family:inherit;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;',
@@ -539,16 +542,14 @@ class Component extends DCLogic {
         else if (navigator.clipboard) { navigator.clipboard.writeText(text).then(() => this.setState({ linkCopied: true }), () => {}); }
       },
       submitting: !!this.state.submitting,
-      payDisabled: !!this.state.submitting || !rawItems.length,
+      payDisabled: !!this.state.submitting || !rawItems.length || !bankAvailable,
       hasOrderError: !!this.state.orderError,
       orderError: this.state.orderError || '',
-      payBtnStyle: `width:100%;height:54px;background:${this.state.submitting || !rawItems.length ? '#8fa5ee' : '#2a54e6'};color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:16px;font-weight:800;cursor:${this.state.submitting ? 'wait' : (!rawItems.length ? 'not-allowed' : 'pointer')};margin-bottom:12px;`,
-      payLabel: !rawItems.length ? 'Сагс хоосон байна' : (this.state.submitting ? 'Захиалга үүсгэж байна…' : (gift
-        ? (methodKey === 'bank' ? 'Бэлгийн захиалга баталгаажуулах' : this.fmt(grand) + ' төлж бэлэг илгээх')
-        : (methodKey === 'bank' ? 'Захиалга баталгаажуулах' : this.fmt(grand) + ' төлөх'))),
-      pay: () => this.submitOrder({
+      payBtnStyle: `width:100%;height:54px;background:${this.state.submitting || !rawItems.length || !bankAvailable ? '#8fa5ee' : '#2a54e6'};color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:16px;font-weight:800;cursor:${this.state.submitting ? 'wait' : (!rawItems.length || !bankAvailable ? 'not-allowed' : 'pointer')};margin-bottom:12px;`,
+      payLabel: !bankAvailable ? 'Төлбөрийн данс тохируулаагүй байна' : (!rawItems.length ? 'Сагс хоосон байна' : (this.state.submitting ? 'Захиалга үүсгэж байна…' : (gift ? 'Бэлгийн захиалга баталгаажуулах' : 'Захиалга баталгаажуулах'))),
+      pay: () => bankAvailable && this.submitOrder({
         gift,
-        method: methodKey === 'bank' ? 'Данс шилжүүлэг' : 'QPay',
+        method: 'Данс шилжүүлэг',
         items: rawItems.map((item) => ({ id: item.id, qty: item.qty })),
         customer: {
           name: this.state.customerName || '', phone: this.state.phone || '', email: '',
