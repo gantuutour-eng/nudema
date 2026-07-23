@@ -232,20 +232,6 @@
           </sc-if>
         </div>
       </sc-if>
-      <sc-if value="{{ isIngredients }}" hint-placeholder-val="{{ false }}">
-        <div style="text-align:left;">
-          <h2 style="font-size:24px;font-weight:800;color:#16255f;margin:0 0 20px;text-align:center;">Найрлага</h2>
-          <sc-for list="{{ ingredients }}" as="ing" hint-placeholder-count="5">
-            <div style="display:flex;justify-content:space-between;padding:16px 4px;border-bottom:1px solid #f0f2f0;font-size:14px;">
-              <span style="font-weight:600;color:#2a302b;">{{ ing.name }}</span>
-              <span style="color:#8a938c;">{{ ing.role }}</span>
-            </div>
-          </sc-for>
-          <sc-if value="{{ noIngredients }}" hint-placeholder-val="{{ false }}">
-            <p style="text-align:center;font-size:14px;color:#9aa39c;padding:30px 0;margin:0;">Найрлагын мэдээлэл оруулаагүй байна.</p>
-          </sc-if>
-        </div>
-      </sc-if>
       <sc-if value="{{ isReviews }}" hint-placeholder-val="{{ false }}">
         <div style="text-align:left;">
           <h2 style="font-size:24px;font-weight:800;color:#16255f;margin:0 0 20px;text-align:center;">Сэтгэгдэл</h2>
@@ -400,16 +386,6 @@
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
-// Найрлага оруулаагүй хуучин бараанд харуулах ерөнхий жагсаалт
-const FALLBACK_INGREDIENTS = [
-  { name: 'Гиалуроны хүчил (Sodium Hyaluronate)', role: 'Гүн чийгшил' },
-  { name: 'Ниацинамид', role: 'Гэрэлтүүлэг · тон тэгшитгэл' },
-  { name: 'Керамид NP', role: 'Хамгаалалтын давхарга сэргээх' },
-  { name: 'Пантенол (B5)', role: 'Тайвшруулах' },
-  { name: 'Центелла асиатика', role: 'Улайлт намдаах' },
-  { name: 'Скваалан', role: 'Чийг тогтоох' },
-];
-
 class Component extends DCLogic {
   state = { qty: 1, option: 0, tab: 'detail', gift: '', copied: false, detailCount: 3 };
 
@@ -540,13 +516,8 @@ class Component extends DCLogic {
       hasReply: !!r.reply, reply: r.reply,
     }));
 
-    /* ---- Найрлага: админд оруулсан бол түүнийг ---- */
-    const typedIng = String(product.ingredients || '').split(',').map(s => s.trim()).filter(Boolean);
-    const ingredients = typedIng.length ? typedIng.map(n => ({ name: n, role: '' })) : FALLBACK_INGREDIENTS;
-
     const tabDefs = [
       { key: 'detail', label: 'Дэлгэрэнгүй' },
-      { key: 'ingredients', label: 'Найрлага' },
       { key: 'reviews', label: `Сэтгэгдэл (${reviews.length})` },
     ];
     const detailTabs = tabDefs.map(t => ({
@@ -620,9 +591,6 @@ class Component extends DCLogic {
       detailBlocks,
       hasDetailBlocks: detailBlocks.length > 0,
       noDetailBlocks: detailBlocks.length === 0,
-      isIngredients: this.state.tab === 'ingredients',
-      ingredients,
-      noIngredients: ingredients.length === 0,
       isReviews: this.state.tab === 'reviews',
       reviews,
       noReviews: reviews.length === 0,

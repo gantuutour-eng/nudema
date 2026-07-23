@@ -488,11 +488,6 @@
                   <label style="font-size:12px;font-weight:700;color:#8a90a3;display:block;margin-bottom:6px;">Тайлбар</label>
                   <textarea value="{{ f.desc }}" onInput="{{ onFDesc }}" placeholder="Бүтээгдэхүүний онцлог, хэрэглэх заавар..." style="width:100%;height:88px;border:1px solid #e0e4ee;border-radius:10px;padding:12px 14px;font-family:inherit;font-size:14px;resize:none;"></textarea>
                 </div>
-                <div>
-                  <label style="font-size:12px;font-weight:700;color:#8a90a3;display:block;margin-bottom:6px;">Гол найрлага (таслалаар)</label>
-                  <input value="{{ f.ingredients }}" onInput="{{ onFIngredients }}" placeholder="Гиалуроны хүчил, Ниацинамид, Керамид NP, Пантенол" style="width:100%;height:46px;border:1px solid #e0e4ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
-                </div>
-
                 <div style="border-top:1px solid #f2f4f9;padding-top:16px;">
                   <div style="font-size:13px;font-weight:800;color:#16255f;margin-bottom:3px;">Дэлгэрэнгүй хуудсанд гарах мэдээлэл</div>
                   <p style="font-size:12px;color:#8a90a3;margin:0 0 14px;line-height:1.55;">Доорхыг бөглөвөл л бүтээгдэхүүний хуудсанд харагдана. Хоосон орхивол тэр мөр огт гарахгүй.</p>
@@ -1418,7 +1413,7 @@ class Component extends DCLogic {
   blankForm() {
     return {
       title: '', category: 'Арьс арчилгааны багц', badge: 'Байхгүй',
-      price: '', original: '', stock: '', desc: '', ingredients: '', showOnHome: true,
+      price: '', original: '', stock: '', desc: '', showOnHome: true,
       // Дэлгэрэнгүй хуудсанд зөвхөн бөглөсөн үед л гарна
       shipping: '', pointsRate: '', options: [],
       images: [],       // гол зургийн галерей
@@ -1446,7 +1441,6 @@ class Component extends DCLogic {
       original: p.original ? NudemaStore.money(p.original) : '',
       stock: String(p.stock == null ? '' : p.stock),
       desc: p.desc || '',
-      ingredients: p.ingredients || '',
       showOnHome: !!p.showOnHome,
       shipping: p.shipping || '',
       pointsRate: p.pointsRate ? String(p.pointsRate) : '',
@@ -1658,7 +1652,6 @@ class Component extends DCLogic {
       original: num(f.original) || 0,
       stock: num(f.stock),
       desc: f.desc.trim(),
-      ingredients: f.ingredients.trim(),
       showOnHome: !!f.showOnHome,
       // Хоосон орхивол дэлгэрэнгүй хуудсанд тэр мөр огт гарахгүй
       shipping: String(f.shipping || '').trim(),
@@ -2217,7 +2210,6 @@ class Component extends DCLogic {
       onFOriginal: (e) => this.updForm({ original: e.target.value }),
       onFStock: (e) => this.updForm({ stock: e.target.value }),
       onFDesc: (e) => this.updForm({ desc: e.target.value }),
-      onFIngredients: (e) => this.updForm({ ingredients: e.target.value }),
       onFHome: () => this.updForm({ showOnHome: !this.form().showOnHome }),
       onFShipping: (e) => this.updForm({ shipping: e.target.value }),
       onFPointsRate: (e) => this.updForm({ pointsRate: e.target.value }),

@@ -332,6 +332,11 @@ const openProduct = (query) => {
 
 let pv = openProduct('?id=3').renderVals();
 check('id=3 бараа ачаалагдсан', pv.title === 'Амин С гэрэлтүүлэг серум 50мл', pv.title);
+const productDetailSource = fs.readFileSync('Nudema Product.dc.html', 'utf8');
+const adminProductSource = fs.readFileSync('Nudema Admin.dc.html', 'utf8');
+check('Найрлага таб дэлгэрэнгүйгээс хасагдсан', !pv.detailTabs.some((tab) => tab.label === 'Найрлага'));
+check('Найрлага хэсэг дэлгэрэнгүйгээс хасагдсан', !productDetailSource.includes('Найрлага'));
+check('Найрлага талбар админаас хасагдсан', !adminProductSource.includes('ingredients'));
 check('үнэ store-оос', pv.price === '58,900₮', pv.price);
 check('хямдралын хувь тооцоологдсон', pv.discountPct === '37%', pv.discountPct);
 check('хэмнэлт', pv.benefit === '34,100₮', pv.benefit);
