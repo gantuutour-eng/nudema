@@ -1198,7 +1198,37 @@ class Component extends DCLogic {
    * багасгана. Blob нь R2 руу multipart binary хэлбэрээр байршуулж, бүтээгдэхүүнд
    * зөвхөн /api/images/... URL хадгална.
    */
-  readImageFile(file, cb) {
+  imageResizePlan(width, height, mode) {
+    const sourceWidth = Math.max(1, Number(width) || 1);
+    const sourceHeight = Math.max(1, Number(height) || 1);
+    if (mode === 'detail') {
+      // Урт дэлгэрэнгүй зурагт бичвэр бүдгэрэхээс сэргийлж өргөнийг хадгална.
+      // Canvas санах ойг хэтрүүлэхгүйгээр 24MP / 20,000px дотор багтаана.
+      const maxWidth = 1600;
+      const maxHeight = 20000;
+      const maxPixels = 24000000;
+      const scale = Math.min(
+        1,
+        maxWidth / sourceWidth,
+        maxHeight / sourceHeight,
+        Math.sqrt(maxPixels / (sourceWidth * sourceHeight)),
+      );
+      return {
+        width: Math.max(1, Math.round(sourceWidth * scale)),
+        height: Math.max(1, Math.round(sourceHeight * scale)),
+        quality: 0.92,
+      };
+    }
+    const maxEdge = 1600;
+    const scale = Math.min(1, maxEdge / Math.max(sourceWidth, sourceHeight));
+    return {
+      width: Math.max(1, Math.round(sourceWidth * scale)),
+      height: Math.max(1, Math.round(sourceHeight * scale)),
+      quality: 0.82,
+    };
+  }
+
+  readImageFile(file, cb, options) {
     if (!file) return cb('Файл сонгогдоогүй байна.');
     if (!/^image\//.test(file.type)) return cb('Зөвхөн зураг файл оруулна уу.');
     if (file.size > 12 * 1024 * 1024) return cb('Зургийн хэмжээ 12MB-аас бага байх ёстой.');
@@ -1218,10 +1248,9 @@ class Component extends DCLogic {
     };
     im.onload = () => {
       try {
-        const MAX_EDGE = 1600;
-        const scale = Math.min(1, MAX_EDGE / Math.max(im.width || MAX_EDGE, im.height || MAX_EDGE));
-        const w = Math.max(1, Math.round(im.width * scale));
-        const h = Math.max(1, Math.round(im.height * scale));
+        const plan = this.imageResizePlan(im.width, im.height, options && options.mode);
+        const w = plan.width;
+        const h = plan.height;
         const c = document.createElement('canvas');
         c.width = w; c.height = h;
         const g = c.getContext('2d');
@@ -1238,7 +1267,7 @@ class Component extends DCLogic {
           NudemaStore.uploadImage(blob, (baseName || 'nudema-image') + '.webp')
             .then((result) => cb(null, result.url))
             .catch((cause) => cb(cause && cause.message ? cause.message : 'R2-д зураг байршуулж чадсангүй.'));
-        }, 'image/webp', 0.82);
+        }, 'image/webp', plan.quality);
       } catch (e) {
         release();
         cb('Зургийг WebP болгон хөрвүүлж чадсангүй.');
@@ -1613,7 +1642,7 @@ class Component extends DCLogic {
       if (input) input.value = '';
       if (err) return this.setState({ formError: err });
       this.updBlock(i, { [field]: dataUrl });
-    });
+    }, { mode: 'detail' });
   }
   form() { return this.state.form || this.blankForm(); }
   updForm(patch) { this.setState({ form: { ...this.form(), ...patch }, productSaved: false, formError: '' }); }
