@@ -1,8 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="mn">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Арьс арчилгааны бүтээгдэхүүн | NUDEMA Mongolia</title>
+<meta name="description" content="NUDEMA Mongolia онлайн дэлгүүрээс арьс арчилгаа, гоо сайхны бүтээгдэхүүний үнэ, найрлага, хэрэглээний мэдээллийг үзэж захиалаарай.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
+<link id="seoCanonical" rel="canonical" href="https://nudema-mongolia.com/Nudema%20Product.dc">
+<meta property="og:type" content="product">
+<meta property="og:locale" content="mn_MN">
+<meta property="og:site_name" content="NUDEMA Mongolia">
+<meta property="og:title" content="Арьс арчилгааны бүтээгдэхүүн | NUDEMA Mongolia">
+<meta property="og:description" content="Монгол дахь NUDEMA гоо сайхны бүтээгдэхүүний мэдээлэл, үнэ, захиалга.">
+<meta property="og:url" content="https://nudema-mongolia.com/Nudema%20Product.dc">
+<meta name="twitter:card" content="summary_large_image">
 <script src="./assets/vendor/react-18.3.1.production.min.js"></script>
 <script src="./assets/vendor/react-dom-18.3.1.production.min.js"></script>
 <script src="./support.js?v=20260723-3"></script>
@@ -327,11 +338,122 @@ class Component extends DCLogic {
   }
 
   reload() {
+    const products = NudemaStore.read('products') || [];
+    const reviews = NudemaStore.read('reviews') || [];
+    const settings = NudemaStore.read('settings') || {};
+    this.updateSeo(products);
     this.setState({
-      products: NudemaStore.read('products'),
-      reviews: NudemaStore.read('reviews'),
-      settings: NudemaStore.read('settings'),
+      products,
+      reviews,
+      settings,
     });
+  }
+
+  setSeoMeta(attribute, key, value) {
+    let element = document.head.querySelector(`meta[${attribute}="${key}"]`);
+    if (!element) {
+      element = document.createElement('meta');
+      element.setAttribute(attribute, key);
+      document.head.appendChild(element);
+    }
+    element.setAttribute('content', value);
+  }
+
+  updateSeo(products) {
+    if (typeof document === 'undefined' || !document.head) return;
+    const baseUrl = 'https://nudema-mongolia.com';
+    const id = this.paramId();
+    const product = id === null ? products[0] : products.find(p => Number(p.id) === id);
+    const canonical = new URL('/Nudema%20Product.dc', baseUrl);
+    if (product) canonical.searchParams.set('id', String(product.id));
+
+    let canonicalLink = document.getElementById('seoCanonical');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.id = 'seoCanonical';
+      canonicalLink.rel = 'canonical';
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.href = canonical.toString();
+    this.setSeoMeta('property', 'og:url', canonical.toString());
+
+    const oldStructuredData = document.getElementById('productStructuredData');
+    if (!product) {
+      document.title = 'Бүтээгдэхүүн олдсонгүй | NUDEMA Mongolia';
+      this.setSeoMeta('name', 'robots', 'noindex,follow');
+      if (oldStructuredData) oldStructuredData.remove();
+      return;
+    }
+
+    const title = `${String(product.title || 'NUDEMA бүтээгдэхүүн').trim()} | NUDEMA Mongolia`;
+    const numericPrice = Number(String(product.price || 0).replace(/[^0-9.]/g, '')) || 0;
+    const descriptionSource = String(product.desc || '').trim()
+      || `${String(product.title || 'NUDEMA бүтээгдэхүүн').trim()} — Монгол дахь NUDEMA арьс арчилгаа, гоо сайхны онлайн дэлгүүр. Үнэ ${numericPrice.toLocaleString('en-US')}₮.`;
+    const description = descriptionSource.replace(/\s+/g, ' ').slice(0, 170);
+    const images = Array.isArray(product.images) ? product.images : [];
+    const imagePath = String(product.img || images[0] || '').trim();
+    const imageUrl = imagePath ? new URL(imagePath, baseUrl).toString() : '';
+
+    document.title = title;
+    this.setSeoMeta('name', 'description', description);
+    this.setSeoMeta('name', 'robots', 'index,follow,max-image-preview:large,max-snippet:-1');
+    this.setSeoMeta('property', 'og:title', title);
+    this.setSeoMeta('property', 'og:description', description);
+    this.setSeoMeta('property', 'product:price:amount', String(numericPrice));
+    this.setSeoMeta('property', 'product:price:currency', 'MNT');
+    if (imageUrl) this.setSeoMeta('property', 'og:image', imageUrl);
+
+    const productSchema = {
+      '@type': 'Product',
+      '@id': `${canonical.toString()}#product`,
+      name: String(product.title || '').trim(),
+      url: canonical.toString(),
+      sku: String(product.id),
+      category: String(product.category || 'Арьс арчилгаа'),
+      brand: { '@type': 'Brand', name: 'NUDEMA' },
+      description,
+      offers: {
+        '@type': 'Offer',
+        url: canonical.toString(),
+        priceCurrency: 'MNT',
+        price: numericPrice,
+        itemCondition: 'https://schema.org/NewCondition',
+        availability: product.stock === undefined || Number(product.stock) > 0
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+        seller: { '@id': `${baseUrl}/#store` },
+      },
+    };
+    if (imageUrl) productSchema.image = [imageUrl];
+    const rating = Number(product.rating || 0);
+    const ratingCount = Number(product.count || 0);
+    if (rating > 0 && ratingCount > 0) {
+      productSchema.aggregateRating = {
+        '@type': 'AggregateRating',
+        ratingValue: rating,
+        ratingCount,
+      };
+    }
+
+    const structuredData = {
+      '@context': 'https://schema.org',
+      '@graph': [
+        productSchema,
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Нүүр', item: `${baseUrl}/` },
+            { '@type': 'ListItem', position: 2, name: String(product.category || 'Арьс арчилгаа'), item: `${baseUrl}/Nudema%20Search.dc` },
+            { '@type': 'ListItem', position: 3, name: String(product.title || '').trim(), item: canonical.toString() },
+          ],
+        },
+      ],
+    };
+    const script = oldStructuredData || document.createElement('script');
+    script.id = 'productStructuredData';
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(structuredData);
+    if (!oldStructuredData) document.head.appendChild(script);
   }
 
   // YouTube холбоосыг embed хаяг руу хөрвүүлнэ (видео блокод хэрэглэнэ)
