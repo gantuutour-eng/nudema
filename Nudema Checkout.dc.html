@@ -275,7 +275,7 @@
           </sc-if>
           <div style="display:flex;gap:12px;justify-content:center;">
             <a href="Nudema%20Mongolia.dc.html" style="display:inline-block;background:#2a54e6;color:#fff;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Дэлгүүр рүү буцах</a>
-            <a href="Nudema%20Account.dc.html" style="display:inline-block;border:1px solid #cfd6d0;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Захиалга харах</a>
+            <a href="{{ orderHref }}" style="display:inline-block;border:1px solid #cfd6d0;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Захиалга харах</a>
           </div>
         </div>
       </sc-if>
@@ -293,7 +293,7 @@
           </div>
           <div style="display:flex;gap:12px;justify-content:center;">
             <a href="Nudema%20Mongolia.dc.html" style="display:inline-block;background:#2a54e6;color:#fff;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Дэлгүүр рүү буцах</a>
-            <a href="Nudema%20Account.dc.html" style="display:inline-block;border:1px solid #cfd6d0;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Захиалга харах</a>
+            <a href="{{ orderHref }}" style="display:inline-block;border:1px solid #cfd6d0;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Захиалга харах</a>
           </div>
         </div>
       </sc-if>
@@ -532,6 +532,7 @@ class Component extends DCLogic {
       isSuccessNotGift: false,
 
       orderNo: this.state.orderNo || 'NDM-20260720-4417',
+      orderHref: 'Nudema%20Account.dc.html?order=' + encodeURIComponent(this.state.orderNo || ''),
       copyBtnStyle: 'border:1px solid #cdd5ee;background:#fff;color:#2a54e6;font-family:inherit;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;',
       copyAmount: () => this.copy(String(completedGrand), 'amt'),
       copyAmountLabel: this.state.copied === 'amt' ? '✓ Хууллаа' : 'Хуулах',

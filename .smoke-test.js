@@ -705,6 +705,7 @@ let copiedCompletedAmount = '';
 completedCheckout.copy = (text) => { copiedCompletedAmount = String(text); };
 const completedVals = completedCheckout.renderVals();
 check('сагс цэвэрлэгдсэн ч шилжүүлэх дүн хадгалагдсан', completedVals.total === '123,456₮', completedVals.total);
+check('зочны захиалга харах холбоос захиалгын дугаартай', completedVals.orderHref === 'Nudema%20Account.dc.html?order=NDM-TEST-TOTAL', completedVals.orderHref);
 completedVals.copyAmount();
 check('хадгалагдсан шилжүүлэх дүн хуулагдсан', copiedCompletedAmount === '123456', copiedCompletedAmount);
 vm.runInContext('NudemaCart = undefined; delete window.NudemaCart;', ctx);
@@ -864,6 +865,7 @@ console.log('\n[28] Сайтын өөрийн админ нэвтрэлт');
 const adminSource = fs.readFileSync('Nudema Admin.dc.html', 'utf8');
 const adminAuthSource = fs.readFileSync('functions/_admin-auth.js', 'utf8');
 const adminMiddlewareSource = fs.readFileSync('functions/api/admin/_middleware.js', 'utf8');
+const accountSource = fs.readFileSync('Nudema Account.dc.html', 'utf8');
 check('админ и-мэйл/нууц үгийн маягттай', adminSource.includes('type="email"') && adminSource.includes('type="password"'));
 check('client-side hardcoded нууц үг байхгүй', !/nudema2026|ADMIN_PASSWORD\s*=/.test(adminSource));
 check('өөрийн login/session/logout API ашиглана',
@@ -872,6 +874,8 @@ check('Cloudflare Access redirect хасагдсан', !adminSource.includes('/c
 check('HttpOnly гарын үсэгтэй cookie ашиглана',
   adminAuthSource.includes("HttpOnly; SameSite=Strict") && adminAuthSource.includes("name: 'HMAC'"));
 check('admin store key устсан', !Object.prototype.hasOwnProperty.call(win.NudemaStore.KEYS, 'admin'));
+check('зочны захиалга login-гүй харагдана',
+  accountSource.includes('guestOrderSection') && accountSource.includes('localGuestOrder') && accountSource.includes("new URLSearchParams(location.search).get('order')"));
 
 loadComponent('Nudema Admin.dc.html', 'AdminC2');
 const gate = vm.runInContext('new AdminC2()', ctx);
