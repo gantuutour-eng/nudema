@@ -22,6 +22,31 @@
     return v.toLocaleString('en-US');
   };
 
+  var amount = function (value) {
+    var parsed = Number(String(value == null ? '' : value).replace(/[^\d]/g, '')) || 0;
+    return Math.max(0, Math.round(parsed));
+  };
+
+  // Нэг ижил хүргэлтийн бодлогыг бүтээгдэхүүн, сагс, checkout болон local fallback-д ашиглана.
+  // Үнэгүй хүргэлтийн босго 0/хоосон бол босго идэвхгүй бөгөөд тохируулсан төлбөр үргэлж нэмэгдэнэ.
+  var deliveryQuote = function (subtotal, settings, isGift) {
+    var goods = Math.max(0, Math.round(Number(subtotal) || 0));
+    var fee = amount(settings && settings.shippingFee);
+    var threshold = amount(settings && settings.freeThreshold);
+    var qualifies = threshold > 0 && goods >= threshold;
+    var shipping = isGift || fee === 0 || qualifies ? 0 : fee;
+    return {
+      subtotal: goods,
+      fee: fee,
+      threshold: threshold,
+      shipping: shipping,
+      total: goods + shipping,
+      remaining: threshold > goods ? threshold - goods : 0,
+      isFree: shipping === 0,
+      qualifies: qualifies,
+    };
+  };
+
   // Үзүүлэнгийн захиалгын өгөгдөл — тогтмол үртэй тул ачаалах бүрд ижил гарна.
   // Хяналтын самбар, статистик, хэрэглэгчид бүгд эндээс тооцоологдоно.
   var buildSeedOrders = function () {
@@ -318,16 +343,21 @@
 
   var createLocalOrder = function (payload) {
     var now = new Date();
-    var items = (payload.items || []).map(function (item) { return { pid: Number(item.id || item.pid), qty: Number(item.qty) || 1 }; });
+    var items = (payload.items || []).map(function (item) { return { pid: Number(item.id || item.pid), qty: Number(item.qty) || 1, optionIndex: Math.max(0, Number(item.optionIndex) || 0) }; });
     var products = read('products');
     var settings = read('settings');
     var subtotal = items.reduce(function (sum, item) {
       var product = products.find(function (candidate) { return Number(candidate.id) === item.pid; });
-      return sum + (product ? (Number(product.price) || 0) * item.qty : 0);
+      if (!product) return sum;
+      var options = Array.isArray(product.options) ? product.options.filter(function (option) { return option && option.label; }) : [];
+      var optionIndex = Math.min(item.optionIndex, Math.max(0, options.length - 1));
+      var option = options[optionIndex] || null;
+      var unit = (Number(product.price) || 0) + (option ? Number(option.add) || 0 : 0);
+      item.optionIndex = optionIndex;
+      item.unit = unit;
+      return sum + unit * item.qty;
     }, 0);
-    var shippingFee = Number(String(settings.shippingFee || '').replace(/[^\d]/g, '')) || 0;
-    var freeThreshold = Number(String(settings.freeThreshold || '').replace(/[^\d]/g, '')) || 0;
-    var shipping = payload.gift === true || subtotal >= freeThreshold ? 0 : shippingFee;
+    var delivery = deliveryQuote(subtotal, settings, payload.gift === true);
     var order = {
       no: 'NDM-' + now.toISOString().slice(0, 10).replace(/-/g, '') + '-' + String(now.getTime()).slice(-6),
       customer: payload.customer && payload.customer.name ? payload.customer.name : 'Бэлгийн захиалга',
@@ -336,8 +366,8 @@
       address: payload.customer && payload.customer.address ? payload.customer.address : '',
       note: payload.customer && payload.customer.note ? payload.customer.note : '',
       date: now.toISOString().slice(0, 10), hour: now.getHours(), minute: now.getMinutes(),
-      method: 'Данс шилжүүлэг', items: items, subtotal: subtotal, shipping: shipping,
-      total: subtotal + shipping, gift: payload.gift === true, status: 'pending',
+      method: 'Данс шилжүүлэг', items: items, subtotal: subtotal, shipping: delivery.shipping,
+      total: delivery.total, gift: payload.gift === true, status: 'pending',
     };
     var orders = read('orders');
     orders.unshift(order);
@@ -414,6 +444,8 @@
     deleteImage: deleteImage,
     remoteStatus: remoteStatus,
     money: money,
+    amount: amount,
+    delivery: deliveryQuote,
     // Дараагийн чөлөөт id
     nextId: function (list) {
       var max = 0;

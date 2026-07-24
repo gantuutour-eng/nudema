@@ -25,7 +25,7 @@
   .aScroll::-webkit-scrollbar { height: 8px; }
 </style>
 <script src="./image-slot.js"></script>
-<script src="./nudema-store.js?v=20260723-1"></script>
+<script src="./nudema-store.js?v=20260724-2"></script>
 </helmet>
 <!-- Сайтын өөрийн админ нэвтрэх дэлгэц -->
 <sc-if value="{{ notAuthed }}" hint-placeholder-val="{{ false }}">
@@ -845,14 +845,15 @@
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
             <div>
-              <label style="font-size:12px;font-weight:600;color:#8a90a3;display:block;margin-bottom:6px;">Хүргэлтийн төлбөр (УБ)</label>
-              <input value="{{ s.shippingFee }}" onInput="{{ onSShipping }}" style="width:100%;height:46px;border:1px solid #e0e4ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
+              <label style="font-size:12px;font-weight:600;color:#8a90a3;display:block;margin-bottom:6px;">Хүргэлтийн төлбөр (₮)</label>
+              <input value="{{ s.shippingFee }}" onInput="{{ onSShipping }}" inputmode="numeric" placeholder="Жишээ: 7,000" style="width:100%;height:46px;border:1px solid #e0e4ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
             </div>
             <div>
               <label style="font-size:12px;font-weight:600;color:#8a90a3;display:block;margin-bottom:6px;">Үнэгүй хүргэлтийн босго</label>
-              <input value="{{ s.freeThreshold }}" onInput="{{ onSThreshold }}" style="width:100%;height:46px;border:1px solid #e0e4ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
+              <input value="{{ s.freeThreshold }}" onInput="{{ onSThreshold }}" inputmode="numeric" placeholder="Жишээ: 300,000" style="width:100%;height:46px;border:1px solid #e0e4ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
             </div>
           </div>
+          <p style="font-size:11.5px;color:#8a90a3;line-height:1.6;margin:-8px 0 0;">Хүргэлтийн төлбөр 0 бол бүх захиалга үнэгүй. Үнэгүй хүргэлтийн босго 0 бол хүргэлтийн төлбөр бүх захиалгад нэмэгдэнэ.</p>
           <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#f7f8fc;border-radius:10px;">
             <div><div style="font-size:13.5px;font-weight:700;color:#16255f;">Захиалгын мэдэгдэл</div><div style="font-size:12px;color:#8a90a3;">Шинэ захиалга орж ирэхэд имэйл авах</div></div>
             <button onClick="{{ onSNotify }}" style="{{ sNotifyTrack }}"><span style="{{ sNotifyKnob }}"></span></button>
@@ -937,6 +938,8 @@
                   </sc-for>
                 </select>
               </div>
+              <div style="display:flex;align-items:center;"><span style="color:#8a90a3;width:120px;flex:0 0 auto;">Барааны дүн:</span><span style="font-weight:600;color:#2a302b;">{{ od.subtotalLabel }}</span></div>
+              <div style="display:flex;align-items:center;"><span style="color:#8a90a3;width:120px;flex:0 0 auto;">Хүргэлт:</span><span style="font-weight:600;color:#2a302b;">{{ od.shippingLabel }}</span></div>
               <div style="display:flex;align-items:center;"><span style="color:#8a90a3;width:120px;flex:0 0 auto;">Нийт дүн:</span><span style="font-weight:800;color:#16255f;">{{ od.amount }}</span></div>
             </div>
           </div>
@@ -1383,8 +1386,17 @@ class Component extends DCLogic {
   saveSettings() {
     // Хоосон мөрийг хадгалахгүй
     const s = this.settings();
+    const feeText = String(s.shippingFee == null ? '' : s.shippingFee).trim();
+    const thresholdText = String(s.freeThreshold == null ? '' : s.freeThreshold).trim();
+    if ((feeText && !/\d/.test(feeText)) || (thresholdText && !/\d/.test(thresholdText))) {
+      return this.setState({ settingsError: 'Хүргэлтийн төлбөр болон үнэгүй хүргэлтийн босгыг тоогоор оруулна уу.' });
+    }
+    const shippingFee = NudemaStore.amount(feeText);
+    const freeThreshold = NudemaStore.amount(thresholdText);
     const cleaned = {
       ...s,
+      shippingFee: NudemaStore.money(shippingFee) + '₮',
+      freeThreshold: NudemaStore.money(freeThreshold) + '₮',
       bankAccounts: (s.bankAccounts || [])
         .filter(a => String(a.bank || '').trim() || String(a.number || '').trim())
         .map(a => ({
@@ -1779,7 +1791,7 @@ class Component extends DCLogic {
     // Захиалгын мөрийг каталогтой холбож дүнг тооцно
     const resolveItems = (order) => (order.items || []).map((it, i) => {
       const p = allProducts.find(x => Number(x.id) === Number(it.pid));
-      const unit = p ? p.price : 0;
+      const unit = Number.isFinite(Number(it.unit)) ? Number(it.unit) : (p ? p.price : 0);
       return {
         id: i + 1,
         pid: it.pid,
@@ -1810,12 +1822,18 @@ class Component extends DCLogic {
       const cur = savedStatuses[o.no] || o.status || 'pending';
       const cat = catOf(cur);
       const items = resolveItems(o);
-      const sum = items.reduce((a, it) => a + it.line, 0);
+      const itemSubtotal = items.reduce((a, it) => a + it.line, 0);
+      const subtotal = Number.isFinite(Number(o.subtotal)) ? Math.max(0, Number(o.subtotal)) : itemSubtotal;
+      const shipping = Number.isFinite(Number(o.shipping)) ? Math.max(0, Number(o.shipping)) : 0;
+      const savedTotal = Number(o.total);
+      const sum = Number.isFinite(savedTotal) ? Math.max(0, savedTotal) : subtotal + shipping;
       return {
         no: o.no, customer: o.customer, email: o.email, phone: o.phone, address: o.address,
         method: o.method, date: dateLabel(o), rawDate: o.date, items,
-        key: cur, total: sum,
+        key: cur, total: sum, subtotal, shipping,
         amount: '₮ ' + NudemaStore.money(sum),
+        subtotalLabel: '₮ ' + NudemaStore.money(subtotal),
+        shippingLabel: shipping > 0 ? '₮ ' + NudemaStore.money(shipping) : 'Үнэгүй',
         status: cat.label, statusStyle: cat.style,
         open: () => this.setState({ expanded: o.no }),
         onStatus: (e) => this.setStatus(o.no, e.target.value),

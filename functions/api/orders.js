@@ -26,9 +26,12 @@ export async function onRequestPost(context) {
       const qty = Math.max(1, Math.min(99, Number(requested.qty) || 1));
       if (!product) return error(`Unknown product: ${requested.id}`);
       if (Number(product.stock) < qty) return error(`Not enough stock: ${product.title}`);
-      const unit = Number(product.price) || 0;
+      const options = Array.isArray(product.options) ? product.options.filter((option) => option && option.label) : [];
+      const optionIndex = Math.min(Math.max(0, Number(requested.optionIndex) || 0), Math.max(0, options.length - 1));
+      const option = options[optionIndex] || null;
+      const unit = (Number(product.price) || 0) + (option ? Number(option.add) || 0 : 0);
       subtotal += unit * qty;
-      normalizedItems.push({ pid: Number(product.id), qty, unit, title: product.title });
+      normalizedItems.push({ pid: Number(product.id), qty, optionIndex, unit, title: product.title });
     }
 
     const customer = body.customer || {};
@@ -40,9 +43,9 @@ export async function onRequestPost(context) {
     if (!phone) return error('Phone number is required.');
     if (!isGift && (!name || !address)) return error('Name and delivery address are required.');
 
-    const shippingFee = Number(String(settings.shippingFee || '').replace(/[^\d]/g, '')) || 0;
-    const freeThreshold = Number(String(settings.freeThreshold || '').replace(/[^\d]/g, '')) || 0;
-    const shipping = !isGift && subtotal < freeThreshold ? shippingFee : 0;
+    const shippingFee = Math.max(0, Number(String(settings.shippingFee || '').replace(/[^\d]/g, '')) || 0);
+    const freeThreshold = Math.max(0, Number(String(settings.freeThreshold || '').replace(/[^\d]/g, '')) || 0);
+    const shipping = !isGift && shippingFee > 0 && !(freeThreshold > 0 && subtotal >= freeThreshold) ? shippingFee : 0;
     const now = new Date();
     const order = {
       no: makeOrderNo(),
@@ -56,7 +59,7 @@ export async function onRequestPost(context) {
       hour: now.getUTCHours(),
       minute: now.getUTCMinutes(),
       method: 'Данс шилжүүлэг',
-      items: normalizedItems.map(({ pid, qty }) => ({ pid, qty })),
+      items: normalizedItems.map(({ pid, qty, optionIndex, unit }) => ({ pid, qty, optionIndex, unit })),
       subtotal,
       shipping,
       total: subtotal + shipping,

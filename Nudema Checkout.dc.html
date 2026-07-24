@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="./responsive.css?v=20260723-4">
 <script src="./image-slot.js"></script>
 <script src="./mn-regions.js"></script>
-<script src="./nudema-store.js"></script>
+<script src="./nudema-store.js?v=20260724-2"></script>
 <script src="./nudema-cart.js"></script>
 <link rel="stylesheet" href="./user-ui.css?v=20260723-3">
 <script src="./user-ui.js?v=20260723-2"></script>
@@ -86,7 +86,7 @@
                 <span style="width:16px;height:16px;border-radius:50%;border:5px solid #e0392f;flex:0 0 auto;margin-top:2px;"></span>
                 <div style="flex:1;">
                   <div style="font-size:14px;font-weight:700;color:#16255f;margin-bottom:4px;">Улаанбаатар</div>
-                  <div style="font-size:12px;line-height:1.6;color:#8a7070;">Зүүн–амгалан. Хойшоо-7 буудал хүртэл. Ураншаа–зайсан хүртэл, буянт ухаа 1,2. Баруун тийшээ–орбитын тойрог, баян хошууны тойрог. {{ freeThreshold }}-с дээш бол хүргэлт үнэгүй.</div>
+                  <div style="font-size:12px;line-height:1.6;color:#8a7070;">Зүүн–амгалан. Хойшоо-7 буудал хүртэл. Ураншаа–зайсан хүртэл, буянт ухаа 1,2. Баруун тийшээ–орбитын тойрог, баян хошууны тойрог. {{ deliveryPolicyText }}</div>
                 </div>
                 <span style="font-size:13px;font-weight:800;color:#e0392f;white-space:nowrap;">{{ shippingFee }}</span>
               </div>
@@ -268,6 +268,8 @@
                 </sc-if>
               </div>
             </sc-for>
+            <div style="display:flex;justify-content:space-between;font-size:14px;padding-top:14px;margin-top:4px;border-top:1px solid #dbe2fb;"><span style="color:#8a90a3;">Барааны дүн</span><span style="font-weight:700;color:#16255f;">{{ completedSubtotalLabel }}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:14px;margin-top:14px;"><span style="color:#8a90a3;">Хүргэлт</span><span style="font-weight:700;color:#16255f;">{{ completedShippingLabel }}</span></div>
             <div style="display:flex;justify-content:space-between;font-size:14px;padding-top:14px;margin-top:4px;border-top:1px solid #dbe2fb;align-items:center;"><span style="color:#8a90a3;">Шилжүүлэх дүн</span><span style="display:flex;align-items:center;gap:8px;"><span style="font-weight:800;color:#2a54e6;">{{ total }}</span><button onClick="{{ copyAmount }}" style="{{ copyBtnStyle }}">{{ copyAmountLabel }}</button></span></div>
           </div>
           <sc-if value="{{ hasBankNote }}" hint-placeholder-val="{{ true }}">
@@ -333,7 +335,7 @@ class Component extends DCLogic {
     method: 'bank', done: false, copied: '', linkCopied: false,
     city: 'Улаанбаатар', district: '', khoroo: '', customerName: '', phone: '',
     address: '', note: '', payerName: '', submitting: false, orderError: '', orderNo: '',
-    orderTotal: null,
+    orderSubtotal: null, orderShipping: null, orderTotal: null,
   };
 
   componentDidMount() {
@@ -378,9 +380,8 @@ class Component extends DCLogic {
   }
 
   fmt(n) { return NudemaStore.money(n) + '₮'; }
-  parseAmount(v) { return Number(String(v == null ? '' : v).replace(/[^\d]/g, '')) || 0; }
 
-  submitOrder(payload, expectedTotal) {
+  submitOrder(payload, expectedQuote) {
     if (this.state.submitting) return;
     if (!payload.items || !payload.items.length) return this.setState({ orderError: 'Сагс хоосон байна.' });
     const phone = String(this.state.phone || '').trim();
@@ -394,15 +395,26 @@ class Component extends DCLogic {
 
     this.setState({ submitting: true, orderError: '' });
     NudemaStore.createOrder(payload).then((order) => {
+      const expected = expectedQuote && typeof expectedQuote === 'object' ? expectedQuote : { total: expectedQuote };
+      const serverSubtotal = order ? Number(order.subtotal) : NaN;
+      const serverShipping = order ? Number(order.shipping) : NaN;
       const serverTotal = order ? Number(order.total) : NaN;
+      const completedSubtotal = Number.isFinite(serverSubtotal) && serverSubtotal >= 0
+        ? serverSubtotal
+        : Math.max(0, Number(expected.subtotal) || 0);
+      const completedShipping = Number.isFinite(serverShipping) && serverShipping >= 0
+        ? serverShipping
+        : Math.max(0, Number(expected.shipping) || 0);
       const completedTotal = Number.isFinite(serverTotal) && serverTotal >= 0
         ? serverTotal
-        : Math.max(0, Number(expectedTotal) || 0);
+        : Math.max(0, Number(expected.total) || completedSubtotal + completedShipping);
       if (typeof NudemaCart !== 'undefined') NudemaCart.clear();
       this.setState({
         submitting: false,
         done: true,
         orderNo: order && order.no ? order.no : '',
+        orderSubtotal: completedSubtotal,
+        orderShipping: completedShipping,
         orderTotal: completedTotal,
       });
       if (typeof window !== 'undefined') window.scrollTo(0, 0);
@@ -447,6 +459,7 @@ class Component extends DCLogic {
     const rawItems = sourceItems.map((p) => ({
       id: p.id, title: p.title, option: p.option || 'Стандарт', unit: p.unit == null ? p.price : p.unit,
       original: p.original || p.unit || p.price, qty: p.qty || 1,
+      optionIndex: Math.max(0, Number(p.optionIndex) || 0),
       img: p.img || '', hasImg: !!p.img, noImg: !p.img,
     }));
     const items = rawItems.map(it => ({ ...it, lineTotal: this.fmt(it.unit * it.qty) }));
@@ -476,14 +489,19 @@ class Component extends DCLogic {
     const khooLabel = isUB ? '-р хороо' : '-р баг';
     const khoroos = Array.from({ length: isUB ? 25 : 12 }, (_, i) => (i + 1) + khooLabel);
 
-    // Хүргэлтийн төлбөр ба босго тохиргооноос
-    const feeAmount = this.parseAmount(settings.shippingFee);
-    const threshold = this.parseAmount(settings.freeThreshold);
-    const shipping = (!gift && total < threshold) ? feeAmount : 0;
-    const grand = total + shipping;
+    // Админы нэг ижил хүргэлтийн бодлогыг сагс болон сервертэй адил тооцно.
+    const delivery = NudemaStore.delivery(total, settings, gift);
+    const shipping = delivery.shipping;
+    const grand = delivery.total;
     const completedGrand = this.state.done && Number.isFinite(Number(this.state.orderTotal))
       ? Math.max(0, Number(this.state.orderTotal))
       : grand;
+    const completedSubtotal = this.state.done && Number.isFinite(Number(this.state.orderSubtotal))
+      ? Math.max(0, Number(this.state.orderSubtotal))
+      : total;
+    const completedShipping = this.state.done && Number.isFinite(Number(this.state.orderShipping))
+      ? Math.max(0, Number(this.state.orderShipping))
+      : shipping;
 
     const giftLink = 'https://nudema.mn/gift/NDM-' + (1000 + (grand % 9000));
     const shareText = 'Танд Nudema-аас бэлэг ирлээ! 🎁 ' + giftLink;
@@ -502,9 +520,14 @@ class Component extends DCLogic {
       subtotal: this.fmt(subtotal),
       discount: this.fmt(discount),
       total: this.fmt(completedGrand),
+      completedSubtotalLabel: this.fmt(completedSubtotal),
+      completedShippingLabel: completedShipping > 0 ? this.fmt(completedShipping) : 'Үнэгүй',
       shippingLabel: shipping === 0 ? 'Үнэгүй' : this.fmt(shipping),
       shippingFee: settings.shippingFee,
       freeThreshold: settings.freeThreshold,
+      deliveryPolicyText: delivery.threshold > 0
+        ? `${this.fmt(delivery.threshold)}-с дээш бол хүргэлт үнэгүй.`
+        : (delivery.fee > 0 ? 'Хүргэлтийн төлбөр бүх захиалгад нэмэгдэнэ.' : 'Бүх захиалга хүргэлт үнэгүй.'),
       notDone: !this.state.done,
       done: this.state.done,
       isGiftForm: gift,
@@ -564,13 +587,13 @@ class Component extends DCLogic {
       pay: () => bankAvailable && this.submitOrder({
         gift,
         method: 'Данс шилжүүлэг',
-        items: rawItems.map((item) => ({ id: item.id, qty: item.qty })),
+        items: rawItems.map((item) => ({ id: item.id, qty: item.qty, optionIndex: item.optionIndex })),
         customer: {
           name: this.state.customerName || '', phone: this.state.phone || '', email: '',
           address: gift ? '' : [city, this.state.district, this.state.khoroo, this.state.address].filter(Boolean).join(', '),
           note: this.state.note || '', payerName: this.state.payerName || '',
         },
-      }, grand),
+      }, delivery),
     };
   }
 }

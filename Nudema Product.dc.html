@@ -22,7 +22,7 @@
 </style>
 <link rel="stylesheet" href="./responsive.css?v=20260723-4">
 <script src="./image-slot.js"></script>
-<script src="./nudema-store.js"></script>
+<script src="./nudema-store.js?v=20260724-2"></script>
 <script src="./nudema-cart.js"></script>
 <link rel="stylesheet" href="./user-ui.css?v=20260723-3">
 <script src="./user-ui.js?v=20260723-2"></script>
@@ -110,8 +110,14 @@
         <sc-if value="{{ hasDiscount }}" hint-placeholder-val="{{ true }}">
           <div style="display:flex;justify-content:space-between;"><span style="color:#8a938c;">Хямдралын дүн</span><span style="font-weight:700;color:#e0392f;">−{{ benefit }}</span></div>
         </sc-if>
+        <sc-if value="{{ hasDeliveryPolicy }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;justify-content:space-between;gap:18px;"><span style="color:#8a938c;">Хүргэлтийн төлбөр</span><span style="font-weight:700;color:#3a423c;text-align:right;">{{ deliveryLabel }}</span></div>
+        </sc-if>
+        <sc-if value="{{ hasDeliveryHint }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:12px;line-height:1.55;color:#2a54e6;text-align:right;">{{ deliveryHint }}</div>
+        </sc-if>
         <sc-if value="{{ hasShipping }}" hint-placeholder-val="{{ true }}">
-          <div style="display:flex;justify-content:space-between;"><span style="color:#8a938c;">Хүргэлт</span><span style="color:#3a423c;">{{ shippingLine }}</span></div>
+          <div style="display:flex;justify-content:space-between;gap:18px;"><span style="color:#8a938c;">Хүргэлтийн мэдээлэл</span><span style="color:#3a423c;text-align:right;">{{ shippingLine }}</span></div>
         </sc-if>
         <sc-if value="{{ hasPoints }}" hint-placeholder-val="{{ true }}">
           <div style="display:flex;justify-content:space-between;"><span style="color:#8a938c;">Урамшуулал</span><span style="color:#3a423c;">{{ points }} оноо ({{ pointsRate }})</span></div>
@@ -148,9 +154,10 @@
       </sc-if>
 
       <!-- total -->
-      <div style="margin-top:22px;display:flex;justify-content:space-between;align-items:baseline;">
-        <span style="font-size:15px;font-weight:600;color:#3a423c;">Нийт төлбөр</span>
-        <span style="font-size:26px;font-weight:800;color:#2a54e6;">{{ lineTotal }}</span>
+      <div style="margin-top:22px;border-top:1px solid #eee;padding-top:18px;display:flex;flex-direction:column;gap:9px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:#8a938c;">Барааны дүн</span><span style="font-weight:700;">{{ lineTotal }}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:#8a938c;">Хүргэлт</span><span style="font-weight:700;">{{ deliveryLabel }}</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px;"><span style="font-size:15px;font-weight:600;color:#3a423c;">Нийт төлбөр</span><span style="font-size:26px;font-weight:800;color:#2a54e6;">{{ payableTotal }}</span></div>
       </div>
 
       <!-- buttons -->
@@ -504,6 +511,12 @@ class Component extends DCLogic {
     const qty = Math.min(this.state.qty, maxQty);
     const unit = product.price + optionAdd;
     const total = unit * qty;
+    const delivery = NudemaStore.delivery(total, settings, false);
+    const hasDeliveryPolicy = String(settings.shippingFee || '').trim() !== '' || String(settings.freeThreshold || '').trim() !== '';
+    const deliveryLabel = delivery.shipping > 0 ? fmt(delivery.shipping) : 'Үнэгүй';
+    const deliveryHint = delivery.shipping > 0 && delivery.remaining > 0
+      ? `${fmt(delivery.remaining)} нэмбэл хүргэлт үнэгүй`
+      : (delivery.qualifies ? 'Үнэгүй хүргэлтийн нөхцөл хангасан' : '');
 
     const hasDiscount = !!product.original && product.original > product.price;
 
@@ -561,7 +574,12 @@ class Component extends DCLogic {
       hasDiscount,
       discountPct: hasDiscount ? Math.round((1 - product.price / product.original) * 100) + '%' : '',
       benefit: hasDiscount ? fmt(product.original - product.price) : '',
-      // Хүргэлт ба урамшуулал: зөвхөн админд оруулсан үед
+      hasDeliveryPolicy,
+      deliveryLabel,
+      deliveryHint,
+      hasDeliveryHint: !!deliveryHint,
+      payableTotal: fmt(delivery.total),
+      // Барааны хүргэлтийн нэмэлт тэмдэглэл ба урамшуулал
       hasShipping: !!String(product.shipping || '').trim(),
       shippingLine: String(product.shipping || '').trim(),
       hasPoints: Number(product.pointsRate) > 0,
