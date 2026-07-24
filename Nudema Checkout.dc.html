@@ -288,12 +288,16 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  state = {
-    method: 'bank', done: false, copied: '',
-    city: 'Улаанбаатар', district: '', khoroo: '', customerName: '', phone: '',
-    address: '', note: '', payerName: '', submitting: false, orderError: '', orderNo: '',
-    orderSubtotal: null, orderShipping: null, orderTotal: null,
-  };
+  // Класс талбар биш constructor — хуучин хөтчүүд класс талбарыг ойлгодоггүй.
+  constructor(props) {
+    super(props);
+    this.state = {
+      method: 'bank', done: false, copied: '',
+      city: 'Улаанбаатар', district: '', khoroo: '', customerName: '', phone: '',
+      address: '', note: '', payerName: '', submitting: false, orderError: '', orderNo: '',
+      orderSubtotal: null, orderShipping: null, orderTotal: null,
+    };
+  }
 
   componentDidMount() {
     try {

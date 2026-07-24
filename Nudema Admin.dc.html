@@ -1067,11 +1067,15 @@ const BLOCK_TYPES = [
 const BLOCK_LABELS = BLOCK_TYPES.reduce((m, t) => { m[t.key] = t.label; return m; }, {});
 
 class Component extends DCLogic {
-  state = {
-    section: 'dashboard', expanded: '', q: '', loaded: false,
-    authed: false, authLoading: true, loginBusy: false,
-    loginEmail: '', loginPassword: '', loginError: '',
-  };
+  // Класс талбар биш constructor — хуучин хөтчүүд класс талбарыг ойлгодоггүй.
+  constructor(props) {
+    super(props);
+    this.state = {
+      section: 'dashboard', expanded: '', q: '', loaded: false,
+      authed: false, authLoading: true, loginBusy: false,
+      loginEmail: '', loginPassword: '', loginError: '',
+    };
+  }
 
   componentDidMount() {
     this.reload();

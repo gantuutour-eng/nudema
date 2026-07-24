@@ -274,7 +274,8 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
 class Component extends DCLogic {
-  state = { hero: 0, menu: false, tab: 'all' };
+  // Класс талбар биш constructor — хуучин хөтчүүд класс талбарыг ойлгодоггүй.
+  constructor(props) { super(props); this.state = { hero: 0, menu: false, tab: 'all' }; }
 
   componentDidMount() {
     this.reload();

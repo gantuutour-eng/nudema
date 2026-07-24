@@ -853,14 +853,19 @@ const STATUS_CATALOG = [
 ];
 
 class Component extends DCLogic {
-  state = {
-    screen: 'dashboard', history: [], detailNo: '', statusOpen: false, accountOpen: false,
-    filter: 'all', q: '', loaded: false,
-    pView: 'list', editId: null, form: null, blockPicker: false,
-    taxEdit: '', taxDraft: '', taxError: '',
-    authed: false, authLoading: true, loginBusy: false,
-    loginEmail: '', loginPassword: '', loginError: '', adminEmail: '',
-  };
+  // Класс талбар (state = {...}) биш constructor ашиглана — хуучин
+  // мобайл хөтчүүд (Safari 14.0-, Chrome 71-) класс талбарыг ойлгодоггүй.
+  constructor(props) {
+    super(props);
+    this.state = {
+      screen: 'dashboard', history: [], detailNo: '', statusOpen: false, accountOpen: false,
+      filter: 'all', q: '', loaded: false,
+      pView: 'list', editId: null, form: null, blockPicker: false,
+      taxEdit: '', taxDraft: '', taxError: '',
+      authed: false, authLoading: true, loginBusy: false,
+      loginEmail: '', loginPassword: '', loginError: '', adminEmail: '',
+    };
+  }
 
   componentDidMount() {
     this.reload();

@@ -326,7 +326,8 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  state = { qty: 1, option: 0, tab: 'detail', detailCount: 3 };
+  // Класс талбар биш constructor — хуучин хөтчүүд класс талбарыг ойлгодоггүй.
+  constructor(props) { super(props); this.state = { qty: 1, option: 0, tab: 'detail', detailCount: 3 }; }
 
   componentDidMount() {
     this.reload();

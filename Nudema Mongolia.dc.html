@@ -299,7 +299,8 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;youtubeUrl&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Брэндийн видео&quot;}}">
 class Component extends DCLogic {
-  state = { tab: 'all', hero: 0, video: '' };
+  // Класс талбар биш constructor — хуучин хөтчүүд класс талбарыг ойлгодоггүй.
+  constructor(props) { super(props); this.state = { tab: 'all', hero: 0, video: '' }; }
 
   // Админ хуудсанд (Nudema Admin.dc.html) хийсэн өөрчлөлтийг уншина.
   componentDidMount() {
@@ -337,7 +338,8 @@ class Component extends DCLogic {
     const allReviews = this.state.reviews || NudemaStore.read('reviews');
     const settings = this.state.settings || NudemaStore.read('settings');
     const money = NudemaStore.money;
-    const current = this.state.video || cms.brandVideo || (this.props.youtubeUrl ?? '');
+    // "??" биш "||" — хуучин хөтчүүд nullish coalescing-ийг ойлгодоггүй
+    const current = this.state.video || cms.brandVideo || this.props.youtubeUrl || '';
     const embedUrl = this.toEmbed(current);
     const membershipDefault = NudemaStore.DEFAULTS.content.membershipBanner;
     const membershipRaw = cms.membershipBanner === null
