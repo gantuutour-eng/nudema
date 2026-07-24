@@ -776,6 +776,52 @@
         </div>
 
         <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:26px 28px;margin-bottom:18px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:4px;">
+            <div style="font-size:15px;font-weight:800;color:#16255f;">Гишүүнчлэлийн баннер</div>
+            <sc-if value="{{ hasMembershipBanner }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ removeMembershipBanner }}" style="border:1px solid #f0d0d0;background:#fff;color:#e0392f;font-family:inherit;font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px;cursor:pointer;">Устгах</button>
+            </sc-if>
+          </div>
+          <p style="font-size:12.5px;color:#8a90a3;margin:0 0 18px;">Нүүр хуудасны гишүүний урамшууллын зураг, бичвэр, товчийг нэмэх, засах эсвэл устгана. Өөрчлөлт PC болон мобайл хуудсанд зэрэг орно.</p>
+
+          <sc-if value="{{ noMembershipBanner }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ addMembershipBanner }}" style="border:1px dashed #cdd5ee;background:#f7f8fc;color:#2a54e6;font-family:inherit;font-size:13px;font-weight:700;padding:13px 18px;border-radius:10px;cursor:pointer;width:100%;">+ Гишүүнчлэлийн баннер нэмэх</button>
+          </sc-if>
+
+          <sc-if value="{{ hasMembershipBanner }}" hint-placeholder-val="{{ true }}">
+            <sc-if value="{{ hasContentError }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#fef2f2;border:1px solid #f5d5d3;color:#e0392f;font-size:12.5px;font-weight:600;line-height:1.5;padding:11px 14px;border-radius:10px;margin-bottom:14px;">{{ contentError }}</div>
+            </sc-if>
+            <div style="display:grid;grid-template-columns:160px 1fr;gap:14px;margin-bottom:14px;">
+              <div style="height:110px;border-radius:10px;background:#16255f;overflow:hidden;position:relative;border:1px dashed #cdd5ee;">
+                <sc-if value="{{ cMembershipBanner.hasImg }}" hint-placeholder-val="{{ false }}">
+                  <img src="{{ cMembershipBanner.previewSrc }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+                </sc-if>
+                <sc-if value="{{ cMembershipBanner.noImg }}" hint-placeholder-val="{{ true }}">
+                  <span style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#d8e0ff;font-size:11px;font-weight:700;pointer-events:none;"><span style="font-size:18px;">↑</span>Зураг оруулах</span>
+                </sc-if>
+                <input type="file" accept="image/*" onChange="{{ cMembershipBanner.onFile }}" title="Зураг сонгох" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;">
+                <sc-if value="{{ cMembershipBanner.hasImg }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ cMembershipBanner.onClear }}" title="Зургийг устгах" style="position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;border:none;background:rgba(16,37,95,.78);color:#fff;font-size:14px;line-height:1;cursor:pointer;z-index:3;padding:0;">&times;</button>
+                </sc-if>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:9px;">
+                <input value="{{ cMembershipBanner.img }}" onInput="{{ cMembershipBanner.onImg }}" placeholder="Зургийн URL (https://...)" style="width:100%;height:40px;border:1px solid #e0e4ee;border-radius:9px;padding:0 12px;font-family:inherit;font-size:13px;">
+                <input value="{{ cMembershipBanner.label }}" onInput="{{ cMembershipBanner.onLabel }}" placeholder="Шошго (Жишээ: ГИШҮҮНЧЛЭЛ)" style="width:100%;height:40px;border:1px solid #e0e4ee;border-radius:9px;padding:0 12px;font-family:inherit;font-size:13px;">
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <textarea value="{{ cMembershipBanner.title }}" onInput="{{ cMembershipBanner.onTitle }}" placeholder="Баннерын гарчиг" rows="2" style="width:100%;min-height:68px;border:1px solid #e0e4ee;border-radius:9px;padding:10px 12px;font-family:inherit;font-size:13px;line-height:1.45;resize:vertical;"></textarea>
+              <textarea value="{{ cMembershipBanner.description }}" onInput="{{ cMembershipBanner.onDescription }}" placeholder="Тайлбар" rows="2" style="width:100%;min-height:62px;border:1px solid #e0e4ee;border-radius:9px;padding:10px 12px;font-family:inherit;font-size:13px;line-height:1.45;resize:vertical;"></textarea>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <input value="{{ cMembershipBanner.buttonText }}" onInput="{{ cMembershipBanner.onButtonText }}" placeholder="Товчны текст" style="width:100%;height:40px;border:1px solid #e0e4ee;border-radius:9px;padding:0 12px;font-family:inherit;font-size:13px;">
+                <input value="{{ cMembershipBanner.href }}" onInput="{{ cMembershipBanner.onHref }}" placeholder="Товчны холбоос" style="width:100%;height:40px;border:1px solid #e0e4ee;border-radius:9px;padding:0 12px;font-family:inherit;font-size:13px;">
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:26px 28px;margin-bottom:18px;">
           <div style="font-size:15px;font-weight:800;color:#16255f;margin-bottom:4px;">Хиро баннер (слайд)</div>
           <p style="font-size:12.5px;color:#8a90a3;margin:0 0 18px;">Нүүр хуудасны дээд баннерын зураг ба текст. Зургийн нүд дээр дарж файл сонгох, эсвэл зургаа чирж оруулна уу. URL-ээр ч болно. Өөрчлөлт шууд нийтлэгдэнэ.</p>
           <sc-if value="{{ hasContentError }}" hint-placeholder-val="{{ false }}">
@@ -1302,6 +1348,69 @@ class Component extends DCLogic {
       if (!NudemaStore.write('content', next)) {
         // Хадгалж чадаагүй бол буцаана — нүүр хуудас хуучин зургаа хэвээр харуулна.
         this.setState({ content: cur, contentError: QUOTA_MSG });
+      }
+    });
+  }
+
+  /* ---- Гишүүнчлэлийн баннер ---- */
+  membershipBanner() {
+    const content = this.content();
+    if (content.membershipBanner === null) return null;
+    return {
+      ...NudemaStore.DEFAULTS.content.membershipBanner,
+      ...(content.membershipBanner || {}),
+    };
+  }
+  addMembershipBanner() {
+    const banner = { ...NudemaStore.DEFAULTS.content.membershipBanner };
+    this.setState({
+      content: { ...this.content(), membershipBanner: banner },
+      contentSaved: false,
+      contentError: '',
+    });
+    this.publishContentSoon();
+  }
+  updMembershipBanner(patch) {
+    const banner = this.membershipBanner() || { ...NudemaStore.DEFAULTS.content.membershipBanner };
+    this.setState({
+      content: { ...this.content(), membershipBanner: { ...banner, ...patch } },
+      contentSaved: false,
+    });
+    this.publishContentSoon();
+  }
+  removeMembershipBanner() {
+    this.setState({
+      content: { ...this.content(), membershipBanner: null },
+      contentSaved: false,
+      contentError: '',
+    });
+    this.publishContentSoon();
+  }
+  clearMembershipBannerImage(event) {
+    if (event && event.preventDefault) event.preventDefault();
+    this.updMembershipBanner({ img: '' });
+    this.setState({ contentError: '' });
+  }
+  onMembershipBannerFile(e) {
+    const input = e && e.target;
+    const file = input && input.files && input.files[0];
+    this.setState({ contentError: '' });
+    this.readImageFile(file, (err, imageUrl) => {
+      if (input) input.value = '';
+      if (err) return this.setState({ contentError: err });
+      const cur = this.content();
+      const banner = {
+        ...NudemaStore.DEFAULTS.content.membershipBanner,
+        ...((cur.membershipBanner && typeof cur.membershipBanner === 'object') ? cur.membershipBanner : {}),
+        img: imageUrl,
+      };
+      const next = { ...cur, membershipBanner: banner };
+      this.setState({ content: next, contentSaved: false });
+      clearTimeout(this._cpub);
+      if (!NudemaStore.write('content', next)) {
+        this.setState({ content: cur, contentError: QUOTA_MSG });
+      } else {
+        this.setState({ contentError: '' });
       }
     });
   }
@@ -2045,6 +2154,7 @@ class Component extends DCLogic {
 
     const fullDayNames = ['Ням', 'Даваа', 'Мягмар', 'Лхагва', 'Пүрэв', 'Баасан', 'Бямба'];
     const todayLabel = `${now.getFullYear()} оны ${now.getMonth() + 1}-р сарын ${now.getDate()}, ${fullDayNames[now.getDay()]}`;
+    const membershipBanner = this.membershipBanner();
 
     return {
       nav, pageTitle: titleMap[this.state.section], today: todayLabel,
@@ -2214,6 +2324,32 @@ class Component extends DCLogic {
       cancelReply: () => this.cancelReply(),
       cVideo: content.brandVideo,
       onVideo: (e) => this.updContent({ brandVideo: e.target.value }),
+      hasMembershipBanner: !!membershipBanner,
+      noMembershipBanner: !membershipBanner,
+      addMembershipBanner: () => this.addMembershipBanner(),
+      removeMembershipBanner: () => this.removeMembershipBanner(),
+      cMembershipBanner: membershipBanner ? {
+        img: membershipBanner.img || '',
+        previewSrc: membershipBanner.img || '',
+        hasImg: !!membershipBanner.img,
+        noImg: !membershipBanner.img,
+        label: membershipBanner.label || '',
+        title: membershipBanner.title || '',
+        description: membershipBanner.description || '',
+        buttonText: membershipBanner.buttonText || '',
+        href: membershipBanner.href || '',
+        onFile: (e) => this.onMembershipBannerFile(e),
+        onClear: (e) => this.clearMembershipBannerImage(e),
+        onImg: (e) => this.updMembershipBanner({ img: e.target.value }),
+        onLabel: (e) => this.updMembershipBanner({ label: e.target.value }),
+        onTitle: (e) => this.updMembershipBanner({ title: e.target.value }),
+        onDescription: (e) => this.updMembershipBanner({ description: e.target.value }),
+        onButtonText: (e) => this.updMembershipBanner({ buttonText: e.target.value }),
+        onHref: (e) => this.updMembershipBanner({ href: e.target.value }),
+      } : {
+        img: '', previewSrc: '', hasImg: false, noImg: true,
+        label: '', title: '', description: '', buttonText: '', href: '',
+      },
       canRemoveSlide: content.slides.length > 1,
       addSlide: () => this.addSlide(),
       slideCountLabel: `${content.slides.length} слайд`,

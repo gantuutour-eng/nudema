@@ -139,16 +139,23 @@
     </div>
   </section>
 
-  <!-- membership banner -->
-  <section style="position:relative;height:160px;margin:0 16px 26px;border-radius:16px;overflow:hidden;background:#16255f;">
-    <image-slot id="m-banner" shape="rect" fit="cover" placeholder="Баннер зураг"></image-slot>
-    <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(42,84,230,.88),rgba(42,84,230,.2));"></div>
-    <div style="position:absolute;left:20px;top:50%;transform:translateY(-50%);max-width:72%;">
-      <span style="display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.42);color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:12px;margin-bottom:9px;">ГИШҮҮНЧЛЭЛ</span>
-      <h3 style="font-size:17px;font-weight:800;color:#fff;margin:0 0 10px;line-height:1.3;">Гишүүн болоод<br>бүх захиалгад 15% хямдрал</h3>
-      <a href="Nudema%20Account.dc.html" style="display:inline-block;background:#fff;color:#2a54e6;font-size:12px;font-weight:800;padding:8px 18px;border-radius:18px;">Гишүүн болох ›</a>
-    </div>
-  </section>
+  <!-- Admin → Контент хэсгээс удирдах гишүүнчлэлийн баннер -->
+  <sc-if value="{{ hasMembershipBanner }}" hint-placeholder-val="{{ true }}">
+    <section style="position:relative;height:190px;margin:0 16px 26px;border-radius:16px;overflow:hidden;background:#16255f;">
+      <sc-if value="{{ membershipBanner.hasImg }}" hint-placeholder-val="{{ false }}">
+        <img src="{{ membershipBanner.img }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+      </sc-if>
+      <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(16,37,95,.9),rgba(42,84,230,.25));"></div>
+      <div style="position:absolute;left:20px;top:50%;transform:translateY(-50%);max-width:78%;">
+        <span style="display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.42);color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:12px;margin-bottom:8px;">{{ membershipBanner.label }}</span>
+        <h3 style="font-size:17px;font-weight:800;color:#fff;margin:0 0 7px;line-height:1.3;white-space:pre-line;">{{ membershipBanner.title }}</h3>
+        <sc-if value="{{ membershipBanner.hasDescription }}" hint-placeholder-val="{{ true }}">
+          <p style="font-size:10.5px;font-weight:600;color:#d3ddfb;line-height:1.4;margin:0 0 10px;">{{ membershipBanner.description }}</p>
+        </sc-if>
+        <a href="{{ membershipBanner.href }}" style="display:inline-block;background:#fff;color:#2a54e6;font-size:12px;font-weight:800;padding:8px 18px;border-radius:18px;">{{ membershipBanner.buttonText }}</a>
+      </div>
+    </section>
+  </sc-if>
 
   <!-- reviews marquee -->
   <section style="padding:6px 0 26px;overflow:hidden;">
@@ -291,6 +298,21 @@ class Component extends DCLogic {
     const allReviews = this.state.reviews || NudemaStore.read('reviews');
     const settings = this.state.settings || NudemaStore.read('settings');
     const money = NudemaStore.money;
+    const membershipDefault = NudemaStore.DEFAULTS.content.membershipBanner;
+    const membershipRaw = cms.membershipBanner === null
+      ? null
+      : { ...membershipDefault, ...(cms.membershipBanner || {}) };
+    const membershipBanner = membershipRaw ? {
+      ...membershipRaw,
+      img: String(membershipRaw.img || '').trim(),
+      hasImg: !!String(membershipRaw.img || '').trim(),
+      label: String(membershipRaw.label || '').trim(),
+      title: String(membershipRaw.title || '').trim(),
+      description: String(membershipRaw.description || '').trim(),
+      hasDescription: !!String(membershipRaw.description || '').trim(),
+      buttonText: String(membershipRaw.buttonText || '').trim() || membershipDefault.buttonText,
+      href: String(membershipRaw.href || '').trim() || membershipDefault.href,
+    } : null;
 
     /* ---- Хиро ---- */
     // Слайдын тоо админаас хамаарна (нэмэх/устгах боломжтой).
@@ -392,6 +414,7 @@ class Component extends DCLogic {
       heroSlides, heroTrackStyle, heroDots, heroCount: heroSlides.length,
       officialProducts, tabs, bestFiltered, bestEmpty: bestFiltered.length === 0,
       reviewLoop, events, instaPosts, menuLinks, marqueeLoop,
+      membershipBanner, hasMembershipBanner: !!membershipBanner,
       hasVideo: !!embedUrl, noVideo: !embedUrl, embedUrl,
       reviewSummary: `${money(reviewsRaw.length * 4500)}+ үнэлгээ · ★ ${avgRating}`,
       shopName: settings.shopName,

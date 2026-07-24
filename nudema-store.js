@@ -154,6 +154,16 @@
     ],
     content: {
       brandVideo: '',
+      // Нүүр хуудасны гишүүнчлэлийн сурталчилгааны баннер.
+      // null утга нь админаас устгаж, нүүр хуудсанд нуусныг илэрхийлнэ.
+      membershipBanner: {
+        img: '',
+        label: 'ГИШҮҮНЧЛЭЛ',
+        title: 'Гишүүн болоод\nбүх захиалгад 15% хямдрал',
+        description: 'Бүртгэл үнэгүй · Төрсөн өдрийн купон · Үнэгүй хүргэлт',
+        buttonText: 'Гишүүн болох ›',
+        href: 'Nudema%20Account.dc.html',
+      },
       // Дэлгүүрийн дээд талын гүйдэг мөр
       marquee: [
         'Арьс арчилгааны судалгааны төв · Nudema Mongolia',
@@ -179,7 +189,7 @@
     },
     taxonomy: { categories: [], badges: [] },
     reviews: [],
-    content: { brandVideo: '', marquee: [], slides: [] },
+    content: { brandVideo: '', membershipBanner: null, marquee: [], slides: [] },
     orders: [],
     statuses: {},
   };

@@ -226,6 +226,40 @@ check('албан ёсны дэлгүүрийн бараа ижил', JSON.strin
 check('шилдэг барааны эрэмбэ ижил', JSON.stringify(hh.bestFiltered.map((p) => p.title)) === JSON.stringify(mm.bestFiltered.map((p) => p.title)));
 check('сэтгэгдлийн тоо ижил', hh.reviewLoop.length === mm.reviewLoop.length);
 
+console.log('\n[14a] Гишүүнчлэлийн баннер CRUD');
+admin.setState({ section: 'content' });
+let mb = admin.renderVals();
+check('админд баннер харагдсан', mb.hasMembershipBanner === true);
+admin.updMembershipBanner({
+  label: 'VIP ГИШҮҮН',
+  title: 'Шинэ гишүүний урамшуулал',
+  description: 'Бүртгүүлээд купоноо аваарай',
+  buttonText: 'Бүртгүүлэх ›',
+  href: 'Nudema%20Signup.dc.html',
+  img: 'https://x.test/member.webp',
+});
+admin.saveContent();
+const storedMembership = JSON.parse(mem.get('nudema_content')).membershipBanner;
+check('баннерын засвар store-д орсон', storedMembership.title === 'Шинэ гишүүний урамшуулал');
+let hb = home.renderVals();
+let mbMobile = mob.renderVals();
+check('PC нүүрэнд баннерын засвар гарсан', hb.membershipBanner.title === 'Шинэ гишүүний урамшуулал');
+check('мобайл нүүрэнд ижил баннер гарсан', mbMobile.membershipBanner.buttonText === 'Бүртгүүлэх ›');
+check('баннерын R2/URL зураг ашиглагдсан', hb.membershipBanner.hasImg === true);
+
+admin.removeMembershipBanner();
+admin.saveContent();
+mb = admin.renderVals();
+check('админд баннер устсан', mb.noMembershipBanner === true);
+check('PC нүүрэнд устгасан баннер нуугдсан', home.renderVals().hasMembershipBanner === false);
+check('мобайл нүүрэнд устгасан баннер нуугдсан', mob.renderVals().hasMembershipBanner === false);
+
+admin.addMembershipBanner();
+admin.saveContent();
+mb = admin.renderVals();
+check('баннерыг дахин нэмсэн', mb.hasMembershipBanner === true);
+check('дахин нэмэхэд үндсэн гарчиг сэргэсэн', home.renderVals().membershipBanner.title.includes('15%'));
+
 console.log('\n[15] Гүйдэг мөр (marquee)');
 admin.setState({ section: 'content' });
 let am = admin.renderVals();
