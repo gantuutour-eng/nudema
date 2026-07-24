@@ -319,6 +319,15 @@
   var createLocalOrder = function (payload) {
     var now = new Date();
     var items = (payload.items || []).map(function (item) { return { pid: Number(item.id || item.pid), qty: Number(item.qty) || 1 }; });
+    var products = read('products');
+    var settings = read('settings');
+    var subtotal = items.reduce(function (sum, item) {
+      var product = products.find(function (candidate) { return Number(candidate.id) === item.pid; });
+      return sum + (product ? (Number(product.price) || 0) * item.qty : 0);
+    }, 0);
+    var shippingFee = Number(String(settings.shippingFee || '').replace(/[^\d]/g, '')) || 0;
+    var freeThreshold = Number(String(settings.freeThreshold || '').replace(/[^\d]/g, '')) || 0;
+    var shipping = payload.gift === true || subtotal >= freeThreshold ? 0 : shippingFee;
     var order = {
       no: 'NDM-' + now.toISOString().slice(0, 10).replace(/-/g, '') + '-' + String(now.getTime()).slice(-6),
       customer: payload.customer && payload.customer.name ? payload.customer.name : 'Бэлгийн захиалга',
@@ -327,7 +336,8 @@
       address: payload.customer && payload.customer.address ? payload.customer.address : '',
       note: payload.customer && payload.customer.note ? payload.customer.note : '',
       date: now.toISOString().slice(0, 10), hour: now.getHours(), minute: now.getMinutes(),
-      method: 'Данс шилжүүлэг', items: items, gift: payload.gift === true, status: 'pending',
+      method: 'Данс шилжүүлэг', items: items, subtotal: subtotal, shipping: shipping,
+      total: subtotal + shipping, gift: payload.gift === true, status: 'pending',
     };
     var orders = read('orders');
     orders.unshift(order);

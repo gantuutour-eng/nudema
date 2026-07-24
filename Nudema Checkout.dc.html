@@ -333,6 +333,7 @@ class Component extends DCLogic {
     method: 'bank', done: false, copied: '', linkCopied: false,
     city: 'Улаанбаатар', district: '', khoroo: '', customerName: '', phone: '',
     address: '', note: '', payerName: '', submitting: false, orderError: '', orderNo: '',
+    orderTotal: null,
   };
 
   componentDidMount() {
@@ -379,7 +380,7 @@ class Component extends DCLogic {
   fmt(n) { return NudemaStore.money(n) + '₮'; }
   parseAmount(v) { return Number(String(v == null ? '' : v).replace(/[^\d]/g, '')) || 0; }
 
-  submitOrder(payload) {
+  submitOrder(payload, expectedTotal) {
     if (this.state.submitting) return;
     if (!payload.items || !payload.items.length) return this.setState({ orderError: 'Сагс хоосон байна.' });
     const phone = String(this.state.phone || '').trim();
@@ -393,8 +394,17 @@ class Component extends DCLogic {
 
     this.setState({ submitting: true, orderError: '' });
     NudemaStore.createOrder(payload).then((order) => {
+      const serverTotal = order ? Number(order.total) : NaN;
+      const completedTotal = Number.isFinite(serverTotal) && serverTotal >= 0
+        ? serverTotal
+        : Math.max(0, Number(expectedTotal) || 0);
       if (typeof NudemaCart !== 'undefined') NudemaCart.clear();
-      this.setState({ submitting: false, done: true, orderNo: order && order.no ? order.no : '' });
+      this.setState({
+        submitting: false,
+        done: true,
+        orderNo: order && order.no ? order.no : '',
+        orderTotal: completedTotal,
+      });
       if (typeof window !== 'undefined') window.scrollTo(0, 0);
     }).catch((cause) => {
       this.setState({
@@ -471,6 +481,9 @@ class Component extends DCLogic {
     const threshold = this.parseAmount(settings.freeThreshold);
     const shipping = (!gift && total < threshold) ? feeAmount : 0;
     const grand = total + shipping;
+    const completedGrand = this.state.done && Number.isFinite(Number(this.state.orderTotal))
+      ? Math.max(0, Number(this.state.orderTotal))
+      : grand;
 
     const giftLink = 'https://nudema.mn/gift/NDM-' + (1000 + (grand % 9000));
     const shareText = 'Танд Nudema-аас бэлэг ирлээ! 🎁 ' + giftLink;
@@ -488,7 +501,7 @@ class Component extends DCLogic {
       items, methods,
       subtotal: this.fmt(subtotal),
       discount: this.fmt(discount),
-      total: this.fmt(grand),
+      total: this.fmt(completedGrand),
       shippingLabel: shipping === 0 ? 'Үнэгүй' : this.fmt(shipping),
       shippingFee: settings.shippingFee,
       freeThreshold: settings.freeThreshold,
@@ -520,7 +533,7 @@ class Component extends DCLogic {
 
       orderNo: this.state.orderNo || 'NDM-20260720-4417',
       copyBtnStyle: 'border:1px solid #cdd5ee;background:#fff;color:#2a54e6;font-family:inherit;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;',
-      copyAmount: () => this.copy(String(grand), 'amt'),
+      copyAmount: () => this.copy(String(completedGrand), 'amt'),
       copyAmountLabel: this.state.copied === 'amt' ? '✓ Хууллаа' : 'Хуулах',
 
       footerCompany: `${settings.shopName} ХХК · Улаанбаатар хот, Сүхбаатар дүүрэг, Энх тайваны өргөн чөлөө 12`,
@@ -556,7 +569,7 @@ class Component extends DCLogic {
           address: gift ? '' : [city, this.state.district, this.state.khoroo, this.state.address].filter(Boolean).join(', '),
           note: this.state.note || '', payerName: this.state.payerName || '',
         },
-      }),
+      }, grand),
     };
   }
 }

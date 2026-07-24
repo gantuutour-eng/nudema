@@ -697,6 +697,18 @@ const ship = openCheckout().renderVals();
 check('хүргэлтийн төлбөр тохиргооноос', ship.shippingFee === '9,500₮', ship.shippingFee);
 check('үнэгүй хүргэлтийн босго тохиргооноос', ship.freeThreshold === '100,000₮', ship.freeThreshold);
 
+// Захиалга үүссэний дараа сагс цэвэрлэгдсэн ч шилжүүлэх дүн хадгалагдана.
+const completedCheckout = openCheckout();
+completedCheckout.setState({ done: true, orderTotal: 123456, orderNo: 'NDM-TEST-TOTAL' });
+vm.runInContext('var NudemaCart = { details: function () { return []; } }; window.NudemaCart = NudemaCart;', ctx);
+let copiedCompletedAmount = '';
+completedCheckout.copy = (text) => { copiedCompletedAmount = String(text); };
+const completedVals = completedCheckout.renderVals();
+check('сагс цэвэрлэгдсэн ч шилжүүлэх дүн хадгалагдсан', completedVals.total === '123,456₮', completedVals.total);
+completedVals.copyAmount();
+check('хадгалагдсан шилжүүлэх дүн хуулагдсан', copiedCompletedAmount === '123456', copiedCompletedAmount);
+vm.runInContext('NudemaCart = undefined; delete window.NudemaCart;', ctx);
+
 console.log('\n[25] Гол зургийн галерей');
 ['nudema_products', 'nudema_settings'].forEach((k) => mem.delete(k));
 admin.reload();
