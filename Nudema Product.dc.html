@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Арьс арчилгааны бүтээгдэхүүн | NUDEMA Mongolia</title>
-<meta name="description" content="NUDEMA Mongolia онлайн дэлгүүрээс арьс арчилгаа, гоо сайхны бүтээгдэхүүний үнэ, найрлага, хэрэглээний мэдээллийг үзэж захиалаарай.">
+<title>Арьс арчилгааны бүтээгдэхүүн | Nudema in Mongolia</title>
+<meta name="description" content="Nudema in Mongolia онлайн дэлгүүрээс арьс арчилгаа, гоо сайхны бүтээгдэхүүний үнэ, найрлага, хэрэглээний мэдээллийг үзэж захиалаарай.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
 <link id="seoCanonical" rel="canonical" href="https://nudema-mongolia.com/Nudema%20Product.dc">
 <meta property="og:type" content="product">
 <meta property="og:locale" content="mn_MN">
-<meta property="og:site_name" content="NUDEMA Mongolia">
-<meta property="og:title" content="Арьс арчилгааны бүтээгдэхүүн | NUDEMA Mongolia">
+<meta property="og:site_name" content="Nudema in Mongolia">
+<meta property="og:title" content="Арьс арчилгааны бүтээгдэхүүн | Nudema in Mongolia">
 <meta property="og:description" content="Монгол дахь NUDEMA гоо сайхны бүтээгдэхүүний мэдээлэл, үнэ, захиалга.">
 <meta property="og:url" content="https://nudema-mongolia.com/Nudema%20Product.dc">
 <meta name="twitter:card" content="summary_large_image">
@@ -379,13 +379,13 @@ class Component extends DCLogic {
 
     const oldStructuredData = document.getElementById('productStructuredData');
     if (!product) {
-      document.title = 'Бүтээгдэхүүн олдсонгүй | NUDEMA Mongolia';
+      document.title = 'Бүтээгдэхүүн олдсонгүй | Nudema in Mongolia';
       this.setSeoMeta('name', 'robots', 'noindex,follow');
       if (oldStructuredData) oldStructuredData.remove();
       return;
     }
 
-    const title = `${String(product.title || 'NUDEMA бүтээгдэхүүн').trim()} | NUDEMA Mongolia`;
+    const title = `${String(product.title || 'NUDEMA бүтээгдэхүүн').trim()} | Nudema in Mongolia`;
     const numericPrice = Number(String(product.price || 0).replace(/[^0-9.]/g, '')) || 0;
     const descriptionSource = String(product.desc || '').trim()
       || `${String(product.title || 'NUDEMA бүтээгдэхүүн').trim()} — Монгол дахь NUDEMA арьс арчилгаа, гоо сайхны онлайн дэлгүүр. Үнэ ${numericPrice.toLocaleString('en-US')}₮.`;
