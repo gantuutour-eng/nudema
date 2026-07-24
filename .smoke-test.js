@@ -438,6 +438,7 @@ const bare = openProduct('?id=5').renderVals();
 check('хүргэлт нуугдсан', bare.hasShipping === false);
 check('урамшуулал нуугдсан', bare.hasPoints === false);
 check('багцын хэмжээ нуугдсан', bare.hasOptions === false, bare.options.length + ' сонголт');
+check('설명 미입력 시 임의 기본 문구가 표시되지 않음', bare.hasDescription === false && bare.description === '');
 check('сонголтгүй үед тоо ширхгийн шошго', bare.optionLabel === 'Тоо ширхэг', bare.optionLabel);
 check('сонголтгүй үед үнэ нэмэгдээгүй', bare.lineTotal === '38,000₮', bare.lineTotal);
 
@@ -929,6 +930,8 @@ check('сагсанд бараа, хүргэлт, нийт тусдаа тооц
   cartSource.includes('id="subtotal"') && cartSource.includes('id="shipping"') && cartSource.includes('NudemaStore.delivery(goods,settings)'));
 check('상품 상세에서 선물하기 버튼과 모달 제거됨',
   !productSource.includes('Бэлэглэх') && !productSource.includes('openGift') && !productSource.includes('giftOpen'));
+check('상품 상세의 하드코딩 기본 설명과 빈 안내 제거됨',
+  !productSource.includes('Nudema-ийн арьс арчилгааны технологи') && !productSource.includes('Дэлгэрэнгүй тайлбар оруулаагүй байна.'));
 check('결제에서 gift 쿼리와 공유 링크 제거됨',
   !checkoutSource.includes('gift=1') && !checkoutSource.includes('giftLink') && !checkoutSource.includes('isGiftMode'));
 check('메뉴에서 선물하기 항목 제거됨', !menuSource.includes("label: 'Бэлэглэх'"));

@@ -186,8 +186,10 @@
     <div class="pd-tabpanel" style="max-width:820px;margin:0 auto;padding:56px 40px 30px;text-align:center;">
       <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ true }}">
         <div>
-          <h2 style="font-size:24px;font-weight:800;color:#16255f;margin:0 0 16px;">{{ title }}</h2>
-          <p style="font-size:15px;line-height:1.9;color:#5c6660;margin:0 0 32px;">{{ description }}</p>
+          <sc-if value="{{ hasDescription }}" hint-placeholder-val="{{ false }}">
+            <h2 style="font-size:24px;font-weight:800;color:#16255f;margin:0 0 16px;">{{ title }}</h2>
+            <p style="font-size:15px;line-height:1.9;color:#5c6660;margin:0 0 32px;">{{ description }}</p>
+          </sc-if>
           <sc-if value="{{ hasDetailBlocks }}" hint-placeholder-val="{{ true }}">
             <div style="display:flex;flex-direction:column;gap:18px;">
               <sc-for list="{{ detailBlocks }}" as="d" hint-placeholder-count="2">
@@ -227,9 +229,6 @@
                 </div>
               </sc-for>
             </div>
-          </sc-if>
-          <sc-if value="{{ noDetailBlocks }}" hint-placeholder-val="{{ false }}">
-            <p style="font-size:14px;color:#9aa39c;padding:30px 0;margin:0;">Дэлгэрэнгүй тайлбар оруулаагүй байна.</p>
           </sc-if>
         </div>
       </sc-if>
@@ -520,7 +519,8 @@ class Component extends DCLogic {
 
       detailTabs,
       isDetail: this.state.tab === 'detail',
-      description: product.desc || 'Nudema-ийн арьс арчилгааны технологи арьсны хамгаалалтын давхаргыг сэргээж, удаан хугацаанд чийгшлийг барьдаг.',
+      description: String(product.desc || '').trim(),
+      hasDescription: !!String(product.desc || '').trim(),
       // Дэлгэрэнгүй блокууд админаас (Бүтээгдэхүүн → засах → Дэлгэрэнгүй тайлбар)
       detailBlocks,
       hasDetailBlocks: detailBlocks.length > 0,
