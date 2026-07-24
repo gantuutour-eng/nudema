@@ -11,13 +11,18 @@ Cloudflare 배포에서는 Pages Functions + D1이 기기 간 공유 저장소�
 
 | 파일 | 설명 |
 |---|---|
-| `index.html` | 루트 → PC 홈으로 이동 |
+| `index.html` | 루트 → 기기 감지 후 PC/모바일 홈으로 즉시 이동. 앱 이름·목적·개인정보 링크는 정적 HTML로 포함(Google OAuth 브랜딩 검증용) |
 | `menu.html` | 전체 페이지 목록 (개발·시연용) |
 | `Nudema Mongolia.dc.html` | PC 홈 |
 | `Nudema Mobile.dc.html` | 모바일 홈 (390px) |
 | `Nudema Product.dc.html` | 상품 상세 (`?id=1`) |
 | `Nudema Checkout.dc.html` | 결제 |
-| `Nudema Admin.dc.html` | 관리자 |
+| `Nudema Admin.dc.html` | 관리자 (PC) |
+| `Nudema Admin Mobile.dc.html` | 관리자 (모바일) |
+
+PC 홈·PC 관리자 페이지는 `device-redirect.js`가 모바일 기기를 감지해
+각각 `Nudema Mobile.dc.html` / `Nudema Admin Mobile.dc.html`로 넘깁니다.
+`?v=pc`를 붙이면 넘어가지 않습니다.
 
 ## 관리자 기능
 
@@ -30,6 +35,15 @@ Cloudflare 배포에서는 Pages Functions + D1이 기기 간 공유 저장소�
 - **콘텐츠** — 상단 마퀴, 히어로 슬라이드(추가/삭제/이미지 업로드), 브랜드 영상
 - **통계** — 월별 매출, 카테고리 비중
 - **설정** — 상점 정보, 무통장입금 계좌, 카테고리/태그, 관리자 계정
+
+### 모바일 관리자 (`Nudema Admin Mobile.dc.html`)
+
+하단 탭 5개(대시보드 · 주문 · 상품 · 콘텐츠 · 설정)로 구성된 앱 형태이며,
+PC 관리자와 같은 `nudema-store.js` · `/api/admin-auth` · D1을 그대로 씁니다.
+앱바의 `‹` 버튼이 화면·상세 시트 이동 기록을 되돌립니다.
+
+PC 전용 화면은 아직 옮기지 않았습니다 — **회원, 리뷰, 통계**, 그리고
+멤버십 배너 편집은 PC 관리자에서만 가능합니다.
 
 ## 로컬 실행
 
@@ -46,7 +60,7 @@ Cloudflare Pages + D1 배포 방법은 [`CLOUDFLARE.md`](./CLOUDFLARE.md)를 참
 ## 개발용 스크립트
 
 ```bash
-node .smoke-test.js      # 324개 동작 검증
+node .smoke-test.js      # 353개 동작 검증
 node .check-bindings.js  # 템플릿 바인딩 누락 검사
 ```
 

@@ -203,7 +203,8 @@
   var locationInfo = (typeof window !== 'undefined' && window.location) ? window.location : {};
   var pathname = '';
   try { pathname = decodeURIComponent(locationInfo.pathname || ''); } catch (e) { pathname = locationInfo.pathname || ''; }
-  var isAdminPage = /Nudema\s+Admin\.dc(?:\.html)?$/i.test(pathname);
+  // PC ба мобайл админ хоёулаа /api/admin/state-ээс уншиж, /api/admin/store руу бичнэ
+  var isAdminPage = /Nudema\s+Admin(?:\s+Mobile)?\.dc(?:\.html)?$/i.test(pathname);
   var isPlainLocalServer = /^(localhost|127\.0\.0\.1)$/i.test(locationInfo.hostname || '') && String(locationInfo.port || '') === '4321';
   var canFetchRemote = typeof fetch === 'function' && /^https?:$/i.test(locationInfo.protocol || '') && !isPlainLocalServer;
   remoteStatus.enabled = canFetchRemote;

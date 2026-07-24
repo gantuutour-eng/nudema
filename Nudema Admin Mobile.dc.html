@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>NUDEMA Admin — Мобайл</title>
+<meta name="robots" content="noindex,nofollow,noarchive">
+<script src="./assets/vendor/react-18.3.1.production.min.js"></script>
+<script src="./assets/vendor/react-dom-18.3.1.production.min.js"></script>
+<script src="./support.js?v=20260723-3"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{overflow:hidden;overscroll-behavior:none;}
+  body{font-family:'Inter',system-ui,sans-serif;background:#131a35;}
+  ::-webkit-scrollbar{width:0;height:0;}
+  a{color:#2f4fe0;text-decoration:none;}
+  a:hover{color:#2340c8;}
+  .chips::-webkit-scrollbar{height:0;}
+  input,textarea,select{font-family:inherit;}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:#2f4fe0 !important;box-shadow:0 0 0 3px rgba(47,79,224,.12);}
+  @keyframes sheetUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+  /* Утсан дээр жинхэнэ дэлгэцийн өндрөөр ажиллана — доод таб бааранд safe-area нэмнэ */
+  .a-shell{width:100%;max-width:560px;margin:0 auto;background:#f4f6fb;position:relative;display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;}
+  .a-appbar{padding-top:max(14px,env(safe-area-inset-top)) !important;padding-left:max(20px,env(safe-area-inset-left)) !important;padding-right:max(20px,env(safe-area-inset-right)) !important;}
+  .a-tabbar{padding-bottom:env(safe-area-inset-bottom) !important;height:auto !important;}
+  @media (prefers-reduced-motion: reduce){
+    [style*="animation:sheetUp"],[style*="animation:fadeIn"]{animation:none !important;}
+  }
+</style>
+<script src="./nudema-store.js?v=20260724-2"></script>
+</helmet>
+
+<div class="a-shell">
+
+  <!-- ======= НЭВТРЭХ ДЭЛГЭЦ (нэвтрээгүй үед) ======= -->
+  <sc-if value="{{ notAuthed }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;z-index:100;background:#131a35;display:flex;flex-direction:column;">
+    <div class="a-appbar" style="height:24px;flex-shrink:0;"></div>
+    <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;justify-content:center;padding:24px 26px 40px;">
+      <div style="display:flex;align-items:baseline;gap:8px;justify-content:center;">
+        <span style="font-size:28px;font-weight:800;letter-spacing:1.5px;color:#fff;">NUDEMA</span>
+        <span style="font-size:12px;font-weight:600;letter-spacing:3px;color:#8b95bf;">ADMIN</span>
+      </div>
+      <div style="font-size:13px;color:#8b95bf;text-align:center;margin-top:10px;">Удирдлагын самбарт нэвтэрнэ үү</div>
+
+      <sc-if value="{{ authLoading }}" hint-placeholder-val="{{ true }}">
+        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#c9d3f5;font-size:12.5px;font-weight:600;line-height:1.6;padding:14px 16px;border-radius:13px;margin-top:28px;text-align:center;">Нэвтрэх эрхийг шалгаж байна…</div>
+      </sc-if>
+
+      <sc-if value="{{ authReady }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#fff;border-radius:20px;padding:22px 20px;margin-top:30px;box-shadow:0 20px 50px rgba(0,0,0,.3);">
+        <div style="font-size:12.5px;font-weight:600;color:#3a4160;margin-bottom:7px;">И-мэйл</div>
+        <input value="{{ loginEmail }}" onInput="{{ onLoginEmail }}" type="email" autocomplete="username" placeholder="admin@nudema.mn" style="width:100%;font-size:13.5px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:12px;padding:13px 14px;" />
+        <div style="font-size:12.5px;font-weight:600;color:#3a4160;margin:16px 0 7px;">Нууц үг</div>
+        <input value="{{ loginPassword }}" onInput="{{ onLoginPassword }}" type="password" autocomplete="current-password" placeholder="••••••••" style="width:100%;font-size:13.5px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:12px;padding:13px 14px;" />
+        <sc-if value="{{ hasLoginError }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:14px;background:#fdeaec;border:1px solid #f6ccd2;color:#d0263a;font-size:12px;font-weight:600;line-height:1.55;padding:11px 13px;border-radius:11px;">{{ loginError }}</div>
+        </sc-if>
+        <div onClick="{{ submitLogin }}" style="{{ loginButtonStyle }}">{{ loginButtonLabel }}</div>
+      </div>
+      </sc-if>
+
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ======= APP BAR ======= -->
+  <div class="a-appbar" style="background:#131a35;color:#fff;padding:14px 20px 18px;position:relative;z-index:40;flex-shrink:0;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:11px;min-width:0;">
+        <sc-if value="{{ canGoBack }}" hint-placeholder-val="">
+        <div onClick="{{ goBack }}" style="width:34px;height:34px;border-radius:11px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;cursor:pointer;flex-shrink:0;">‹</div>
+        </sc-if>
+        <div style="display:flex;align-items:baseline;gap:7px;">
+          <span style="font-size:19px;font-weight:800;letter-spacing:1px;">NUDEMA</span>
+          <span style="font-size:10px;font-weight:600;letter-spacing:2px;color:#8b95bf;">ADMIN</span>
+        </div>
+      </div>
+      <div style="position:relative;flex-shrink:0;">
+        <div onClick="{{ toggleAccount }}" style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border-radius:22px;padding:5px 12px 5px 5px;cursor:pointer;">
+          <div style="width:32px;height:32px;border-radius:50%;background:#2f4fe0;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;color:#fff;">{{ adminInitial }}</div>
+          <span style="font-size:12.5px;font-weight:600;color:#fff;">▾</span>
+        </div>
+        <sc-if value="{{ accountOpen }}" hint-placeholder-val="">
+        <div style="position:absolute;top:46px;right:0;width:236px;background:#fff;border-radius:14px;box-shadow:0 16px 40px rgba(16,21,43,.28);overflow:hidden;z-index:30;">
+          <div style="padding:14px 16px;border-bottom:1px solid #f0f2f8;display:flex;align-items:center;gap:11px;">
+            <div style="width:38px;height:38px;border-radius:50%;background:#2f4fe0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;">{{ adminInitial }}</div>
+            <div style="min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:#1e2a4a;">{{ adminName }}</div>
+              <div style="font-size:11px;color:#9aa2b8;overflow:hidden;text-overflow:ellipsis;">{{ adminEmail }}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;padding:6px 8px;">
+            <span style="font-size:9px;color:#1faf6b;">●</span>
+            <span style="font-size:11.5px;color:#7a839d;">Нэвтэрсэн байна</span>
+          </div>
+          <a href="Nudema%20Admin.dc.html?v=pc" style="display:flex;align-items:center;gap:10px;padding:13px 16px;border-top:1px solid #f0f2f8;color:#3a4160;font-size:13px;font-weight:600;">
+            <span>🖥</span> PC хувилбар
+          </a>
+          <div onClick="{{ doLogout }}" style="display:flex;align-items:center;gap:10px;padding:13px 16px;border-top:1px solid #f0f2f8;cursor:pointer;color:#ef4457;font-size:13px;font-weight:600;">
+            <span>⏻</span> Гарах
+          </div>
+        </div>
+        </sc-if>
+      </div>
+    </div>
+    <div style="margin-top:16px;">
+      <div style="font-size:22px;font-weight:800;">{{ pageTitle }}</div>
+      <div style="font-size:12.5px;color:#8b95bf;margin-top:3px;">{{ todayLabel }}</div>
+    </div>
+    <sc-if value="{{ showSearch }}" hint-placeholder-val="">
+    <div style="margin-top:16px;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.09);border-radius:13px;padding:10px 14px;">
+      <span style="font-size:15px;color:#8b95bf;">🔍</span>
+      <input value="{{ q }}" onInput="{{ onSearch }}" placeholder="{{ searchPlaceholder }}" style="flex:1;min-width:0;background:transparent;border:none;color:#fff;font-size:13.5px;padding:2px 0;" />
+    </div>
+    </sc-if>
+  </div>
+
+  <!-- ======= D1 холболтын анхааруулга ======= -->
+  <sc-if value="{{ hasRemoteError }}" hint-placeholder-val="">
+  <div style="flex-shrink:0;background:#fdeaec;border-bottom:1px solid #f6ccd2;color:#d0263a;font-size:11.5px;font-weight:600;line-height:1.5;padding:10px 16px;">{{ remoteError }}</div>
+  </sc-if>
+
+  <!-- ======= DASHBOARD SCREEN ======= -->
+  <sc-if value="{{ isDash }}" hint-placeholder-val="{{ true }}">
+  <div style="flex:1;min-height:0;overflow-y:auto;padding:16px 16px 24px;">
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <sc-for list="{{ stats }}" as="s" hint-placeholder-count="4">
+        <div style="background:#fff;border-radius:18px;padding:15px 15px 14px;box-shadow:0 4px 18px rgba(30,42,74,.05);">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+            <div style="font-size:11.5px;color:#7a839d;font-weight:500;line-height:1.3;">{{ s.label }}</div>
+            <div style="width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;background:{{ s.iconBg }};flex-shrink:0;">{{ s.icon }}</div>
+          </div>
+          <div style="font-size:19px;font-weight:800;color:#1e2a4a;margin-top:10px;letter-spacing:-.3px;">{{ s.value }}</div>
+          <div style="font-size:11px;font-weight:600;margin-top:7px;color:{{ s.deltaColor }};">{{ s.delta }} <span style="color:#9aa2b8;font-weight:500;">{{ s.deltaNote }}</span></div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="background:#fff;border-radius:20px;padding:18px 18px 16px;margin-top:14px;box-shadow:0 4px 18px rgba(30,42,74,.05);">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#1e2a4a;">Борлуулалтын дүн</div>
+          <div style="font-size:11.5px;color:#9aa2b8;margin-top:2px;">Сүүлийн 7 хоног</div>
+        </div>
+        <div style="font-size:17px;font-weight:800;color:#2f4fe0;">{{ weekTotal }}</div>
+      </div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px;height:130px;margin-top:18px;">
+        <sc-for list="{{ bars }}" as="b" hint-placeholder-count="7">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end;">
+            <div style="width:100%;border-radius:6px 6px 3px 3px;height:{{ b.h }};background:{{ b.color }};"></div>
+            <div style="font-size:10.5px;color:#9aa2b8;font-weight:500;">{{ b.day }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="background:#fff;border-radius:20px;padding:18px 16px 8px;margin-top:14px;box-shadow:0 4px 18px rgba(30,42,74,.05);">
+      <div style="font-size:15px;font-weight:700;color:#1e2a4a;padding:0 2px 6px;">Шилдэг бүтээгдэхүүн</div>
+      <sc-if value="{{ noTopProducts }}" hint-placeholder-val="">
+        <div style="text-align:center;font-size:12.5px;color:#aab2c8;padding:20px 0;">Борлуулалтын өгөгдөл алга.</div>
+      </sc-if>
+      <sc-for list="{{ topProducts }}" as="p" hint-placeholder-count="4">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 2px;border-top:1px solid #f0f2f8;">
+          <div style="width:44px;height:44px;border-radius:11px;background:#eef1f8;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#aab2c8;text-align:center;line-height:1.1;overflow:hidden;">
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val=""><img src="{{ p.img }}" style="width:100%;height:100%;object-fit:cover;"></sc-if>
+            <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}">Зураг</sc-if>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:600;color:#1e2a4a;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ p.name }}</div>
+            <div style="font-size:11px;color:#9aa2b8;margin-top:3px;">{{ p.sold }}</div>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:#1e2a4a;flex-shrink:0;">{{ p.price }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="background:#fff;border-radius:20px;padding:18px 16px 10px;margin-top:14px;box-shadow:0 4px 18px rgba(30,42,74,.05);">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0 2px 4px;">
+        <div style="font-size:15px;font-weight:700;color:#1e2a4a;">Сүүлийн захиалгууд</div>
+        <div onClick="{{ goOrders }}" style="font-size:12px;font-weight:600;color:#2f4fe0;cursor:pointer;">Бүгдийг харах ›</div>
+      </div>
+      <sc-if value="{{ noOrders }}" hint-placeholder-val="">
+        <div style="text-align:center;font-size:12.5px;color:#aab2c8;padding:20px 0;">Захиалга алга.</div>
+      </sc-if>
+      <sc-for list="{{ recentOrders }}" as="o" hint-placeholder-count="4">
+        <div onClick="{{ o.open }}" style="padding:13px 2px;border-top:1px solid #f0f2f8;cursor:pointer;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:13.5px;font-weight:700;color:#2f4fe0;">{{ o.id }}</span>
+            <div style="font-size:13.5px;font-weight:700;color:#1e2a4a;">{{ o.amount }}</div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;gap:10px;">
+            <div style="font-size:12px;color:#7a839d;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ o.user }} · {{ o.date }}</div>
+            <span style="flex-shrink:0;font-size:10.5px;font-weight:600;padding:4px 10px;border-radius:20px;color:{{ o.stColor }};background:{{ o.stBg }};">{{ o.status }}</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+  </div>
+  </sc-if>
+
+  <!-- ======= ORDERS SCREEN ======= -->
+  <sc-if value="{{ isOrders }}" hint-placeholder-val="">
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column;">
+    <div class="chips" style="display:flex;gap:8px;overflow-x:auto;padding:14px 16px 12px;flex-shrink:0;">
+      <sc-for list="{{ filters }}" as="f" hint-placeholder-count="6">
+        <div onClick="{{ f.select }}" style="flex-shrink:0;font-size:12.5px;font-weight:600;padding:9px 15px;border-radius:11px;cursor:pointer;white-space:nowrap;color:{{ f.color }};background:{{ f.bg }};border:1px solid {{ f.border }};">{{ f.label }}</div>
+      </sc-for>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:2px 16px 24px;">
+      <sc-if value="{{ noShownOrders }}" hint-placeholder-val="">
+        <div style="text-align:center;font-size:13px;color:#aab2c8;padding:40px 0;">Тохирох захиалга алга.</div>
+      </sc-if>
+      <sc-for list="{{ shownOrders }}" as="o" hint-placeholder-count="8">
+        <div onClick="{{ o.open }}" style="background:#fff;border-radius:16px;padding:15px 16px;margin-bottom:11px;box-shadow:0 3px 14px rgba(30,42,74,.05);cursor:pointer;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <span style="font-size:14.5px;font-weight:700;color:#2f4fe0;">{{ o.id }}</span>
+            <span style="flex-shrink:0;font-size:10.5px;font-weight:600;padding:4px 10px;border-radius:20px;color:{{ o.stColor }};background:{{ o.stBg }};">{{ o.status }}</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;gap:10px;">
+            <div style="min-width:0;">
+              <div style="font-size:13px;font-weight:600;color:#1e2a4a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ o.user }}</div>
+              <div style="font-size:11.5px;color:#9aa2b8;margin-top:3px;">{{ o.date }} · {{ o.pay }}</div>
+            </div>
+            <div style="font-size:15px;font-weight:800;color:#1e2a4a;flex-shrink:0;">{{ o.amount }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ======= PRODUCTS SCREEN ======= -->
+  <sc-if value="{{ isProducts }}" hint-placeholder-val="">
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column;">
+    <div style="padding:14px 16px 12px;flex-shrink:0;">
+      <div style="font-size:12.5px;color:#8a92a8;font-weight:500;">{{ productCountLabel }}</div>
+      <div style="display:flex;gap:9px;margin-top:11px;">
+        <div onClick="{{ goTaxonomy }}" style="flex:1;text-align:center;font-size:12.5px;font-weight:600;color:#3a4160;background:#fff;border:1px solid #e2e6f0;border-radius:11px;padding:11px 8px;cursor:pointer;">Ангилал / Таг удирдах</div>
+        <div onClick="{{ goProductNew }}" style="flex:1;text-align:center;font-size:12.5px;font-weight:700;color:#fff;background:#2f4fe0;border-radius:11px;padding:11px 8px;cursor:pointer;">+ Шинэ бүтээгдэхүүн</div>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:2px 16px 24px;">
+      <sc-if value="{{ noProducts }}" hint-placeholder-val="">
+        <div style="text-align:center;font-size:13px;color:#aab2c8;padding:40px 0;">Бүтээгдэхүүн алга.</div>
+      </sc-if>
+      <sc-for list="{{ productList }}" as="p" hint-placeholder-count="8">
+        <div style="background:#fff;border-radius:14px;margin-bottom:10px;box-shadow:0 3px 14px rgba(30,42,74,.05);display:flex;gap:12px;padding:11px;">
+          <div style="position:relative;width:82px;height:82px;flex-shrink:0;border-radius:11px;background:#eef1f7;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val=""><img src="{{ p.img }}" style="width:100%;height:100%;object-fit:cover;"></sc-if>
+            <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><span style="font-size:20px;">🖼️</span></sc-if>
+            <span style="position:absolute;top:5px;left:5px;font-size:8.5px;font-weight:700;padding:2px 7px;border-radius:20px;color:{{ p.bColor }};background:{{ p.bBg }};">{{ p.badge }}</span>
+          </div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
+            <div style="font-size:12.5px;font-weight:600;color:#1e2a4a;line-height:1.35;">{{ p.name }}</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:5px;gap:8px;">
+              <div style="font-size:15px;font-weight:800;color:#1e2a4a;">{{ p.price }}₮</div>
+              <div style="font-size:11px;color:#8a92a8;flex-shrink:0;">Нөөц: {{ p.stock }}</div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:8px;gap:8px;">
+              <div onClick="{{ p.toggleHome }}" style="display:flex;align-items:center;gap:6px;font-size:11.5px;cursor:pointer;color:{{ p.homeColor }};">
+                <span style="width:7px;height:7px;border-radius:50%;background:{{ p.homeDot }};border:{{ p.homeBorder }};"></span>{{ p.homeLabel }}
+              </div>
+              <div onClick="{{ p.edit }}" style="flex-shrink:0;font-size:11.5px;font-weight:600;color:#3a4160;border:1px solid #e2e6f0;border-radius:8px;padding:6px 14px;cursor:pointer;">Засах</div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ======= TAXONOMY SCREEN ======= -->
+  <sc-if value="{{ isTaxonomy }}" hint-placeholder-val="">
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 16px 12px;flex-shrink:0;">
+      <div onClick="{{ goProducts }}" style="display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:#3a4160;background:#fff;border:1px solid #e2e6f0;border-radius:10px;padding:8px 14px;cursor:pointer;">‹ Буцах</div>
+      <div style="font-size:16px;font-weight:800;color:#1e2a4a;">Ангилал / Таг удирдах</div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:2px 16px 24px;">
+
+      <sc-if value="{{ hasTaxError }}" hint-placeholder-val="">
+        <div style="background:#fdeaec;border:1px solid #f6ccd2;color:#d0263a;font-size:12px;font-weight:600;line-height:1.55;padding:12px 14px;border-radius:12px;margin-bottom:13px;">{{ taxError }}</div>
+      </sc-if>
+
+      <!-- Ангилал -->
+      <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 3px 14px rgba(30,42,74,.05);">
+        <div style="font-size:14px;font-weight:800;color:#1e2a4a;">Ангилал</div>
+        <div style="font-size:11.5px;color:#9aa2b8;line-height:1.55;margin-top:6px;">Бүтээгдэхүүний ангилал. Нүүр хуудасны "Хамгийн эрэлттэй" хэсгийн таб мөн эндээс үүснэ. Нэр солиход тухайн ангилалтай бараанууд автоматаар шинэчлэгдэнэ.</div>
+        <sc-for list="{{ categoryRows }}" as="c" hint-placeholder-count="0">
+          <div style="margin-top:11px;background:#f6f7fb;border-radius:12px;padding:12px 14px;">
+            <sc-if value="{{ c.isViewing }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <div style="font-size:13px;font-weight:600;color:#1e2a4a;min-width:0;">{{ c.name }}</div>
+                <div style="display:flex;align-items:center;gap:7px;flex-shrink:0;">
+                  <span style="font-size:11px;color:#9aa2b8;">{{ c.used }}</span>
+                  <div onClick="{{ c.onEdit }}" style="font-size:11.5px;font-weight:600;color:#2f4fe0;border:1px solid #dfe3ee;border-radius:8px;padding:6px 12px;cursor:pointer;">Засах</div>
+                  <div onClick="{{ c.onRemove }}" style="font-size:11.5px;font-weight:600;border-radius:8px;padding:6px 12px;{{ c.removeStyle }}">Устгах</div>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ c.isEditing }}" hint-placeholder-val="">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <input value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Ангиллын нэр" style="flex:1;min-width:0;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:10px;padding:9px 12px;background:#fff;" />
+                <div onClick="{{ commitTaxEdit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#2f4fe0;border-radius:9px;padding:9px 14px;cursor:pointer;flex-shrink:0;">Хадгалах</div>
+                <div onClick="{{ cancelTaxEdit }}" style="font-size:12.5px;font-weight:600;color:#3a4160;background:#fff;border:1px solid #e2e6f0;border-radius:9px;padding:9px 12px;cursor:pointer;flex-shrink:0;">Болих</div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+        <sc-if value="{{ addingCategory }}" hint-placeholder-val="">
+          <div style="display:flex;align-items:center;gap:8px;margin-top:13px;border:1.5px solid #2f4fe0;border-radius:13px;padding:9px;">
+            <input value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Шинэ ангиллын нэр" style="flex:1;min-width:0;font-size:13px;color:#1e2a4a;border:none;background:transparent;padding:6px 6px;" />
+            <div onClick="{{ commitTaxEdit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#2f4fe0;border-radius:9px;padding:9px 16px;cursor:pointer;flex-shrink:0;">Нэмэх</div>
+            <div onClick="{{ cancelTaxEdit }}" style="font-size:12.5px;font-weight:600;color:#3a4160;background:#fff;border:1px solid #e2e6f0;border-radius:9px;padding:9px 12px;cursor:pointer;flex-shrink:0;">Цуцлах</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ notAddingCategory }}" hint-placeholder-val="{{ true }}">
+          <div onClick="{{ addCategory }}" style="margin-top:13px;font-size:13px;font-weight:600;color:#2f4fe0;border:1.5px dashed #cdd4e4;border-radius:12px;padding:12px;text-align:center;cursor:pointer;">+ Ангилал нэмэх</div>
+        </sc-if>
+      </div>
+
+      <!-- Таг -->
+      <div style="background:#fff;border-radius:16px;padding:16px;margin-top:13px;box-shadow:0 3px 14px rgba(30,42,74,.05);">
+        <div style="font-size:14px;font-weight:800;color:#1e2a4a;">Таг (badge)</div>
+        <div style="font-size:11.5px;color:#9aa2b8;line-height:1.55;margin-top:6px;">Бүтээгдэхүүний зураг дээр гарах жижиг тэмдэг. "Байхгүй" сонголт нь таг хэрэглэхгүй гэсэн утгатай тул жагсаалтад ордоггүй.</div>
+        <sc-for list="{{ tagRows }}" as="t" hint-placeholder-count="0">
+          <div style="margin-top:11px;background:#f6f7fb;border-radius:12px;padding:12px 14px;">
+            <sc-if value="{{ t.isViewing }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <div style="font-size:13px;font-weight:600;color:#1e2a4a;min-width:0;">{{ t.name }}</div>
+                <div style="display:flex;align-items:center;gap:7px;flex-shrink:0;">
+                  <span style="font-size:11px;color:#9aa2b8;">{{ t.used }}</span>
+                  <div onClick="{{ t.onEdit }}" style="font-size:11.5px;font-weight:600;color:#2f4fe0;border:1px solid #dfe3ee;border-radius:8px;padding:6px 12px;cursor:pointer;">Засах</div>
+                  <div onClick="{{ t.onRemove }}" style="font-size:11.5px;font-weight:600;border-radius:8px;padding:6px 12px;{{ t.removeStyle }}">Устгах</div>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ t.isEditing }}" hint-placeholder-val="">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <input value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Тагийн нэр" style="flex:1;min-width:0;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:10px;padding:9px 12px;background:#fff;" />
+                <div onClick="{{ commitTaxEdit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#2f4fe0;border-radius:9px;padding:9px 14px;cursor:pointer;flex-shrink:0;">Хадгалах</div>
+                <div onClick="{{ cancelTaxEdit }}" style="font-size:12.5px;font-weight:600;color:#3a4160;background:#fff;border:1px solid #e2e6f0;border-radius:9px;padding:9px 12px;cursor:pointer;flex-shrink:0;">Болих</div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+        <sc-if value="{{ addingBadge }}" hint-placeholder-val="">
+          <div style="display:flex;align-items:center;gap:8px;margin-top:13px;border:1.5px solid #2f4fe0;border-radius:13px;padding:9px;">
+            <input value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Шинэ тагийн нэр" style="flex:1;min-width:0;font-size:13px;color:#1e2a4a;border:none;background:transparent;padding:6px 6px;" />
+            <div onClick="{{ commitTaxEdit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#2f4fe0;border-radius:9px;padding:9px 16px;cursor:pointer;flex-shrink:0;">Нэмэх</div>
+            <div onClick="{{ cancelTaxEdit }}" style="font-size:12.5px;font-weight:600;color:#3a4160;background:#fff;border:1px solid #e2e6f0;border-radius:9px;padding:9px 12px;cursor:pointer;flex-shrink:0;">Цуцлах</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ notAddingBadge }}" hint-placeholder-val="{{ true }}">
+          <div onClick="{{ addBadge }}" style="margin-top:13px;font-size:13px;font-weight:600;color:#2f4fe0;border:1.5px dashed #cdd4e4;border-radius:12px;padding:12px;text-align:center;cursor:pointer;">+ Таг нэмэх</div>
+        </sc-if>
+      </div>
+
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ======= PRODUCT FORM SCREEN ======= -->
+  <sc-if value="{{ isProductNew }}" hint-placeholder-val="">
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 16px 12px;flex-shrink:0;">
+      <div onClick="{{ goProducts }}" style="display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:#3a4160;background:#fff;border:1px solid #e2e6f0;border-radius:10px;padding:8px 14px;cursor:pointer;flex-shrink:0;">‹ Буцах</div>
+      <div style="font-size:16px;font-weight:800;color:#1e2a4a;">{{ formTitle }}</div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:2px 16px 24px;">
+
+      <!-- гол зураг -->
+      <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 3px 14px rgba(30,42,74,.05);">
+        <div style="font-size:13.5px;font-weight:700;color:#1e2a4a;">Гол зураг ({{ galleryCount }}/8)</div>
+        <div style="font-size:11.5px;color:#9aa2b8;line-height:1.5;margin-top:6px;">Эхний зураг нь жагсаалт болон нүүр хуудсанд харагдах нүүр зураг. Дарааллыг ↑↓ товчоор солино.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px;">
+          <sc-for list="{{ gallery }}" as="g" hint-placeholder-count="0">
+            <div style="position:relative;border:1px solid #e7eaf2;border-radius:11px;overflow:hidden;background:#f6f7fb;">
+              <img src="{{ g.src }}" style="display:block;width:100%;height:96px;object-fit:cover;">
+              <span style="position:absolute;top:5px;left:5px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(19,26,53,.72);color:#fff;">{{ g.coverLabel }}</span>
+              <div style="display:flex;gap:5px;padding:6px;">
+                <div onClick="{{ g.onUp }}" style="flex:1;text-align:center;font-size:12px;color:#5c6473;border:1px solid #e2e6f0;border-radius:7px;padding:4px 0;cursor:pointer;background:#fff;">↑</div>
+                <div onClick="{{ g.onDown }}" style="flex:1;text-align:center;font-size:12px;color:#5c6473;border:1px solid #e2e6f0;border-radius:7px;padding:4px 0;cursor:pointer;background:#fff;">↓</div>
+                <div onClick="{{ g.onRemove }}" style="flex:1;text-align:center;font-size:12px;color:#ef4457;border:1px solid #f4c9cf;border-radius:7px;padding:4px 0;cursor:pointer;background:#fff;">✕</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ canAddGallery }}" hint-placeholder-val="{{ true }}">
+          <div style="position:relative;margin-top:12px;border:1.5px dashed #cdd4e4;border-radius:12px;padding:20px;text-align:center;">
+            <span style="font-size:13px;font-weight:600;color:#2f4fe0;pointer-events:none;">+ Гол зураг нэмэх</span>
+            <input type="file" accept="image/*" onChange="{{ onProductImage }}" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;">
+          </div>
+        </sc-if>
+      </div>
+
+      <!-- main fields -->
+      <div style="background:#fff;border-radius:16px;padding:16px;margin-top:13px;box-shadow:0 3px 14px rgba(30,42,74,.05);">
+        <div style="font-size:12.5px;font-weight:600;color:#3a4160;margin-bottom:6px;">Бүтээгдэхүүний нэр *</div>
+        <input value="{{ f.title }}" onInput="{{ onFTitle }}" placeholder="Жишээ: Гүн чийгшлийн арьс арчилгааны багц" style="width:100%;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:12px 14px;" />
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:14px;">
+          <div>
+            <div style="font-size:12.5px;font-weight:600;color:#3a4160;margin-bottom:6px;">Ангилал *</div>
+            <select onChange="{{ onFCategory }}" style="width:100%;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:12px 10px;background:#fff;">
+              <sc-for list="{{ categoryOptions }}" as="o" hint-placeholder-count="4">
+                <option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option>
+              </sc-for>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:12.5px;font-weight:600;color:#3a4160;margin-bottom:6px;">Таг (badge)</div>
+            <select onChange="{{ onFBadge }}" style="width:100%;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:12px 10px;background:#fff;">
+              <sc-for list="{{ badgeOptions }}" as="o" hint-placeholder-count="5">
+                <option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option>
+              </sc-for>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:14px;">
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#3a4160;margin-bottom:6px;">Зарах үнэ (₮) *</div>
+            <input value="{{ f.price }}" onInput="{{ onFPrice }}" placeholder="93,500" style="width:100%;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:12px 14px;" />
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#3a4160;margin-bottom:6px;">Хямдралын өмнөх үнэ</div>
+            <input value="{{ f.original }}" onInput="{{ onFOriginal }}" placeholder="135,000" style="width:100%;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:12px 14px;" />
+          </div>
+        </div>
+        <div style="margin-top:14px;">
+          <div style="font-size:12px;font-weight:600;color:#3a4160;margin-bottom:6px;">Нөөц (ширхэг) *</div>
+          <input value="{{ f.stock }}" onInput="{{ onFStock }}" placeholder="142" style="width:100%;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:12px 14px;" />
+        </div>
+
+        <div style="margin-top:14px;">
+          <div style="font-size:12.5px;font-weight:600;color:#3a4160;margin-bottom:6px;">Тайлбар</div>
+          <textarea value="{{ f.desc }}" onInput="{{ onFDesc }}" placeholder="Бүтээгдэхүүний онцлог, хэрэглэх заавар..." style="width:100%;min-height:80px;resize:vertical;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:12px 14px;"></textarea>
+        </div>
+
+        <div style="margin-top:14px;">
+          <div style="font-size:12.5px;font-weight:600;color:#3a4160;margin-bottom:6px;">Гол найрлага (таслалаар)</div>
+          <input value="{{ f.ingredients }}" onInput="{{ onFIngredients }}" placeholder="Гиалуроны хүчил, Ниацинамид, Керамид NP, Пантенол" style="width:100%;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:12px 14px;" />
+        </div>
+      </div>
+
+      <!-- detail page info -->
+      <div style="background:#fff;border-radius:16px;padding:16px;margin-top:13px;box-shadow:0 3px 14px rgba(30,42,74,.05);">
+        <div style="font-size:13.5px;font-weight:700;color:#1e2a4a;">Дэлгэрэнгүй хуудсанд гарах мэдээлэл</div>
+        <div style="font-size:11.5px;color:#9aa2b8;line-height:1.5;margin-top:6px;">Доорхыг бөглөвөл л бүтээгдэхүүний хуудсанд харагдана. Хоосон орхивол тэр мөр огт гарахгүй.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:14px;">
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#3a4160;margin-bottom:6px;">Хүргэлтийн тэмдэглэл</div>
+            <input value="{{ f.shipping }}" onInput="{{ onFShipping }}" placeholder="Үнэгүй хүргэлт · 2–3 хоног" style="width:100%;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:12px 14px;" />
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#3a4160;margin-bottom:6px;">Урамшууллын хувь (%)</div>
+            <input value="{{ f.pointsRate }}" onInput="{{ onFPointsRate }}" placeholder="2" style="width:100%;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:12px 14px;" />
+          </div>
+        </div>
+      </div>
+
+      <!-- pack size options -->
+      <div style="background:#fff;border-radius:16px;padding:16px;margin-top:13px;box-shadow:0 3px 14px rgba(30,42,74,.05);">
+        <div style="font-size:13.5px;font-weight:700;color:#1e2a4a;">Багцын хэмжээ сонголт</div>
+        <div style="font-size:11.5px;color:#9aa2b8;line-height:1.5;margin-top:6px;">Сонголт нэмбэл дэлгэрэнгүй хуудсанд "Багцын хэмжээ" хэсэг гарна. Нэмэлт үнэ нь үндсэн үнэн дээр нэмэгдэнэ.</div>
+        <sc-for list="{{ fOptions }}" as="pk" hint-placeholder-count="0">
+          <div style="display:flex;align-items:center;gap:8px;margin-top:11px;">
+            <div style="width:16px;font-size:12px;color:#9aa2b8;text-align:center;flex-shrink:0;">{{ pk.n }}</div>
+            <input value="{{ pk.label }}" onInput="{{ pk.onLabel }}" placeholder="Сонголтын нэр (Жишээ: Их хэмжээ)" style="flex:1;min-width:0;font-size:12.5px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:10px;padding:10px 12px;" />
+            <input value="{{ pk.add }}" onInput="{{ pk.onAdd }}" placeholder="Нэмэлт үнэ (0)" style="width:96px;flex-shrink:0;font-size:12.5px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:10px;padding:10px 12px;" />
+            <div onClick="{{ pk.onRemove }}" style="width:32px;height:32px;flex-shrink:0;border:1px solid #f4c9cf;color:#ef4457;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;">✕</div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ canAddOption }}" hint-placeholder-val="{{ true }}">
+          <div onClick="{{ addFormOption }}" style="margin-top:13px;font-size:13px;font-weight:600;color:#2f4fe0;border:1px solid #dfe3ee;border-radius:11px;padding:11px;text-align:center;cursor:pointer;">+ Сонголт нэмэх</div>
+        </sc-if>
+      </div>
+
+      <!-- show on home toggle -->
+      <div style="background:#f6f7fb;border-radius:16px;padding:15px 16px;margin-top:13px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#1e2a4a;">Нүүр хуудсанд харуулах</div>
+          <div style="font-size:11.5px;color:#9aa2b8;margin-top:3px;">"Албан ёсны дэлгүүр" хэсэгт байршуулах</div>
+        </div>
+        <div onClick="{{ onFHome }}" style="width:46px;height:26px;border-radius:15px;flex-shrink:0;background:{{ homeToggleBg }};position:relative;cursor:pointer;transition:background .2s;">
+          <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ homeToggleLeft }};transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);"></div>
+        </div>
+      </div>
+
+      <!-- detail blocks -->
+      <div style="background:#fff;border-radius:16px;padding:16px;margin-top:13px;box-shadow:0 3px 14px rgba(30,42,74,.05);">
+        <div style="font-size:13.5px;font-weight:700;color:#1e2a4a;">Дэлгэрэнгүй тайлбар ({{ blockCount }} блок)</div>
+        <div style="font-size:11.5px;color:#9aa2b8;line-height:1.5;margin-top:6px;">Бүтээгдэхүүний хуудасны "Дэлгэрэнгүй" таб. Блок нэмж, дарааллыг ↑↓-ээр өөрчилнө.</div>
+        <sc-if value="{{ noBlocks }}" hint-placeholder-val="{{ true }}">
+          <div style="text-align:center;font-size:12.5px;color:#aab2c8;padding:22px 0;">Блок нэмээгүй байна.</div>
+        </sc-if>
+        <sc-for list="{{ blockRows }}" as="bl" hint-placeholder-count="0">
+          <div style="margin-top:10px;background:#f6f7fb;border-radius:11px;padding:12px 14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+              <div style="font-size:12.5px;font-weight:600;color:#1e2a4a;">{{ bl.n }}. {{ bl.typeLabel }}</div>
+              <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+                <div onClick="{{ bl.onUp }}" style="width:28px;height:28px;border:1px solid #e2e6f0;background:#fff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#5c6473;cursor:pointer;">↑</div>
+                <div onClick="{{ bl.onDown }}" style="width:28px;height:28px;border:1px solid #e2e6f0;background:#fff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#5c6473;cursor:pointer;">↓</div>
+                <div onClick="{{ bl.onRemove }}" style="width:28px;height:28px;border:1px solid #f4c9cf;background:#fff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#ef4457;cursor:pointer;">✕</div>
+              </div>
+            </div>
+
+            <sc-if value="{{ bl.needsText }}" hint-placeholder-val="">
+              <textarea value="{{ bl.text }}" onInput="{{ bl.onText }}" placeholder="Текст оруулах..." style="width:100%;min-height:72px;resize:vertical;margin-top:10px;font-size:12.5px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:10px;padding:10px 12px;background:#fff;"></textarea>
+            </sc-if>
+
+            <sc-if value="{{ bl.isVideo }}" hint-placeholder-val="">
+              <input value="{{ bl.url }}" onInput="{{ bl.onUrl }}" placeholder="YouTube холбоос (https://...)" style="width:100%;margin-top:10px;font-size:12.5px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:10px;padding:10px 12px;background:#fff;" />
+            </sc-if>
+
+            <sc-if value="{{ bl.needsImage }}" hint-placeholder-val="">
+              <div style="position:relative;margin-top:10px;border:1.5px dashed #cdd4e4;border-radius:10px;background:#fff;overflow:hidden;min-height:70px;">
+                <sc-if value="{{ bl.hasImg }}" hint-placeholder-val=""><img src="{{ bl.img }}" style="display:block;width:100%;"></sc-if>
+                <sc-if value="{{ bl.noImg }}" hint-placeholder-val="{{ true }}"><span style="display:flex;align-items:center;justify-content:center;height:70px;font-size:12.5px;font-weight:600;color:#2f4fe0;pointer-events:none;">+ Зураг оруулах</span></sc-if>
+                <input type="file" accept="image/*" onChange="{{ bl.onImg }}" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;">
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ bl.isTwoImages }}" hint-placeholder-val="">
+              <div style="position:relative;margin-top:9px;border:1.5px dashed #cdd4e4;border-radius:10px;background:#fff;overflow:hidden;min-height:70px;">
+                <sc-if value="{{ bl.hasImg2 }}" hint-placeholder-val=""><img src="{{ bl.img2 }}" style="display:block;width:100%;"></sc-if>
+                <sc-if value="{{ bl.noImg2 }}" hint-placeholder-val="{{ true }}"><span style="display:flex;align-items:center;justify-content:center;height:70px;font-size:12.5px;font-weight:600;color:#2f4fe0;pointer-events:none;">+ 2 дахь зураг</span></sc-if>
+                <input type="file" accept="image/*" onChange="{{ bl.onImg2 }}" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;">
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+        <sc-if value="{{ blockPicker }}" hint-placeholder-val="">
+          <div style="margin-top:13px;border:1px solid #e2e6f0;border-radius:14px;padding:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div style="font-size:13px;font-weight:700;color:#1e2a4a;">Оруулах блокоо сонгоно уу</div>
+              <div onClick="{{ closePicker }}" style="font-size:14px;color:#9aa2b8;cursor:pointer;">✕</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+              <sc-for list="{{ blockTypes }}" as="bt" hint-placeholder-count="7">
+                <div onClick="{{ bt.pick }}" style="border:1px solid #e2e6f0;border-radius:11px;padding:14px 6px;text-align:center;cursor:pointer;">
+                  <div style="font-size:17px;color:#2f4fe0;">{{ bt.icon }}</div>
+                  <div style="font-size:11.5px;font-weight:600;color:#3a4160;margin-top:6px;">{{ bt.label }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noPicker }}" hint-placeholder-val="{{ true }}">
+          <div onClick="{{ openPicker }}" style="margin-top:13px;font-size:13px;font-weight:600;color:#2f4fe0;border:1.5px dashed #cdd4e4;border-radius:12px;padding:14px;text-align:center;cursor:pointer;">+ Блок нэмэх</div>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ hasFormError }}" hint-placeholder-val="">
+        <div style="margin-top:14px;background:#fdeaec;border:1px solid #f6ccd2;color:#d0263a;font-size:12.5px;font-weight:600;line-height:1.55;padding:12px 14px;border-radius:12px;">{{ formError }}</div>
+      </sc-if>
+      <sc-if value="{{ productSaved }}" hint-placeholder-val="">
+        <div style="margin-top:14px;background:#e4f6ee;border:1px solid #bfe6d3;color:#12934f;font-size:12.5px;font-weight:700;padding:12px 14px;border-radius:12px;">{{ savedLabel }}</div>
+      </sc-if>
+
+      <!-- submit -->
+      <div style="display:flex;gap:11px;margin-top:16px;">
+        <div onClick="{{ saveProduct }}" style="flex:1;text-align:center;font-size:14px;font-weight:700;color:#fff;background:#2f4fe0;border-radius:13px;padding:14px;cursor:pointer;">{{ submitLabel }}</div>
+        <div onClick="{{ goProducts }}" style="flex:1;text-align:center;font-size:14px;font-weight:600;color:#3a4160;background:#fff;border:1px solid #e2e6f0;border-radius:13px;padding:14px;cursor:pointer;">Цуцлах</div>
+      </div>
+      <sc-if value="{{ isEditing }}" hint-placeholder-val="">
+        <div onClick="{{ deleteProduct }}" style="margin-top:11px;text-align:center;font-size:13px;font-weight:600;color:#ef4457;border:1px solid #f4c9cf;border-radius:13px;padding:13px;cursor:pointer;">{{ deleteLabel }}</div>
+      </sc-if>
+
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ======= CONTENT SCREEN ======= -->
+  <sc-if value="{{ isContent }}" hint-placeholder-val="">
+  <div style="flex:1;min-height:0;overflow-y:auto;padding:16px 16px 24px;">
+
+    <sc-if value="{{ hasContentError }}" hint-placeholder-val="">
+      <div style="background:#fdeaec;border:1px solid #f6ccd2;color:#d0263a;font-size:12px;font-weight:600;line-height:1.55;padding:12px 14px;border-radius:12px;margin-bottom:13px;">{{ contentError }}</div>
+    </sc-if>
+
+    <!-- Дээд гүйдэг мөр -->
+    <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 3px 14px rgba(30,42,74,.05);">
+      <div style="font-size:14px;font-weight:800;color:#1e2a4a;">Дээд гүйдэг мөр</div>
+      <div style="font-size:11.5px;color:#9aa2b8;line-height:1.55;margin-top:6px;">Хуудасны дээд талд хөндлөн гүйх цэнхэр мөрний бичвэрүүд. Ээлжлэн давтагдана.</div>
+      <sc-for list="{{ cMarquee }}" as="l" hint-placeholder-count="1">
+        <div style="display:flex;align-items:center;gap:9px;margin-top:12px;">
+          <div style="width:16px;font-size:12px;color:#9aa2b8;text-align:center;flex-shrink:0;">{{ l.n }}</div>
+          <input value="{{ l.text }}" onInput="{{ l.onText }}" placeholder="Гүйдэг мөрний текст" style="flex:1;min-width:0;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:11px 13px;" />
+          <div onClick="{{ l.onRemove }}" style="width:34px;height:38px;flex-shrink:0;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;{{ l.removeStyle }}">✕</div>
+        </div>
+      </sc-for>
+      <div onClick="{{ addMarquee }}" style="margin-top:13px;font-size:13px;font-weight:600;color:#2f4fe0;border:1.5px dashed #cdd4e4;border-radius:12px;padding:11px;text-align:center;cursor:pointer;">+ Мөр нэмэх</div>
+    </div>
+
+    <!-- Брэндийн видео -->
+    <div style="background:#fff;border-radius:16px;padding:16px;margin-top:13px;box-shadow:0 3px 14px rgba(30,42,74,.05);">
+      <div style="font-size:14px;font-weight:800;color:#1e2a4a;">Брэндийн видео</div>
+      <div style="font-size:11.5px;color:#9aa2b8;line-height:1.55;margin-top:6px;">Нүүр хуудасны "Брэндийн түүх" хэсэгт гарах YouTube видеоны холбоос.</div>
+      <input value="{{ cVideo }}" onInput="{{ onVideo }}" placeholder="youtube.com/watch?v=..." style="width:100%;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:12px 14px;margin-top:12px;" />
+    </div>
+
+    <!-- Хиро баннер -->
+    <div style="background:#fff;border-radius:16px;padding:16px;margin-top:13px;box-shadow:0 3px 14px rgba(30,42,74,.05);">
+      <div style="font-size:14px;font-weight:800;color:#1e2a4a;">Хиро баннер (слайд)</div>
+      <div style="font-size:11.5px;color:#9aa2b8;line-height:1.55;margin-top:6px;">Нүүр хуудасны дээд баннерын зураг ба текст. Зургийн нүд дээр дарж файл сонгоно уу. URL-ээр ч болно.</div>
+      <sc-for list="{{ cSlides }}" as="h" hint-placeholder-count="2">
+        <div style="border:1px solid #e2e6f0;border-radius:13px;padding:13px;margin-top:13px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;">
+            <div style="font-size:13px;font-weight:700;color:#2f4fe0;">Слайд {{ h.n }}</div>
+            <div onClick="{{ h.onRemoveSlide }}" style="font-size:12px;font-weight:600;cursor:pointer;{{ h.removeSlideStyle }}">Устгах</div>
+          </div>
+          <div style="display:flex;gap:11px;">
+            <div style="position:relative;width:72px;height:60px;flex-shrink:0;border-radius:10px;background:#dfe6f5;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+              <sc-if value="{{ h.hasImg }}" hint-placeholder-val=""><img src="{{ h.previewSrc }}" style="width:100%;height:100%;object-fit:cover;"></sc-if>
+              <sc-if value="{{ h.noImg }}" hint-placeholder-val="{{ true }}"><span style="font-size:18px;pointer-events:none;">🖼️</span></sc-if>
+              <input type="file" accept="image/*" onChange="{{ h.onFile }}" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;">
+              <sc-if value="{{ h.hasImg }}" hint-placeholder-val="">
+                <span onClick="{{ h.onClear }}" style="position:absolute;top:3px;right:3px;z-index:3;width:16px;height:16px;border-radius:50%;background:rgba(20,26,53,.6);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;">✕</span>
+              </sc-if>
+            </div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:9px;">
+              <input value="{{ h.img }}" onInput="{{ h.onImg }}" placeholder="{{ h.urlPlaceholder }}" style="width:100%;font-size:12px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:10px;padding:9px 11px;text-overflow:ellipsis;" />
+              <input value="{{ h.line1 }}" onInput="{{ h.onLine1 }}" placeholder="Гарчиг" style="width:100%;font-size:12.5px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:10px;padding:9px 11px;" />
+              <input value="{{ h.sub }}" onInput="{{ h.onSub }}" placeholder="Дэд гарчиг" style="width:100%;font-size:12.5px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:10px;padding:9px 11px;" />
+            </div>
+          </div>
+        </div>
+      </sc-for>
+      <div onClick="{{ addSlide }}" style="margin-top:13px;font-size:13px;font-weight:600;color:#2f4fe0;border:1.5px dashed #cdd4e4;border-radius:12px;padding:12px;text-align:center;cursor:pointer;">+ Слайд нэмэх ({{ slideCountLabel }})</div>
+    </div>
+
+    <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">
+      <div onClick="{{ saveContent }}" style="background:#2f4fe0;color:#fff;text-align:center;font-size:14px;font-weight:700;padding:14px;border-radius:13px;cursor:pointer;">{{ contentSaveLabel }}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0 2px;gap:10px;">
+        <span style="font-size:11.5px;color:#9aa2b8;">Өөрчлөлт бичих үед шууд нийтлэгдэнэ</span>
+        <a href="Nudema%20Mobile.dc.html" style="flex-shrink:0;font-size:12.5px;font-weight:600;color:#2f4fe0;">Нүүр хуудсыг үзэх ↗</a>
+      </div>
+    </div>
+
+  </div>
+  </sc-if>
+
+  <!-- ======= SETTINGS SCREEN ======= -->
+  <sc-if value="{{ isSettings }}" hint-placeholder-val="">
+  <div style="flex:1;min-height:0;overflow-y:auto;padding:16px 16px 24px;">
+
+    <!-- Дэлгүүрийн тохиргоо -->
+    <div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 3px 14px rgba(30,42,74,.05);">
+      <div style="font-size:15px;font-weight:800;color:#1e2a4a;">Дэлгүүрийн тохиргоо</div>
+
+      <div style="margin-top:14px;">
+        <div style="font-size:12.5px;font-weight:600;color:#3a4160;margin-bottom:6px;">Дэлгүүрийн нэр</div>
+        <input value="{{ s.shopName }}" onInput="{{ onSShopName }}" placeholder="Nudema Mongolia" style="width:100%;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:12px 14px;" />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:14px;">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:#3a4160;margin-bottom:6px;">Холбоо барих утас</div>
+          <input value="{{ s.phone }}" onInput="{{ onSPhone }}" placeholder="7000-0000" style="width:100%;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:12px 14px;" />
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:#3a4160;margin-bottom:6px;">И-мэйл</div>
+          <input value="{{ s.email }}" onInput="{{ onSEmail }}" placeholder="info@nudema.mn" style="width:100%;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:12px 14px;" />
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:14px;">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:#3a4160;margin-bottom:6px;">Хүргэлтийн төлбөр (УБ)</div>
+          <input value="{{ s.shippingFee }}" onInput="{{ onSShipping }}" placeholder="5,000" style="width:100%;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:12px 14px;" />
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:#3a4160;margin-bottom:6px;">Үнэгүй хүргэлтийн босго</div>
+          <input value="{{ s.freeThreshold }}" onInput="{{ onSThreshold }}" placeholder="100,000" style="width:100%;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:12px 14px;" />
+        </div>
+      </div>
+
+      <div style="background:#f6f7fb;border-radius:14px;padding:14px 16px;margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#1e2a4a;">Захиалгын мэдэгдэл</div>
+          <div style="font-size:11.5px;color:#9aa2b8;margin-top:3px;">Шинэ захиалга орж ирэхэд имэйл авах</div>
+        </div>
+        <div onClick="{{ onSNotify }}" style="width:46px;height:26px;border-radius:15px;flex-shrink:0;background:{{ notifyBg }};position:relative;cursor:pointer;transition:background .2s;">
+          <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ notifyLeft }};transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Дансны мэдээлэл -->
+    <div style="background:#fff;border-radius:16px;padding:16px;margin-top:13px;box-shadow:0 3px 14px rgba(30,42,74,.05);">
+      <div style="font-size:14px;font-weight:800;color:#1e2a4a;">Дансны мэдээлэл (Данс шилжүүлэг)</div>
+      <div style="font-size:11.5px;color:#9aa2b8;line-height:1.55;margin-top:6px;">Худалдан авагч зөвхөн данс шилжүүлгээр төлнө. Тиймээс хамгийн багадаа нэг төлбөр хүлээн авах данс заавал бүртгэнэ.</div>
+      <sc-for list="{{ bankAccounts }}" as="b" hint-placeholder-count="1">
+        <div style="border:1px solid #e2e6f0;border-radius:13px;padding:13px;margin-top:13px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;">
+            <div style="font-size:13px;font-weight:700;color:#2f4fe0;">Данс {{ b.n }}</div>
+            <div onClick="{{ b.onRemove }}" style="font-size:11.5px;font-weight:600;color:#ef4457;border:1px solid #f4c9cf;border-radius:8px;padding:6px 12px;cursor:pointer;">Устгах</div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <input value="{{ b.bank }}" onInput="{{ b.onBank }}" placeholder="Хаан банк" style="flex:1;min-width:0;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:11px 13px;" />
+            <input value="{{ b.number }}" onInput="{{ b.onNumber }}" placeholder="Дансны дугаар" style="flex:1;min-width:0;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:11px 13px;" />
+          </div>
+          <input value="{{ b.holder }}" onInput="{{ b.onHolder }}" placeholder="Данс эзэмшигчийн нэр" style="width:100%;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:11px 13px;margin-top:10px;" />
+        </div>
+      </sc-for>
+      <sc-if value="{{ canAddBank }}" hint-placeholder-val="{{ true }}">
+        <div onClick="{{ addBankAccount }}" style="margin-top:13px;font-size:13px;font-weight:600;color:#2f4fe0;border:1.5px dashed #cdd4e4;border-radius:12px;padding:12px;text-align:center;cursor:pointer;">+ Данс нэмэх</div>
+      </sc-if>
+
+      <div style="margin-top:16px;">
+        <div style="font-size:12.5px;font-weight:600;color:#3a4160;margin-bottom:6px;">Шилжүүлгийн тайлбар</div>
+        <textarea value="{{ s.bankNote }}" onInput="{{ onSBankNote }}" placeholder="Гүйлгээний утгад захиалагчийн нэрийг бичнэ үү..." style="width:100%;min-height:74px;resize:vertical;font-size:13px;color:#1e2a4a;border:1px solid #dfe3ee;border-radius:11px;padding:12px 14px;"></textarea>
+      </div>
+    </div>
+
+    <!-- account + save -->
+    <div style="margin-top:16px;padding:0 2px;">
+      <div style="font-size:12px;color:#9aa2b8;">Одоо нэвтэрсэн и-мэйл</div>
+      <div style="font-size:14px;font-weight:700;color:#1e2a4a;margin-top:4px;">{{ adminEmail }}</div>
+    </div>
+    <sc-if value="{{ hasSettingsError }}" hint-placeholder-val="">
+      <div style="margin-top:14px;background:#fdeaec;border:1px solid #f6ccd2;color:#d0263a;font-size:12.5px;font-weight:600;line-height:1.55;padding:12px 14px;border-radius:12px;">{{ settingsError }}</div>
+    </sc-if>
+    <div onClick="{{ saveSettings }}" style="margin-top:14px;background:#2f4fe0;color:#fff;text-align:center;font-size:14px;font-weight:700;padding:14px;border-radius:13px;cursor:pointer;">{{ settingsSaveLabel }}</div>
+    <div onClick="{{ doLogout }}" style="margin-top:11px;text-align:center;font-size:13px;font-weight:600;color:#ef4457;border:1px solid #f4c9cf;border-radius:13px;padding:13px;cursor:pointer;">Гарах</div>
+
+  </div>
+  </sc-if>
+
+  <!-- account menu backdrop -->
+  <sc-if value="{{ accountOpen }}" hint-placeholder-val="">
+  <div onClick="{{ toggleAccount }}" style="position:absolute;inset:0;z-index:25;"></div>
+  </sc-if>
+
+  <!-- ======= DETAIL BOTTOM SHEET ======= -->
+  <sc-if value="{{ detail }}" hint-placeholder-val="">
+  <div onClick="{{ closeDetail }}" style="position:absolute;inset:0;background:rgba(16,21,43,.5);z-index:20;animation:fadeIn .2s ease;"></div>
+  <div style="position:absolute;left:0;right:0;bottom:0;max-height:88%;background:#fff;border-radius:24px 24px 0 0;z-index:21;display:flex;flex-direction:column;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1);">
+    <div style="padding:14px 20px 0;flex-shrink:0;">
+      <div style="width:40px;height:4px;border-radius:3px;background:#e2e6f0;margin:0 auto 12px;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:17px;font-weight:800;color:#1e2a4a;">Захиалгын дэлгэрэнгүй</div>
+        <div onClick="{{ closeDetail }}" style="width:32px;height:32px;border-radius:9px;background:#f2f4f9;display:flex;align-items:center;justify-content:center;font-size:16px;color:#7a839d;cursor:pointer;">✕</div>
+      </div>
+    </div>
+    <div style="overflow-y:auto;padding:16px 20px calc(20px + env(safe-area-inset-bottom));">
+      <!-- order info -->
+      <div style="font-size:13px;font-weight:700;color:#1e2a4a;margin-bottom:8px;">Захиалгын мэдээлэл</div>
+      <div style="background:#f6f7fb;border-radius:14px;padding:14px 16px;">
+        <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12.5px;gap:12px;"><span style="color:#8a92a8;">Захиалгын ID</span><span style="font-weight:700;color:#2f4fe0;">{{ detail.id }}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12.5px;gap:12px;"><span style="color:#8a92a8;">Огноо</span><span style="font-weight:600;color:#1e2a4a;">{{ detail.date }}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12.5px;gap:12px;"><span style="color:#8a92a8;">Төлбөр</span><span style="font-weight:600;color:#1e2a4a;">{{ detail.pay }}</span></div>
+        <div style="padding:8px 0 4px;position:relative;">
+          <div style="font-size:12.5px;color:#8a92a8;margin-bottom:6px;">Төлөв</div>
+          <div onClick="{{ toggleStatus }}" style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid {{ statusBorder }};border-radius:11px;padding:11px 14px;font-size:12.5px;font-weight:600;color:#1e2a4a;cursor:pointer;">{{ detail.status }}<span style="color:#9aa2b8;">▾</span></div>
+          <sc-if value="{{ statusOpen }}" hint-placeholder-val="">
+          <div style="position:absolute;left:0;right:0;top:100%;margin-top:6px;background:#fff;border:1px solid #e2e6f0;border-radius:11px;box-shadow:0 12px 30px rgba(30,42,74,.16);overflow:hidden;z-index:5;">
+            <sc-for list="{{ statusOptions }}" as="so" hint-placeholder-count="5">
+              <div onClick="{{ so.pick }}" style="font-size:12.5px;font-weight:600;padding:11px 14px;cursor:pointer;color:{{ so.color }};background:{{ so.bg }};">{{ so.label }}</div>
+            </sc-for>
+          </div>
+          </sc-if>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12.5px;margin-top:4px;gap:12px;"><span style="color:#8a92a8;">Барааны дүн</span><span style="font-weight:600;color:#1e2a4a;">{{ detail.goods }}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12.5px;gap:12px;"><span style="color:#8a92a8;">Хүргэлт</span><span style="font-weight:600;color:#1e2a4a;">{{ detail.ship }}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0 2px;font-size:13px;border-top:1px solid #e7eaf2;margin-top:6px;gap:12px;"><span style="color:#8a92a8;font-weight:600;">Нийт дүн</span><span style="font-weight:800;color:#1e2a4a;">{{ detail.amount }}</span></div>
+      </div>
+
+      <!-- customer info -->
+      <div style="font-size:13px;font-weight:700;color:#1e2a4a;margin:18px 0 8px;">Харилцагчийн мэдээлэл</div>
+      <div style="background:#f6f7fb;border-radius:14px;padding:14px 16px;">
+        <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12.5px;gap:12px;"><span style="color:#8a92a8;">Нэр</span><span style="font-weight:600;color:#1e2a4a;">{{ detail.cust.name }}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12.5px;gap:12px;"><span style="color:#8a92a8;">И-мэйл</span><span style="font-weight:600;color:#1e2a4a;overflow-wrap:anywhere;">{{ detail.cust.email }}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12.5px;gap:12px;"><span style="color:#8a92a8;">Утас</span><span style="font-weight:600;color:#1e2a4a;">{{ detail.cust.phone }}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12.5px;gap:16px;"><span style="color:#8a92a8;flex-shrink:0;">Хаяг</span><span style="font-weight:600;color:#1e2a4a;text-align:right;">{{ detail.cust.addr }}</span></div>
+      </div>
+
+      <!-- products -->
+      <div style="font-size:13px;font-weight:700;color:#1e2a4a;margin:18px 0 8px;">Захиалсан бүтээгдэхүүн</div>
+      <div style="background:#f6f7fb;border-radius:14px;padding:6px 14px 14px;">
+        <sc-for list="{{ detail.items }}" as="it" hint-placeholder-count="1">
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #e7eaf2;">
+            <div style="width:42px;height:42px;border-radius:10px;background:#e8ebf3;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#aab2c8;overflow:hidden;">
+              <sc-if value="{{ it.hasImg }}" hint-placeholder-val=""><img src="{{ it.img }}" style="width:100%;height:100%;object-fit:cover;"></sc-if>
+              <sc-if value="{{ it.noImg }}" hint-placeholder-val="{{ true }}">Зураг</sc-if>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:600;color:#1e2a4a;">{{ it.name }}</div>
+              <div style="font-size:11px;color:#9aa2b8;margin-top:2px;">{{ it.cat }}</div>
+              <div style="font-size:11.5px;color:#7a839d;margin-top:5px;">{{ it.price }} × {{ it.qty }}</div>
+            </div>
+            <div style="font-size:13px;font-weight:700;color:#1e2a4a;flex-shrink:0;">{{ it.total }}</div>
+          </div>
+        </sc-for>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0 4px;">
+          <span style="font-size:13px;font-weight:700;color:#1e2a4a;">Нийт дүн</span>
+          <span style="font-size:16px;font-weight:800;color:#2f4fe0;">{{ detail.amount }}</span>
+        </div>
+      </div>
+
+      <div onClick="{{ closeDetail }}" style="margin-top:20px;background:#2f4fe0;color:#fff;text-align:center;font-size:14px;font-weight:700;padding:15px;border-radius:14px;cursor:pointer;">Хаах</div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- bottom tab bar -->
+  <div class="a-tabbar" style="height:76px;flex-shrink:0;background:#fff;border-top:1px solid #eceff5;display:flex;align-items:flex-start;justify-content:space-around;padding:10px 6px 8px;box-shadow:0 -4px 20px rgba(30,42,74,.05);z-index:10;">
+    <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
+      <div onClick="{{ t.go }}" style="display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;flex:1;cursor:pointer;">
+        <div style="font-size:20px;opacity:{{ t.op }};position:relative;">{{ t.icon }}<sc-if value="{{ t.badge }}" hint-placeholder-val=""><span style="position:absolute;top:-4px;right:-9px;background:#ef4457;color:#fff;font-size:9px;font-weight:700;min-width:15px;height:15px;padding:0 3px;border-radius:8px;display:flex;align-items:center;justify-content:center;">{{ t.badge }}</span></sc-if></div>
+        <div style="font-size:9.5px;font-weight:{{ t.fw }};color:{{ t.color }};">{{ t.label }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+</div>
+</x-dc>
+
+<script type="text/x-dc" data-dc-script>
+const QUOTA_MSG = 'Хадгалах сан дүүрлээ. Зургийг жижигрүүлэх эсвэл нэг слайдын зургийг устгаад дахин оролдоно уу.';
+
+// Дэлгэрэнгүй хуудсанд нэмж болох блокууд — PC админтай ижил түлхүүр
+const BLOCK_TYPES = [
+  { key: 'text', label: 'Текст', icon: '≡' },
+  { key: 'divider', label: 'Тусгаарлагч', icon: '—' },
+  { key: 'image', label: 'Зураг', icon: '▣' },
+  { key: 'video', label: 'Видео', icon: '▶' },
+  { key: 'imageText', label: 'Зураг + текст', icon: '▣≡' },
+  { key: 'textImage', label: 'Текст + зураг', icon: '≡▣' },
+  { key: 'twoImages', label: 'Зураг 2', icon: '▣▣' },
+];
+const BLOCK_LABELS = BLOCK_TYPES.reduce((m, t) => { m[t.key] = t.label; return m; }, {});
+
+// Захиалгын төлөв — PC админы түлхүүртэй ижил, өнгө нь мобайл дизайны палитр
+const STATUS_CATALOG = [
+  { key: 'pending', label: 'Төлбөр хүлээгдэж буй', color: '#ef4457', bg: '#fdeaec' },
+  { key: 'paid', label: 'Төлбөр төлөгдсөн', color: '#2f4fe0', bg: '#e7ecfd' },
+  { key: 'shipping', label: 'Хүргэлтэд гарсан', color: '#1faf6b', bg: '#e4f6ee' },
+  { key: 'done', label: 'Хүлээлгэн өгсөн', color: '#1faf6b', bg: '#e4f6ee' },
+  { key: 'cancel', label: 'Цуцлагдсан', color: '#8a92a8', bg: '#eef0f5' },
+];
+
+class Component extends DCLogic {
+  state = {
+    screen: 'dashboard', history: [], detailNo: '', statusOpen: false, accountOpen: false,
+    filter: 'all', q: '', loaded: false,
+    pView: 'list', editId: null, form: null, blockPicker: false,
+    taxEdit: '', taxDraft: '', taxError: '',
+    authed: false, authLoading: true, loginBusy: false,
+    loginEmail: '', loginPassword: '', loginError: '', adminEmail: '',
+  };
+
+  componentDidMount() {
+    this.reload();
+    this._unsub = NudemaStore.subscribe(() => this.reload());
+    this._onRemoteError = (event) => {
+      const detail = event && event.detail ? event.detail : {};
+      this.setState({
+        authed: false,
+        authLoading: false,
+        loginBusy: false,
+        loginPassword: '',
+        loginError: detail.message || 'Нэвтрэх сесс дууссан эсвэл D1 холболт тасарлаа.',
+      });
+    };
+    window.addEventListener('nudema:remote-error', this._onRemoteError);
+    this.verifySession();
+  }
+
+  componentWillUnmount() {
+    if (this._unsub) this._unsub();
+    if (this._onRemoteError) window.removeEventListener('nudema:remote-error', this._onRemoteError);
+    clearTimeout(this._cs); clearTimeout(this._ps); clearTimeout(this._ss);
+    clearTimeout(this._cpub); clearTimeout(this._pv);
+  }
+
+  /* ---- Нэвтрэлт — PC админтай ижил /api/admin-auth ---- */
+  authRequest(url, options) {
+    return fetch(url, Object.assign({
+      credentials: 'same-origin',
+      headers: { 'Accept': 'application/json' },
+    }, options || {})).then((response) => response.json().catch(() => ({})).then((body) => {
+      if (!response.ok) {
+        const problem = new Error(body.error || ('HTTP ' + response.status));
+        problem.status = response.status;
+        problem.details = body.details || '';
+        throw problem;
+      }
+      return body;
+    }));
+  }
+
+  verifySession() {
+    // Deployed бус орчинд шалгах API байхгүй — нэвтрэх маягтыг чимээгүй үзүүлнэ
+    if (!NudemaStore.remoteStatus.enabled) {
+      this.setState({ authed: false, authLoading: false, loginError: '' });
+      return;
+    }
+    this.setState({ authed: false, authLoading: true, loginBusy: false, loginError: '' });
+    this.authRequest('/api/admin-auth/session').then((body) => {
+      return this.finishAuthentication(body.identity || {});
+    }).catch((cause) => {
+      this.setState({
+        authed: false,
+        authLoading: false,
+        loginBusy: false,
+        loginError: cause.status === 401 ? '' : (cause.details || cause.message || 'Нэвтрэх эрхийг шалгаж чадсангүй.'),
+      });
+    });
+  }
+
+  finishAuthentication(identity) {
+    this.setState({ authLoading: true, loginBusy: false, loginError: '' });
+    return NudemaStore.sync().then((ok) => {
+      const status = NudemaStore.remoteStatus;
+      if (!ok) {
+        this.setState({
+          authed: false,
+          authLoading: false,
+          loginBusy: false,
+          loginError: status.error || 'D1 өгөгдлийг ачаалж чадсангүй.',
+        });
+        return false;
+      }
+      const activeIdentity = status.identity || identity || {};
+      this.reload();
+      this.setState({
+        authed: true,
+        authLoading: false,
+        loginBusy: false,
+        loginPassword: '',
+        loginError: '',
+        adminEmail: activeIdentity.email || identity.email || '',
+      });
+      return true;
+    });
+  }
+
+  login(event) {
+    if (event && event.preventDefault) event.preventDefault();
+    if (this.state.loginBusy) return;
+    const email = String(this.state.loginEmail || '').trim();
+    const password = String(this.state.loginPassword || '');
+    if (!email || !password) {
+      this.setState({ loginError: 'И-мэйл болон нууц үгээ оруулна уу.' });
+      return;
+    }
+    this.setState({ loginBusy: true, loginError: '' });
+    this.authRequest('/api/admin-auth/login', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    }).then((body) => this.finishAuthentication(body.identity || { email })).catch((cause) => {
+      this.setState({
+        authed: false,
+        authLoading: false,
+        loginBusy: false,
+        loginPassword: '',
+        loginError: cause.details || cause.message || 'Нэвтэрч чадсангүй.',
+      });
+    });
+  }
+
+  logout() {
+    this.authRequest('/api/admin-auth/logout', { method: 'POST' }).catch(() => ({})).then(() => {
+      NudemaStore.remoteStatus.ready = false;
+      NudemaStore.remoteStatus.identity = null;
+      this.setState({
+        authed: false, authLoading: false, accountOpen: false,
+        adminEmail: '', loginPassword: '', loginError: '',
+        screen: 'dashboard', history: [], detailNo: '',
+      });
+    });
+  }
+
+  /* ---- Store ---- */
+  reload() {
+    this.setState({
+      loaded: true,
+      products: NudemaStore.read('products'),
+      settings: NudemaStore.read('settings'),
+      content: NudemaStore.read('content'),
+      statuses: NudemaStore.read('statuses'),
+      taxonomy: NudemaStore.read('taxonomy'),
+      orders: NudemaStore.read('orders'),
+    });
+  }
+
+  data(name) {
+    return this.state[name] !== undefined && this.state[name] !== null
+      ? this.state[name]
+      : NudemaStore.read(name);
+  }
+
+  content() { return this.data('content'); }
+  settings() { return this.data('settings'); }
+  products() { return this.data('products'); }
+  statuses() { return this.data('statuses') || {}; }
+  orders() { return this.data('orders') || []; }
+  taxonomy() { return this.data('taxonomy'); }
+
+  flash(field, timerKey, ms) {
+    this.setState({ [field]: true });
+    clearTimeout(this[timerKey]);
+    this[timerKey] = setTimeout(() => this.setState({ [field]: false }), ms || 2000);
+  }
+
+  num(v) { return Number(String(v).replace(/[^\d]/g, '')) || 0; }
+
+  /* ---- Дэлгэц хооронд шилжих (буцах түүхтэй) ---- */
+  snap() {
+    return { screen: this.state.screen, pView: this.state.pView, detailNo: this.state.detailNo };
+  }
+  go(screen, patch) {
+    this.setState(Object.assign({
+      history: [...this.state.history, this.snap()],
+      screen, detailNo: '', statusOpen: false, accountOpen: false,
+    }, patch || {}));
+  }
+  goBack() {
+    const history = this.state.history;
+    if (!history.length) return;
+    const prev = history[history.length - 1];
+    this.setState({
+      history: history.slice(0, -1),
+      screen: prev.screen, pView: prev.pView, detailNo: prev.detailNo,
+      statusOpen: false, accountOpen: false,
+    });
+  }
+  openOrder(no) {
+    this.setState({
+      history: [...this.state.history, this.snap()],
+      detailNo: no, statusOpen: false, accountOpen: false,
+    });
+  }
+  closeDetail() {
+    const history = this.state.history;
+    if (history.length) {
+      const prev = history[history.length - 1];
+      return this.setState({
+        history: history.slice(0, -1),
+        screen: prev.screen, pView: prev.pView, detailNo: prev.detailNo, statusOpen: false,
+      });
+    }
+    this.setState({ detailNo: '', statusOpen: false });
+  }
+
+  /* ---- Захиалгын төлөв ---- */
+  setStatus(no, value) {
+    const orders = this.orders().map(o => o.no === no ? { ...o, status: value } : o);
+    const statuses = { ...this.statuses(), [no]: value };
+    this.setState({ orders, statuses, statusOpen: false });
+    NudemaStore.write('orders', orders);
+    NudemaStore.write('statuses', statuses);
+  }
+
+  /* ---- Зураг: WebP болгон багасгаад R2 руу ---- */
+  imageResizePlan(width, height, mode) {
+    const sourceWidth = Math.max(1, Number(width) || 1);
+    const sourceHeight = Math.max(1, Number(height) || 1);
+    if (mode === 'detail') {
+      const scale = Math.min(
+        1, 2000 / sourceWidth, 30000 / sourceHeight,
+        Math.sqrt(32000000 / (sourceWidth * sourceHeight)),
+      );
+      return {
+        width: Math.max(1, Math.round(sourceWidth * scale)),
+        height: Math.max(1, Math.round(sourceHeight * scale)),
+        quality: 0.96,
+      };
+    }
+    const scale = Math.min(1, 1600 / Math.max(sourceWidth, sourceHeight));
+    return {
+      width: Math.max(1, Math.round(sourceWidth * scale)),
+      height: Math.max(1, Math.round(sourceHeight * scale)),
+      quality: 0.82,
+    };
+  }
+
+  readImageFile(file, cb, options) {
+    if (!file) return cb('Файл сонгогдоогүй байна.');
+    if (!/^image\//.test(file.type)) return cb('Зөвхөн зураг файл оруулна уу.');
+    if (file.size > 12 * 1024 * 1024) return cb('Зургийн хэмжээ 12MB-аас бага байх ёстой.');
+    if (!(NudemaStore.remoteStatus && NudemaStore.remoteStatus.enabled)) {
+      return cb('Зураг байршуулахын тулд Cloudflare Pages дээрх админ хуудсыг ашиглана уу.');
+    }
+    if (!window.URL || !URL.createObjectURL) {
+      return cb('Энэ хөтөч WebP зураг хөрвүүлэлтийг дэмжихгүй байна.');
+    }
+
+    const sourceUrl = URL.createObjectURL(file);
+    const release = () => URL.revokeObjectURL(sourceUrl);
+    const im = new Image();
+    im.onerror = () => { release(); cb('Зургийг задлан уншиж чадсангүй.'); };
+    im.onload = () => {
+      try {
+        const mode = options && options.mode;
+        if (mode === 'detail' && im.width < 720) {
+          release();
+          return cb('Дэлгэрэнгүй зургийн эх өргөн хамгийн багадаа 720px байх ёстой.');
+        }
+        const plan = this.imageResizePlan(im.width, im.height, mode);
+        const c = document.createElement('canvas');
+        c.width = plan.width; c.height = plan.height;
+        const g = c.getContext('2d');
+        if (!g || !c.toBlob) throw new Error('Canvas is unavailable');
+        g.imageSmoothingEnabled = true;
+        g.imageSmoothingQuality = 'high';
+        g.drawImage(im, 0, 0, plan.width, plan.height);
+        release();
+        c.toBlob((blob) => {
+          if (!blob || blob.type !== 'image/webp') {
+            return cb('Энэ хөтөч WebP зураг хөрвүүлэлтийг дэмжихгүй байна.');
+          }
+          const baseName = String(file.name || 'nudema-image').replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9_-]+/g, '-');
+          NudemaStore.uploadImage(blob, (baseName || 'nudema-image') + '.webp', {
+            profile: mode === 'detail' ? 'detail-v3' : 'standard-v1',
+            width: plan.width, height: plan.height,
+          })
+            .then((result) => cb(null, result.url))
+            .catch((cause) => cb(cause && cause.message ? cause.message : 'R2-д зураг байршуулж чадсангүй.'));
+        }, 'image/webp', plan.quality);
+      } catch (e) {
+        release();
+        cb('Зургийг WebP болгон хөрвүүлж чадсангүй.');
+      }
+    };
+    im.src = sourceUrl;
+  }
+
+  /* ---- Контент ---- */
+  publishContentSoon() {
+    clearTimeout(this._cpub);
+    this._cpub = setTimeout(() => {
+      if (!NudemaStore.write('content', this.content())) this.setState({ contentError: QUOTA_MSG });
+    }, 300);
+  }
+  updContent(patch) {
+    this.setState({ content: { ...this.content(), ...patch }, contentSaved: false });
+    this.publishContentSoon();
+  }
+  marquee() {
+    const m = this.content().marquee;
+    if (Array.isArray(m) && m.length) return m;
+    return NudemaStore.remoteStatus.enabled ? [] : NudemaStore.DEFAULTS.content.marquee;
+  }
+  updMarquee(i, value) {
+    this.updContent({ marquee: this.marquee().map((t, idx) => idx === i ? value : t) });
+  }
+  addMarquee() { this.updContent({ marquee: [...this.marquee(), ''] }); }
+  removeMarquee(i) {
+    const cur = this.marquee();
+    if (cur.length <= 1) return;
+    this.updContent({ marquee: cur.filter((_, idx) => idx !== i) });
+  }
+  slides() { return this.content().slides || []; }
+  updSlide(i, patch) {
+    this.updContent({ slides: this.slides().map((s, idx) => idx === i ? { ...s, ...patch } : s) });
+  }
+  addSlide() {
+    const cur = this.slides();
+    if (cur.length >= 8) return this.setState({ contentError: 'Хамгийн ихдээ 8 слайд байж болно.' });
+    this.setState({ contentError: '' });
+    this.updContent({ slides: [...cur, { id: NudemaStore.nextId(cur), img: '', line1: '', sub: '' }] });
+  }
+  removeSlide(i) {
+    const cur = this.slides();
+    if (cur.length <= 1) return;
+    this.setState({ contentError: '' });
+    this.updContent({ slides: cur.filter((_, idx) => idx !== i) });
+  }
+  clearSlideImage(i) {
+    this.setState({ contentError: '' });
+    this.updSlide(i, { img: '' });
+  }
+  onSlideFile(i, e) {
+    const input = e && e.target;
+    const file = input && input.files && input.files[0];
+    this.setState({ contentError: '' });
+    this.readImageFile(file, (err, url) => {
+      if (input) input.value = '';
+      if (err) return this.setState({ contentError: err });
+      const cur = this.content();
+      const next = { ...cur, slides: cur.slides.map((s, idx) => idx === i ? { ...s, img: url } : s) };
+      this.setState({ content: next, contentSaved: false });
+      clearTimeout(this._cpub);
+      if (!NudemaStore.write('content', next)) {
+        this.setState({ content: cur, contentError: QUOTA_MSG });
+      }
+    });
+  }
+  saveContent() {
+    clearTimeout(this._cpub);
+    if (!NudemaStore.write('content', this.content())) {
+      return this.setState({ contentError: QUOTA_MSG });
+    }
+    this.setState({ contentError: '' });
+    this.flash('contentSaved', '_cs');
+  }
+
+  /* ---- Тохиргоо ---- */
+  updSettings(patch) {
+    this.setState({ settings: { ...this.settings(), ...patch }, settingsSaved: false });
+  }
+  bankAccounts() { return this.settings().bankAccounts || []; }
+  addBankAccount() {
+    if (this.bankAccounts().length >= 5) return;
+    this.updSettings({ bankAccounts: [...this.bankAccounts(), { bank: '', number: '', holder: '' }] });
+  }
+  updBankAccount(i, patch) {
+    this.updSettings({ bankAccounts: this.bankAccounts().map((a, idx) => idx === i ? { ...a, ...patch } : a) });
+  }
+  removeBankAccount(i) {
+    this.updSettings({ bankAccounts: this.bankAccounts().filter((_, idx) => idx !== i) });
+  }
+  saveSettings() {
+    const s = this.settings();
+    const feeText = String(s.shippingFee == null ? '' : s.shippingFee).trim();
+    const thresholdText = String(s.freeThreshold == null ? '' : s.freeThreshold).trim();
+    if ((feeText && !/\d/.test(feeText)) || (thresholdText && !/\d/.test(thresholdText))) {
+      return this.setState({ settingsError: 'Хүргэлтийн төлбөр болон үнэгүй хүргэлтийн босгыг тоогоор оруулна уу.' });
+    }
+    const cleaned = {
+      ...s,
+      shippingFee: NudemaStore.money(NudemaStore.amount(feeText)) + '₮',
+      freeThreshold: NudemaStore.money(NudemaStore.amount(thresholdText)) + '₮',
+      bankAccounts: (s.bankAccounts || [])
+        .filter(a => String(a.bank || '').trim() || String(a.number || '').trim())
+        .map(a => ({
+          bank: String(a.bank || '').trim(),
+          number: String(a.number || '').trim(),
+          holder: String(a.holder || '').trim(),
+        })),
+    };
+    if (cleaned.bankAccounts.find(a => !a.bank || !a.number)) {
+      return this.setState({ settingsError: 'Данс бүрд банкны нэр ба дансны дугаарыг бөглөнө үү.' });
+    }
+    this.setState({ settings: cleaned, settingsError: '' });
+    NudemaStore.write('settings', cleaned);
+    this.flash('settingsSaved', '_ss');
+  }
+
+  /* ---- Ангилал / Таг ---- */
+  usageCount(kind, name) {
+    const key = kind === 'categories' ? 'category' : 'badge';
+    return this.products().filter(p => p[key] === name).length;
+  }
+  startTaxEdit(kind, index) {
+    const name = index === -1 ? '' : this.taxonomy()[kind][index];
+    this.setState({ taxEdit: kind + ':' + index, taxDraft: name, taxError: '' });
+  }
+  cancelTaxEdit() { this.setState({ taxEdit: '', taxDraft: '', taxError: '' }); }
+  commitTaxEdit() {
+    const token = this.state.taxEdit || '';
+    const parts = token.split(':');
+    const kind = parts[0];
+    const index = Number(parts[1]);
+    if (!kind) return;
+    const name = String(this.state.taxDraft || '').trim();
+    if (!name) return this.setState({ taxError: 'Нэрийг оруулна уу.' });
+
+    const tax = this.taxonomy();
+    const old = index === -1 ? null : tax[kind][index];
+    if (name === old) return this.cancelTaxEdit();
+    if (tax[kind].some((v, i) => v === name && i !== index)) {
+      return this.setState({ taxError: '"' + name + '" аль хэдийн байна.' });
+    }
+    const list = index === -1 ? [...tax[kind], name] : tax[kind].map((v, i) => i === index ? name : v);
+    const next = { ...tax, [kind]: list };
+
+    let products = this.products();
+    if (old !== null) {
+      const field = kind === 'categories' ? 'category' : 'badge';
+      products = products.map(p => p[field] === old ? { ...p, [field]: name } : p);
+      NudemaStore.write('products', products);
+    }
+    this.setState({ taxonomy: next, products, taxEdit: '', taxDraft: '', taxError: '' });
+    NudemaStore.write('taxonomy', next);
+  }
+  removeTaxonomy(kind, index) {
+    const tax = this.taxonomy();
+    const name = tax[kind][index];
+    const used = this.usageCount(kind, name);
+    if (used > 0) {
+      return this.setState({ taxError: '"' + name + '"-ыг ' + used + ' бараа ашиглаж байгаа тул устгах боломжгүй.' });
+    }
+    if (kind === 'categories' && tax.categories.length <= 1) {
+      return this.setState({ taxError: 'Дор хаяж нэг ангилал үлдэх ёстой.' });
+    }
+    const next = { ...tax, [kind]: tax[kind].filter((_, i) => i !== index) };
+    this.setState({ taxonomy: next, taxError: '' });
+    NudemaStore.write('taxonomy', next);
+  }
+  taxRows(kind) {
+    return this.taxonomy()[kind].map((name, i) => {
+      const used = this.usageCount(kind, name);
+      const token = kind + ':' + i;
+      const editing = this.state.taxEdit === token;
+      return {
+        name,
+        used: used ? used + ' бараа' : 'Ашиглагдаагүй',
+        isEditing: editing,
+        isViewing: !editing,
+        onEdit: () => this.startTaxEdit(kind, i),
+        onRemove: () => this.removeTaxonomy(kind, i),
+        removeStyle: 'border:1px solid ' + (used ? '#e7eaf2' : '#f4c9cf') + ';color:' + (used ? '#c3cbde' : '#ef4457') + ';cursor:' + (used ? 'not-allowed' : 'pointer') + ';',
+      };
+    });
+  }
+
+  /* ---- Бүтээгдэхүүний маягт ---- */
+  blankForm() {
+    return {
+      title: '', category: (this.taxonomy().categories || [])[0] || '', badge: 'Байхгүй',
+      price: '', original: '', stock: '', desc: '', ingredients: '', showOnHome: true,
+      shipping: '', pointsRate: '', options: [], images: [], detailBlocks: [],
+    };
+  }
+  static galleryOf(p) {
+    if (Array.isArray(p.images) && p.images.length) return p.images.slice();
+    return p.img ? [p.img] : [];
+  }
+  static blocksOf(p) {
+    if (Array.isArray(p.detailBlocks) && p.detailBlocks.length) return JSON.parse(JSON.stringify(p.detailBlocks));
+    return (p.detailImages || []).map((src, i) => ({ id: i + 1, type: 'image', img: src }));
+  }
+  formFromProduct(p) {
+    return {
+      title: p.title || '',
+      category: p.category || (this.taxonomy().categories || [])[0] || '',
+      badge: p.badge ? p.badge : 'Байхгүй',
+      price: NudemaStore.money(p.price),
+      original: p.original ? NudemaStore.money(p.original) : '',
+      stock: String(p.stock == null ? '' : p.stock),
+      desc: p.desc || '',
+      ingredients: p.ingredients || '',
+      showOnHome: !!p.showOnHome,
+      shipping: p.shipping || '',
+      pointsRate: p.pointsRate ? String(p.pointsRate) : '',
+      options: (p.options || []).map(o => ({ label: o.label, add: o.add ? NudemaStore.money(o.add) : '' })),
+      images: Component.galleryOf(p),
+      detailBlocks: Component.blocksOf(p),
+    };
+  }
+  form() { return this.state.form || this.blankForm(); }
+  updForm(patch) { this.setState({ form: { ...this.form(), ...patch }, productSaved: false, formError: '' }); }
+
+  openNewProduct() {
+    this.go('products', { pView: 'new', editId: null, form: this.blankForm(), formError: '', productSaved: false, blockPicker: false });
+  }
+  openEditProduct(id) {
+    const p = this.products().find(x => Number(x.id) === Number(id));
+    if (!p) return;
+    this.go('products', { pView: 'edit', editId: p.id, form: this.formFromProduct(p), formError: '', productSaved: false, blockPicker: false });
+  }
+  closeProductForm() {
+    this.setState({ pView: 'list', editId: null, form: null, formError: '', productSaved: false, blockPicker: false });
+  }
+  deleteProduct() {
+    const id = this.state.editId;
+    if (id == null) return;
+    const next = this.products().filter(x => Number(x.id) !== Number(id));
+    this.setState({ products: next, pView: 'list', editId: null, form: null });
+    NudemaStore.write('products', next);
+  }
+  toggleHome(id) {
+    const next = this.products().map(x => x.id === id ? { ...x, showOnHome: !x.showOnHome } : x);
+    this.setState({ products: next });
+    NudemaStore.write('products', next);
+  }
+
+  gallery() { return this.form().images || []; }
+  onProductImage(e) {
+    const input = e && e.target;
+    const file = input && input.files && input.files[0];
+    this.setState({ formError: '' });
+    this.readImageFile(file, (err, url) => {
+      if (input) input.value = '';
+      if (err) return this.setState({ formError: err });
+      if (this.gallery().length >= 8) return this.setState({ formError: 'Гол зураг хамгийн ихдээ 8 байж болно.' });
+      this.updForm({ images: [...this.gallery(), url] });
+    });
+  }
+  removeGalleryImage(i) { this.updForm({ images: this.gallery().filter((_, idx) => idx !== i) }); }
+  moveGalleryImage(i, dir) {
+    const list = this.gallery().slice();
+    const j = i + dir;
+    if (j < 0 || j >= list.length) return;
+    const t = list[i]; list[i] = list[j]; list[j] = t;
+    this.updForm({ images: list });
+  }
+
+  blocks() { return this.form().detailBlocks || []; }
+  addBlock(type) {
+    const list = this.blocks();
+    if (list.length >= 20) return this.setState({ blockPicker: false, formError: 'Хамгийн ихдээ 20 блок байж болно.' });
+    const id = list.reduce((m, b) => Math.max(m, Number(b.id) || 0), 0) + 1;
+    const base = { id, type };
+    if (type === 'text') Object.assign(base, { text: '', align: 'left' });
+    if (type === 'image') Object.assign(base, { img: '' });
+    if (type === 'video') Object.assign(base, { url: '' });
+    if (type === 'imageText' || type === 'textImage') Object.assign(base, { img: '', text: '' });
+    if (type === 'twoImages') Object.assign(base, { img: '', img2: '' });
+    this.updForm({ detailBlocks: [...list, base] });
+    this.setState({ blockPicker: false });
+  }
+  updBlock(i, patch) {
+    this.updForm({ detailBlocks: this.blocks().map((b, idx) => idx === i ? { ...b, ...patch } : b) });
+  }
+  removeBlock(i) { this.updForm({ detailBlocks: this.blocks().filter((_, idx) => idx !== i) }); }
+  moveBlock(i, dir) {
+    const list = this.blocks().slice();
+    const j = i + dir;
+    if (j < 0 || j >= list.length) return;
+    const t = list[i]; list[i] = list[j]; list[j] = t;
+    this.updForm({ detailBlocks: list });
+  }
+  onBlockImage(i, field, e) {
+    const input = e && e.target;
+    const file = input && input.files && input.files[0];
+    this.setState({ formError: '' });
+    this.readImageFile(file, (err, url) => {
+      if (input) input.value = '';
+      if (err) return this.setState({ formError: err });
+      this.updBlock(i, { [field]: url });
+    }, { mode: 'detail' });
+  }
+
+  formOptions() { return this.form().options || []; }
+  addFormOption() {
+    if (this.formOptions().length >= 5) return;
+    this.updForm({ options: [...this.formOptions(), { label: '', add: '' }] });
+  }
+  updFormOption(i, patch) {
+    this.updForm({ options: this.formOptions().map((o, idx) => idx === i ? { ...o, ...patch } : o) });
+  }
+  removeFormOption(i) {
+    this.updForm({ options: this.formOptions().filter((_, idx) => idx !== i) });
+  }
+
+  saveProduct() {
+    const f = this.form();
+    if (!String(f.title).trim()) return this.setState({ formError: 'Бүтээгдэхүүний нэрийг оруулна уу.' });
+    if (!this.num(f.price)) return this.setState({ formError: 'Зарах үнийг оруулна уу.' });
+    if (String(f.stock).trim() === '') return this.setState({ formError: 'Нөөцийн тоог оруулна уу.' });
+
+    const list = this.products();
+    const editing = this.state.editId != null;
+    const current = editing ? list.find(p => Number(p.id) === Number(this.state.editId)) : null;
+
+    const fields = {
+      title: String(f.title).trim(),
+      category: f.category,
+      cat: f.category,
+      badge: f.badge === 'Байхгүй' ? '' : f.badge,
+      price: this.num(f.price),
+      original: this.num(f.original) || 0,
+      stock: this.num(f.stock),
+      desc: String(f.desc || '').trim(),
+      ingredients: String(f.ingredients || '').trim(),
+      showOnHome: !!f.showOnHome,
+      shipping: String(f.shipping || '').trim(),
+      pointsRate: this.num(f.pointsRate) || 0,
+      options: (f.options || [])
+        .filter(o => String(o.label || '').trim())
+        .map(o => ({ label: String(o.label).trim(), add: this.num(o.add) || 0 })),
+      images: (f.images || []).slice(),
+      img: (f.images || [])[0] || '',
+      detailBlocks: (f.detailBlocks || []).filter(b => b && b.type),
+    };
+
+    const next = editing && current
+      ? list.map(p => Number(p.id) === Number(current.id) ? { ...p, ...fields } : p)
+      : [{ id: NudemaStore.nextId(list), rating: '5.0', count: '0', sold: 0, bg: '#f4f5f3', ...fields }, ...list];
+
+    this.setState({ products: next, formError: '' });
+    if (!NudemaStore.write('products', next)) {
+      return this.setState({ products: list, formError: QUOTA_MSG });
+    }
+    this.flash('productSaved', '_ps', 1600);
+    clearTimeout(this._pv);
+    this._pv = setTimeout(() => this.closeProductForm(), 1200);
+  }
+
+  /* ================================================================= */
+  renderVals() {
+    const state = this.state;
+    const screen = state.screen;
+    const pView = state.pView;
+    const content = this.content();
+    const settings = this.settings();
+    const allProducts = this.products();
+
+    const adminEmail = state.adminEmail
+      || (NudemaStore.remoteStatus.identity && NudemaStore.remoteStatus.identity.email) || '';
+    const adminName = adminEmail.includes('@') ? adminEmail.split('@')[0] : (adminEmail || 'admin');
+
+    const pad2 = (n) => String(n).padStart(2, '0');
+    const money = (n) => '₮ ' + NudemaStore.money(n);
+    const catOf = (k) => STATUS_CATALOG.find(s => s.key === k) || STATUS_CATALOG[0];
+
+    /* ---- Захиалга ---- */
+    const resolveItems = (order) => (order.items || []).map((it) => {
+      const p = allProducts.find(x => Number(x.id) === Number(it.pid));
+      const unit = Number.isFinite(Number(it.unit)) ? Number(it.unit) : (p ? p.price : 0);
+      return {
+        name: p ? p.title : 'Устгагдсан бараа',
+        cat: p ? p.category : '—',
+        img: (p && p.img) || '',
+        hasImg: !!(p && p.img),
+        noImg: !(p && p.img),
+        price: money(unit),
+        qty: it.qty + ' ширхэг',
+        line: unit * it.qty,
+        total: money(unit * it.qty),
+      };
+    });
+    const dateLabel = (o) => {
+      const parts = String(o.date || '').split('-');
+      return parts.length === 3
+        ? Number(parts[1]) + '-р сар ' + Number(parts[2]) + ', ' + pad2(o.hour || 0) + ':' + pad2(o.minute || 0)
+        : String(o.date || '');
+    };
+
+    const savedStatuses = this.statuses();
+    const allOrders = this.orders().map(o => {
+      const cur = savedStatuses[o.no] || o.status || 'pending';
+      const cat = catOf(cur);
+      const items = resolveItems(o);
+      const itemSubtotal = items.reduce((a, it) => a + it.line, 0);
+      const subtotal = Number.isFinite(Number(o.subtotal)) ? Math.max(0, Number(o.subtotal)) : itemSubtotal;
+      const shipping = Number.isFinite(Number(o.shipping)) ? Math.max(0, Number(o.shipping)) : 0;
+      const savedTotal = Number(o.total);
+      const sum = Number.isFinite(savedTotal) ? Math.max(0, savedTotal) : subtotal + shipping;
+      return {
+        no: o.no, id: o.no, user: o.customer || 'Зочин', rawDate: o.date,
+        date: dateLabel(o), pay: o.method || 'Данс шилжүүлэг',
+        key: cur, status: cat.label, stColor: cat.color, stBg: cat.bg,
+        total: sum, amount: money(sum),
+        goods: money(subtotal),
+        ship: shipping > 0 ? money(shipping) : 'Үнэгүй',
+        cust: { name: o.customer || 'Зочин', email: o.email || '—', phone: o.phone || '—', addr: o.address || '—' },
+        items,
+        open: () => this.openOrder(o.no),
+      };
+    });
+
+    const q = String(state.q || '').trim().toLowerCase();
+    const filterKeys = { all: null, pending: ['pending'], paid: ['paid'], shipping: ['shipping'], done: ['done'], cancel: ['cancel'] };
+    const activeFilter = state.filter || 'all';
+    const wanted = filterKeys[activeFilter];
+    const matchOrder = (o) => !q || o.no.toLowerCase().includes(q) || String(o.user).toLowerCase().includes(q);
+    const shownOrders = allOrders.filter(o => (!wanted || wanted.includes(o.key)) && matchOrder(o));
+    const pendingCount = allOrders.filter(o => o.key === 'pending').length;
+
+    const filterDefs = [{ key: 'all', label: 'Бүгд' }].concat(
+      STATUS_CATALOG.map(s => ({ key: s.key, label: s.label })));
+    const filters = filterDefs.map(f => {
+      const active = activeFilter === f.key;
+      return {
+        label: f.label,
+        select: () => this.setState({ filter: f.key }),
+        color: active ? '#fff' : '#5a627a',
+        bg: active ? '#2f4fe0' : '#fff',
+        border: active ? '#2f4fe0' : '#e2e6f0',
+      };
+    });
+
+    /* ---- Хяналтын самбар ---- */
+    const paidOrders = allOrders.filter(o => o.key !== 'cancel');
+    const now = new Date();
+    const todayUtc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+    const TODAY = now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate());
+    const dayKey = (n) => new Date(todayUtc - n * 86400000).toISOString().slice(0, 10);
+    const revenueOn = (day) => paidOrders.filter(o => o.rawDate === day).reduce((a, o) => a + o.total, 0);
+
+    const last7 = Array.from({ length: 7 }, (_, i) => dayKey(6 - i));
+    const week = last7.map(d => revenueOn(d));
+    const weekTotalValue = week.reduce((a, v) => a + v, 0);
+    const prevWeekDays = Array.from({ length: 7 }, (_, i) => dayKey(13 - i));
+    const prevWeekTotal = prevWeekDays.reduce((a, d) => a + revenueOn(d), 0);
+
+    const pct = (cur, prev) => {
+      if (!prev) return { text: cur ? '▲ шинэ' : '—', color: cur ? '#1faf6b' : '#9aa2b8' };
+      const diff = ((cur - prev) / prev) * 100;
+      return { text: (diff >= 0 ? '▲ ' : '▼ ') + Math.abs(diff).toFixed(1) + '%', color: diff >= 0 ? '#1faf6b' : '#ef4457' };
+    };
+
+    const weekOrders = paidOrders.filter(o => last7.includes(o.rawDate));
+    const prevWeekOrders = paidOrders.filter(o => prevWeekDays.includes(o.rawDate));
+    const uniqueCustomers = new Set(allOrders.map(o => o.user)).size;
+    const avgOrder = weekOrders.length ? Math.round(weekTotalValue / weekOrders.length) : 0;
+    const prevAvg = prevWeekOrders.length ? Math.round(prevWeekTotal / prevWeekOrders.length) : 0;
+
+    const dTodayRev = pct(revenueOn(TODAY), revenueOn(dayKey(1)));
+    const dWeekOrders = pct(weekOrders.length, prevWeekOrders.length);
+    const dAvg = pct(avgOrder, prevAvg);
+
+    const stats = [
+      { label: 'Өнөөдрийн орлого', icon: '💰', iconBg: '#fdf0dd', value: money(revenueOn(TODAY)), delta: dTodayRev.text, deltaColor: dTodayRev.color, deltaNote: 'өчигдрөөс' },
+      { label: '7 хоногийн захиалга', icon: '📋', iconBg: '#e2f5ec', value: String(weekOrders.length), delta: dWeekOrders.text, deltaColor: dWeekOrders.color, deltaNote: 'өмнөх 7 хоног' },
+      { label: 'Нийт хэрэглэгч', icon: '👥', iconBg: '#ece9fb', value: NudemaStore.money(uniqueCustomers), delta: '', deltaColor: '#9aa2b8', deltaNote: 'Захиалга өгсөн' },
+      { label: 'Дундаж захиалга', icon: '🎯', iconBg: '#fbe6ef', value: money(avgOrder), delta: dAvg.text, deltaColor: dAvg.color, deltaNote: 'өмнөх 7 хоног' },
+    ];
+
+    const dayNames = ['Ня', 'Да', 'Мя', 'Лх', 'Пү', 'Ба', 'Бя'];
+    const maxWeek = Math.max(1, ...week);
+    const bars = week.map((v, i) => ({
+      day: dayNames[new Date(last7[i] + 'T00:00:00Z').getUTCDay()],
+      h: Math.max(2, Math.round((v / maxWeek) * 100)) + '%',
+      color: i === week.length - 1 ? '#2f4fe0' : '#c3cdf5',
+    }));
+
+    const salesByName = {};
+    paidOrders.forEach(o => o.items.forEach(it => {
+      const cur = salesByName[it.name] || { qty: 0, revenue: 0, img: it.img, hasImg: it.hasImg, noImg: it.noImg };
+      cur.qty += Number(String(it.qty).replace(/[^\d]/g, '')) || 0;
+      cur.revenue += it.line;
+      salesByName[it.name] = cur;
+    }));
+    const topProducts = Object.keys(salesByName)
+      .map(name => ({ name, ...salesByName[name] }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 4)
+      .map(p => ({
+        name: p.name, img: p.img, hasImg: p.hasImg, noImg: p.noImg,
+        sold: NudemaStore.money(p.qty) + ' ширхэг зарагдсан',
+        price: p.revenue >= 1000000 ? '₮ ' + (p.revenue / 1000000).toFixed(1) + 'сая' : money(p.revenue),
+      }));
+
+    /* ---- Бүтээгдэхүүн ---- */
+    const stockBadge = (n) => n === 0
+      ? { badge: 'Дууссан', bColor: '#ef4457', bBg: '#fdeaec' }
+      : n < 30
+        ? { badge: 'Бага', bColor: '#e08a1e', bBg: '#fdf0dd' }
+        : { badge: 'Байгаа', bColor: '#1faf6b', bBg: '#e4f6ee' };
+    const productList = allProducts
+      .filter(p => !q || String(p.title).toLowerCase().includes(q))
+      .map(p => ({
+        name: p.title,
+        price: NudemaStore.money(p.price),
+        stock: String(p.stock),
+        img: p.img || '',
+        hasImg: !!p.img,
+        noImg: !p.img,
+        ...stockBadge(Number(p.stock) || 0),
+        homeLabel: p.showOnHome ? 'Нүүрэнд' : 'Нүүрэнд үгүй',
+        homeColor: p.showOnHome ? '#1faf6b' : '#9aa2b8',
+        homeDot: p.showOnHome ? '#1faf6b' : 'transparent',
+        homeBorder: p.showOnHome ? 'none' : '1.5px solid #c3cbde',
+        toggleHome: () => this.toggleHome(p.id),
+        edit: () => this.openEditProduct(p.id),
+      }));
+
+    /* ---- Дэлгэрэнгүй цонх ---- */
+    const detail = state.detailNo ? (allOrders.find(o => o.no === state.detailNo) || null) : null;
+    const statusOptions = STATUS_CATALOG.map(s => {
+      const active = detail && detail.key === s.key;
+      return {
+        label: s.label,
+        color: active ? '#fff' : '#3a4160',
+        bg: active ? '#2f4fe0' : '#fff',
+        pick: () => this.setStatus(state.detailNo, s.key),
+      };
+    });
+
+    /* ---- Толгой ---- */
+    const isProductForm = screen === 'products' && (pView === 'new' || pView === 'edit');
+    const isTaxonomy = screen === 'products' && pView === 'taxonomy';
+    const isProductList = screen === 'products' && !isProductForm && !isTaxonomy;
+    const titles = {
+      dashboard: 'Хяналтын самбар', orders: 'Захиалга', products: 'Бүтээгдэхүүн',
+      content: 'Контент — Нүүр хуудас', settings: 'Тохиргоо',
+    };
+    const fullDayNames = ['Ням', 'Даваа', 'Мягмар', 'Лхагва', 'Пүрэв', 'Баасан', 'Бямба'];
+    const todayLabel = now.getFullYear() + ' оны ' + (now.getMonth() + 1) + '-р сарын ' + now.getDate() + ', ' + fullDayNames[now.getDay()];
+
+    const tabDefs = [
+      { key: 'dashboard', icon: '▦', label: 'Самбар' },
+      { key: 'orders', icon: '🧾', label: 'Захиалга', badge: pendingCount ? String(pendingCount) : '' },
+      { key: 'products', icon: '📦', label: 'Бүтээгдэхүүн' },
+      { key: 'content', icon: '📝', label: 'Контент' },
+      { key: 'settings', icon: '⚙️', label: 'Тохиргоо' },
+    ];
+    const tabs = tabDefs.map(t => {
+      const active = screen === t.key;
+      return {
+        icon: t.icon, label: t.label, badge: t.badge || '',
+        op: active ? '1' : '.55',
+        color: active ? '#2f4fe0' : '#9aa2b8',
+        fw: active ? '700' : '500',
+        go: () => this.go(t.key, t.key === 'products' ? { pView: 'list', editId: null, form: null } : {}),
+      };
+    });
+
+    const form = this.form();
+    const gallery = this.gallery();
+    const taxonomy = this.taxonomy();
+
+    return {
+      /* толгой ба нэвтрэлт */
+      pageTitle: titles[screen] || '',
+      todayLabel,
+      adminEmail, adminName,
+      adminInitial: String(adminName || 'A').charAt(0).toUpperCase(),
+      accountOpen: !!state.accountOpen,
+      toggleAccount: () => this.setState({ accountOpen: !state.accountOpen }),
+      doLogout: () => this.logout(),
+      canGoBack: state.history.length > 0,
+      goBack: () => this.goBack(),
+      authed: !!state.authed,
+      notAuthed: !state.authed,
+      authLoading: !!state.authLoading,
+      authReady: !state.authLoading,
+      loginEmail: state.loginEmail || '',
+      loginPassword: state.loginPassword || '',
+      loginError: state.loginError || '',
+      hasLoginError: !!state.loginError,
+      loginButtonLabel: state.loginBusy ? 'Нэвтэрч байна…' : 'Нэвтрэх',
+      loginButtonStyle: 'margin-top:20px;background:' + (state.loginBusy ? '#9bace8' : '#2f4fe0') + ';color:#fff;text-align:center;font-size:14.5px;font-weight:700;padding:15px;border-radius:13px;cursor:' + (state.loginBusy ? 'wait' : 'pointer') + ';',
+      onLoginEmail: (e) => this.setState({ loginEmail: e.target.value, loginError: '' }),
+      onLoginPassword: (e) => this.setState({ loginPassword: e.target.value, loginError: '' }),
+      submitLogin: (e) => this.login(e),
+      remoteError: NudemaStore.remoteStatus.error || '',
+      hasRemoteError: !!(state.authed && NudemaStore.remoteStatus.error),
+
+      /* хайлт */
+      q: state.q || '',
+      onSearch: (e) => this.setState({ q: e.target.value }),
+      showSearch: (screen === 'orders' || isProductList) && !detail,
+      searchPlaceholder: isProductList ? 'Бүтээгдэхүүн хайх' : 'Захиалга, хэрэглэгч хайх',
+
+      /* дэлгэц */
+      isDash: screen === 'dashboard',
+      isOrders: screen === 'orders',
+      isProducts: isProductList,
+      isProductNew: isProductForm,
+      isTaxonomy,
+      isContent: screen === 'content',
+      isSettings: screen === 'settings',
+      tabs,
+
+      /* самбар */
+      stats, bars, topProducts,
+      noTopProducts: topProducts.length === 0,
+      weekTotal: money(weekTotalValue),
+      recentOrders: allOrders.slice(0, 4),
+      noOrders: allOrders.length === 0,
+      goOrders: () => this.go('orders'),
+
+      /* захиалга */
+      filters, shownOrders,
+      noShownOrders: shownOrders.length === 0,
+      detail,
+      statusOpen: !!state.statusOpen,
+      statusBorder: state.statusOpen ? '#2f4fe0' : '#dfe3ee',
+      toggleStatus: () => this.setState({ statusOpen: !state.statusOpen }),
+      statusOptions,
+      closeDetail: () => this.closeDetail(),
+
+      /* бүтээгдэхүүн */
+      productList,
+      noProducts: productList.length === 0,
+      productCountLabel: 'Нийт ' + productList.length + ' бүтээгдэхүүн',
+      goProducts: () => this.closeProductForm(),
+      goProductNew: () => this.openNewProduct(),
+      goTaxonomy: () => this.go('products', { pView: 'taxonomy', taxError: '', taxEdit: '' }),
+
+      /* ангилал / таг */
+      categoryRows: this.taxRows('categories'),
+      tagRows: this.taxRows('badges'),
+      taxDraft: state.taxDraft || '',
+      onTaxDraft: (e) => this.setState({ taxDraft: e.target.value }),
+      commitTaxEdit: () => this.commitTaxEdit(),
+      cancelTaxEdit: () => this.cancelTaxEdit(),
+      addCategory: () => this.startTaxEdit('categories', -1),
+      addBadge: () => this.startTaxEdit('badges', -1),
+      addingCategory: state.taxEdit === 'categories:-1',
+      notAddingCategory: state.taxEdit !== 'categories:-1',
+      addingBadge: state.taxEdit === 'badges:-1',
+      notAddingBadge: state.taxEdit !== 'badges:-1',
+      taxError: state.taxError || '',
+      hasTaxError: !!state.taxError,
+
+      /* бүтээгдэхүүний маягт */
+      f: form,
+      isEditing: state.editId != null,
+      formTitle: state.editId != null ? 'Бүтээгдэхүүн засах' : 'Шинэ бүтээгдэхүүн бүртгэх',
+      submitLabel: state.editId != null ? 'Хадгалах' : 'Бүртгэх',
+      savedLabel: state.editId != null ? '✓ Шинэчлэгдлээ' : '✓ Бүртгэгдлээ',
+      deleteLabel: 'Энэ бүтээгдэхүүнийг устгах',
+      deleteProduct: () => this.deleteProduct(),
+      saveProduct: () => this.saveProduct(),
+      productSaved: !!state.productSaved,
+      formError: state.formError || '',
+      hasFormError: !!state.formError,
+      onFTitle: (e) => this.updForm({ title: e.target.value }),
+      onFCategory: (e) => this.updForm({ category: e.target.value }),
+      onFBadge: (e) => this.updForm({ badge: e.target.value }),
+      onFPrice: (e) => this.updForm({ price: e.target.value }),
+      onFOriginal: (e) => this.updForm({ original: e.target.value }),
+      onFStock: (e) => this.updForm({ stock: e.target.value }),
+      onFDesc: (e) => this.updForm({ desc: e.target.value }),
+      onFIngredients: (e) => this.updForm({ ingredients: e.target.value }),
+      onFShipping: (e) => this.updForm({ shipping: e.target.value }),
+      onFPointsRate: (e) => this.updForm({ pointsRate: e.target.value }),
+      onFHome: () => this.updForm({ showOnHome: !form.showOnHome }),
+      homeToggleBg: form.showOnHome ? '#2f4fe0' : '#cdd4e4',
+      homeToggleLeft: form.showOnHome ? '23px' : '3px',
+      categoryOptions: (taxonomy.categories || [])
+        .map(v => ({ value: v, label: v, selected: form.category === v ? 'selected' : '' })),
+      badgeOptions: ['Байхгүй'].concat(taxonomy.badges || [])
+        .map(v => ({ value: v, label: v, selected: form.badge === v ? 'selected' : '' })),
+      gallery: gallery.map((src, i) => ({
+        src, coverLabel: i === 0 ? 'Нүүр' : String(i + 1),
+        onRemove: () => this.removeGalleryImage(i),
+        onUp: () => this.moveGalleryImage(i, -1),
+        onDown: () => this.moveGalleryImage(i, 1),
+      })),
+      galleryCount: gallery.length,
+      canAddGallery: gallery.length < 8,
+      onProductImage: (e) => this.onProductImage(e),
+      fOptions: this.formOptions().map((o, i) => ({
+        n: i + 1, label: o.label, add: o.add,
+        onLabel: (e) => this.updFormOption(i, { label: e.target.value }),
+        onAdd: (e) => this.updFormOption(i, { add: e.target.value }),
+        onRemove: () => this.removeFormOption(i),
+      })),
+      addFormOption: () => this.addFormOption(),
+      canAddOption: this.formOptions().length < 5,
+      blockRows: this.blocks().map((b, i) => ({
+        n: i + 1,
+        typeLabel: BLOCK_LABELS[b.type] || b.type,
+        text: b.text || '', url: b.url || '', img: b.img || '', img2: b.img2 || '',
+        hasImg: !!b.img, noImg: !b.img, hasImg2: !!b.img2, noImg2: !b.img2,
+        isVideo: b.type === 'video',
+        isTwoImages: b.type === 'twoImages',
+        needsText: b.type === 'text' || b.type === 'imageText' || b.type === 'textImage',
+        needsImage: b.type === 'image' || b.type === 'imageText' || b.type === 'textImage' || b.type === 'twoImages',
+        onText: (e) => this.updBlock(i, { text: e.target.value }),
+        onUrl: (e) => this.updBlock(i, { url: e.target.value }),
+        onImg: (e) => this.onBlockImage(i, 'img', e),
+        onImg2: (e) => this.onBlockImage(i, 'img2', e),
+        onUp: () => this.moveBlock(i, -1),
+        onDown: () => this.moveBlock(i, 1),
+        onRemove: () => this.removeBlock(i),
+      })),
+      blockCount: this.blocks().length,
+      noBlocks: this.blocks().length === 0,
+      blockPicker: !!state.blockPicker,
+      noPicker: !state.blockPicker,
+      openPicker: () => this.setState({ blockPicker: true }),
+      closePicker: () => this.setState({ blockPicker: false }),
+      blockTypes: BLOCK_TYPES.map(t => ({ icon: t.icon, label: t.label, pick: () => this.addBlock(t.key) })),
+
+      /* контент */
+      cMarquee: this.marquee().map((t, i) => {
+        const canRemove = this.marquee().length > 1;
+        return {
+          n: i + 1, text: t,
+          onText: (e) => this.updMarquee(i, e.target.value),
+          onRemove: () => this.removeMarquee(i),
+          removeStyle: 'border:1px solid ' + (canRemove ? '#f4c9cf' : '#e7eaf2') + ';color:' + (canRemove ? '#ef4457' : '#c3cbde') + ';cursor:' + (canRemove ? 'pointer' : 'not-allowed') + ';',
+        };
+      }),
+      addMarquee: () => this.addMarquee(),
+      cVideo: content.brandVideo || '',
+      onVideo: (e) => this.updContent({ brandVideo: e.target.value }),
+      cSlides: this.slides().map((s, i) => {
+        const uploaded = /^data:/.test(s.img || '');
+        const canRemove = this.slides().length > 1;
+        return {
+          n: i + 1, line1: s.line1 || '', sub: s.sub || '',
+          img: uploaded ? '' : (s.img || ''),
+          urlPlaceholder: uploaded ? 'Байршуулсан зураг' : 'Зургийн URL',
+          previewSrc: s.img || '',
+          hasImg: !!s.img, noImg: !s.img,
+          onFile: (e) => this.onSlideFile(i, e),
+          onClear: (e) => { if (e && e.preventDefault) e.preventDefault(); this.clearSlideImage(i); },
+          onImg: (e) => this.updSlide(i, { img: e.target.value }),
+          onLine1: (e) => this.updSlide(i, { line1: e.target.value }),
+          onSub: (e) => this.updSlide(i, { sub: e.target.value }),
+          onRemoveSlide: () => this.removeSlide(i),
+          removeSlideStyle: 'color:' + (canRemove ? '#ef4457' : '#c3cbde') + ';cursor:' + (canRemove ? 'pointer' : 'not-allowed') + ';',
+        };
+      }),
+      slideCountLabel: this.slides().length + ' слайд',
+      addSlide: () => this.addSlide(),
+      saveContent: () => this.saveContent(),
+      contentSaveLabel: state.contentSaved ? '✓ Нийтэллээ' : 'Хадгалах ба нийтлэх',
+      contentError: state.contentError || '',
+      hasContentError: !!state.contentError,
+
+      /* тохиргоо */
+      s: settings,
+      onSShopName: (e) => this.updSettings({ shopName: e.target.value }),
+      onSPhone: (e) => this.updSettings({ phone: e.target.value }),
+      onSEmail: (e) => this.updSettings({ email: e.target.value }),
+      onSShipping: (e) => this.updSettings({ shippingFee: e.target.value }),
+      onSThreshold: (e) => this.updSettings({ freeThreshold: e.target.value }),
+      onSBankNote: (e) => this.updSettings({ bankNote: e.target.value }),
+      onSNotify: () => this.updSettings({ orderNotify: !settings.orderNotify }),
+      notifyBg: settings.orderNotify ? '#2f4fe0' : '#cdd4e4',
+      notifyLeft: settings.orderNotify ? '23px' : '3px',
+      bankAccounts: this.bankAccounts().map((a, i) => ({
+        n: i + 1, bank: a.bank || '', number: a.number || '', holder: a.holder || '',
+        onBank: (e) => this.updBankAccount(i, { bank: e.target.value }),
+        onNumber: (e) => this.updBankAccount(i, { number: e.target.value }),
+        onHolder: (e) => this.updBankAccount(i, { holder: e.target.value }),
+        onRemove: () => this.removeBankAccount(i),
+      })),
+      addBankAccount: () => this.addBankAccount(),
+      canAddBank: this.bankAccounts().length < 5,
+      saveSettings: () => this.saveSettings(),
+      settingsSaveLabel: state.settingsSaved ? '✓ Хадгаллаа' : 'Хадгалах',
+      settingsError: state.settingsError || '',
+      hasSettingsError: !!state.settingsError,
+    };
+  }
+}
+</script>
+</body>
+</html>

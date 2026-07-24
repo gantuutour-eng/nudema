@@ -38,7 +38,11 @@
   "currenciesAccepted": "MNT"
 }
 </script>
-<!-- Үндсэн хаяг: төхөөрөмжөөс хамаарч PC эсвэл мобайл хувилбар руу шилжинэ.
+<!-- Үндсэн хаяг: төхөөрөмжөөс хамаарч PC эсвэл мобайл дэлгүүр рүү шууд шилжинэ.
+     Google OAuth брэндийн баталгаажуулалт: аппын нэр ("Nudema in Mongolia"), зорилго,
+     нууцлалын холбоос энэ HTML-д статикаар байгаа тул crawler шууд уншина.
+     Хүний шалгагч redirect-ээр дэлгүүрийн хуудсанд очиход мөн ижил нэр, зорилго,
+     нууцлалын холбоос статик байдлаар харагдана (store-intro хэсэг ба footer).
      Бүх хуудсын жагсаалт: /menu.html · Оношилгоо: /whoami.html -->
 <script>
   (function () {
@@ -81,25 +85,89 @@
 </script>
 <noscript><meta http-equiv="refresh" content="0; url=./Nudema%20Mongolia.dc.html"></noscript>
 <style>
+  * { box-sizing: border-box; }
   body {
     margin: 0; min-height: 100vh; background: #0f1f4b; color: #8fa0d0;
-    font-family: 'Manrope', -apple-system, sans-serif;
-    display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px;
+    font-family: 'Manrope', -apple-system, 'Noto Sans', sans-serif;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 40px 20px 28px;
   }
   main { max-width: 680px; }
-  h1 { margin: 0 0 14px; color: #fff; font-size: 34px; letter-spacing: .06em; }
-  .app-purpose { margin: 0 0 18px; color: #d5deff; font-size: 16px; line-height: 1.7; }
-  a { color: #fff; }
+  h1 { margin: 0 0 6px; color: #fff; font-size: 36px; letter-spacing: .05em; }
+  .tagline { margin: 0 0 22px; color: #b7c5f2; font-size: 15.5px; font-weight: 600; }
+  .app-purpose { margin: 0 auto 14px; max-width: 560px; color: #d5deff; font-size: 15.5px; line-height: 1.75; }
+  .app-purpose-en { margin: 0 auto 30px; max-width: 560px; color: #8fa0d0; font-size: 13px; line-height: 1.7; }
+  .cta {
+    display: inline-block; background: #2a54e6; color: #fff; text-decoration: none;
+    font-size: 16px; font-weight: 800; padding: 16px 44px; border-radius: 14px;
+    box-shadow: 0 14px 36px rgba(20, 45, 130, .45);
+  }
+  .cta:hover { background: #2447b8; }
+  .alt-links { margin-top: 16px; font-size: 13px; }
+  .alt-links a { color: #cdd8fb; }
+  .features {
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+    margin: 34px 0 0; padding: 0; list-style: none;
+  }
+  .features li {
+    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.13);
+    color: #d5deff; border-radius: 20px; padding: 8px 16px; font-size: 12.5px; font-weight: 600;
+  }
+  footer { margin-top: 44px; font-size: 12px; color: #6b7bab; line-height: 2; }
+  footer a { color: #aebbe8; text-decoration: none; }
+  footer a:hover { color: #fff; text-decoration: underline; }
+  .footer-links { display: flex; flex-wrap: wrap; gap: 6px 18px; justify-content: center; }
+  @media (max-width: 480px) {
+    h1 { font-size: 28px; }
+    .cta { display: block; }
+  }
 </style>
 </head>
 <body>
   <main>
     <h1>Nudema in Mongolia</h1>
-    <p class="app-purpose">Монголын арьс арчилгаа, гоо сайхны бүтээгдэхүүний онлайн дэлгүүр. Бүтээгдэхүүний мэдээлэл, үнэ, хүргэлтийн нөхцөлийг үзэж онлайнаар захиалах боломжтой.</p>
-    <p>Дэлгүүр рүү шилжиж байна…<br>
+    <p class="tagline">Арьс арчилгаа, гоо сайхны онлайн дэлгүүр</p>
+    <p class="app-purpose">Nudema in Mongolia нь Монгол дахь арьс арчилгаа, гоо сайхны бүтээгдэхүүний онлайн дэлгүүр юм. Бүтээгдэхүүний дэлгэрэнгүй мэдээлэл, үнэ, хэрэглэгчийн үнэлгээг харьцуулан үзэж, Улаанбаатар хот болон Монгол орон даяар хүргэлттэйгээр онлайнаар захиалах боломжтой. Google бүртгэлээрээ нэвтэрч захиалгаа хялбар хийж, захиалгын түүх, урамшууллын оноогоо хянана.</p>
+    <p class="app-purpose-en">Nudema in Mongolia is an online store for skincare and beauty products in Mongolia. Browse products, compare prices and reviews, and order online with delivery across Mongolia. Sign in with your Google account to place orders and track your order history.</p>
+    <a id="enter-store" class="cta" href="./Nudema%20Mongolia.dc.html">Дэлгүүрт зочлох →</a>
+    <p class="alt-links">
       <a href="./Nudema%20Mobile.dc.html">Мобайл хувилбар</a> ·
-      <a href="./Nudema%20Mongolia.dc.html">PC хувилбар</a>
+      <a href="./Nudema%20Mongolia.dc.html?v=pc">PC хувилбар</a> ·
+      <a href="./Nudema%20Login.dc.html">Нэвтрэх</a>
     </p>
+    <ul class="features">
+      <li>🚚 Монгол даяар хүргэлт</li>
+      <li>💳 Данс шилжүүлгээр төлөх</li>
+      <li>⭐ Хэрэглэгчийн үнэлгээ</li>
+      <li>🎁 Урамшууллын оноо</li>
+    </ul>
   </main>
+  <footer>
+    <div class="footer-links">
+      <a href="./Nudema%20Privacy.dc.html">Хувийн мэдээллийн бодлого</a>
+      <a href="./Nudema%20Terms.dc.html">Үйлчилгээний нөхцөл</a>
+      <a href="mailto:help@nudema.mn">help@nudema.mn</a>
+      <a href="tel:+97670115007">+976 7011-5007</a>
+    </div>
+    <div>Nudema Mongolia LLC · Улаанбаатар, Сүхбаатар дүүрэг, Энх тайваны өргөн чөлөө 12</div>
+  </footer>
+  <script>
+    // Зөвхөн CTA-гийн очих хаягийг төхөөрөмжид тааруулна. Автомат шилжилт хийхгүй —
+    // Google-ийн баталгаажуулалт нүүр хуудасны нэр, зорилгыг шууд харах ёстой.
+    (function () {
+      var ua = navigator.userAgent || '';
+      var uaData = navigator.userAgentData;
+      var isMobile = false;
+      if (uaData && uaData.mobile === true) isMobile = true;
+      else if (/Android|iPhone|iPod|IEMobile|BlackBerry|Opera Mini|Mobi/i.test(ua)) isMobile = true;
+      else if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) isMobile = true;
+      else {
+        var w = Math.min(document.documentElement.clientWidth || 99999, window.innerWidth || 99999);
+        if (w < 820) isMobile = true;
+        else if (window.matchMedia && matchMedia('(pointer: coarse)').matches && w < 1024) isMobile = true;
+      }
+      if (isMobile) document.getElementById('enter-store').href = './Nudema%20Mobile.dc.html';
+    })();
+  </script>
 </body>
 </html>

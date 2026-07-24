@@ -9,8 +9,10 @@
 (function () {
   var path = decodeURIComponent(location.pathname || '');
   // Cloudflare Pages ".html"-ийг хасдаг тул хоёр хэлбэрийг хоёуланг нь тооцно
-  var onPCPage = /Nudema\s+Mongolia\.dc(\.html)?$/i.test(path);
-  if (!onPCPage) return;
+  var target = '';
+  if (/Nudema\s+Mongolia\.dc(\.html)?$/i.test(path)) target = './Nudema%20Mobile.dc.html';
+  else if (/Nudema\s+Admin\.dc(\.html)?$/i.test(path)) target = './Nudema%20Admin%20Mobile.dc.html';
+  if (!target) return;
 
   if (/[?&]v=(pc|mobile)/.test(location.search)) return;
 
@@ -32,6 +34,6 @@
   }
 
   if (isMobile) {
-    location.replace('./Nudema%20Mobile.dc.html' + (location.search || '') + (location.hash || ''));
+    location.replace(target + (location.search || '') + (location.hash || ''));
   }
 })();

@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-for (const file of ['Nudema Admin.dc.html', 'Nudema Mongolia.dc.html', 'Nudema Mobile.dc.html', 'Nudema Product.dc.html', 'Nudema Checkout.dc.html']) {
+for (const file of ['Nudema Admin.dc.html', 'Nudema Admin Mobile.dc.html', 'Nudema Mongolia.dc.html', 'Nudema Mobile.dc.html', 'Nudema Product.dc.html', 'Nudema Checkout.dc.html']) {
   const src = fs.readFileSync(file, 'utf8');
   const html = src.split('<script type="text/x-dc"')[0];
   const script = src.split('<script type="text/x-dc"')[1] || '';
