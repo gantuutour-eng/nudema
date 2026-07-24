@@ -733,11 +733,11 @@ admin.saveSettings();
 const ship = openCheckout().renderVals();
 check('хүргэлтийн төлбөр тохиргооноос', ship.shippingFee === '9,500₮', ship.shippingFee);
 check('үнэгүй хүргэлтийн босго тохиргооноос', ship.freeThreshold === '100,000₮', ship.freeThreshold);
-const paidDelivery = vm.runInContext('window.NudemaStore.delivery(20000, { shippingFee: "3,000₮", freeThreshold: "50,000₮" }, false)', ctx);
+const paidDelivery = vm.runInContext('window.NudemaStore.delivery(20000, { shippingFee: "3,000₮", freeThreshold: "50,000₮" })', ctx);
 check('босго доор хүргэлт нийт에 нэмэгдсэн', paidDelivery.shipping === 3000 && paidDelivery.total === 23000, paidDelivery.total);
-const freeDelivery = vm.runInContext('window.NudemaStore.delivery(50000, { shippingFee: "3,000₮", freeThreshold: "50,000₮" }, false)', ctx);
+const freeDelivery = vm.runInContext('window.NudemaStore.delivery(50000, { shippingFee: "3,000₮", freeThreshold: "50,000₮" })', ctx);
 check('무료배송 босго хүрэхэд хүргэлт 0', freeDelivery.shipping === 0 && freeDelivery.total === 50000, freeDelivery.total);
-const noThresholdDelivery = vm.runInContext('window.NudemaStore.delivery(20000, { shippingFee: "3,000₮", freeThreshold: "0₮" }, false)', ctx);
+const noThresholdDelivery = vm.runInContext('window.NudemaStore.delivery(20000, { shippingFee: "3,000₮", freeThreshold: "0₮" })', ctx);
 check('무료배송 босго 0이면 배송비 항상 적용', noThresholdDelivery.shipping === 3000 && noThresholdDelivery.total === 23000, noThresholdDelivery.total);
 
 // Захиалга үүссэний дараа сагс цэвэрлэгдсэн ч шилжүүлэх дүн хадгалагдана.
@@ -911,6 +911,10 @@ const adminAuthSource = fs.readFileSync('functions/_admin-auth.js', 'utf8');
 const adminMiddlewareSource = fs.readFileSync('functions/api/admin/_middleware.js', 'utf8');
 const accountSource = fs.readFileSync('Nudema Account.dc.html', 'utf8');
 const cartSource = fs.readFileSync('Nudema Cart.dc.html', 'utf8');
+const productSource = fs.readFileSync('Nudema Product.dc.html', 'utf8');
+const checkoutSource = fs.readFileSync('Nudema Checkout.dc.html', 'utf8');
+const menuSource = fs.readFileSync('nudema-menu.js', 'utf8');
+const orderApiSource = fs.readFileSync('functions/api/orders.js', 'utf8');
 check('админ и-мэйл/нууц үгийн маягттай', adminSource.includes('type="email"') && adminSource.includes('type="password"'));
 check('client-side hardcoded нууц үг байхгүй', !/nudema2026|ADMIN_PASSWORD\s*=/.test(adminSource));
 check('өөрийн login/session/logout API ашиглана',
@@ -922,7 +926,14 @@ check('admin store key устсан', !Object.prototype.hasOwnProperty.call(win.
 check('зочны захиалга login-гүй харагдана',
   accountSource.includes('guestOrderSection') && accountSource.includes('localGuestOrder') && accountSource.includes("new URLSearchParams(location.search).get('order')"));
 check('сагсанд бараа, хүргэлт, нийт тусдаа тооцогдоно',
-  cartSource.includes('id="subtotal"') && cartSource.includes('id="shipping"') && cartSource.includes('NudemaStore.delivery(goods,settings,false)'));
+  cartSource.includes('id="subtotal"') && cartSource.includes('id="shipping"') && cartSource.includes('NudemaStore.delivery(goods,settings)'));
+check('상품 상세에서 선물하기 버튼과 모달 제거됨',
+  !productSource.includes('Бэлэглэх') && !productSource.includes('openGift') && !productSource.includes('giftOpen'));
+check('결제에서 gift 쿼리와 공유 링크 제거됨',
+  !checkoutSource.includes('gift=1') && !checkoutSource.includes('giftLink') && !checkoutSource.includes('isGiftMode'));
+check('메뉴에서 선물하기 항목 제거됨', !menuSource.includes("label: 'Бэлэглэх'"));
+check('주문 API는 gift 플래그로 주소·배송비를 우회하지 않음',
+  !orderApiSource.includes('body.gift') && !orderApiSource.includes('isGift') && orderApiSource.includes("if (!name || !address)"));
 
 loadComponent('Nudema Admin.dc.html', 'AdminC2');
 const gate = vm.runInContext('new AdminC2()', ctx);

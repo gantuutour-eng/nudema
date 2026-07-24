@@ -35,21 +35,20 @@ export async function onRequestPost(context) {
     }
 
     const customer = body.customer || {};
-    const isGift = body.gift === true;
     const name = cleanText(customer.name, 120);
     const phone = cleanText(customer.phone, 40);
     const email = account ? account.email : cleanText(customer.email, 160);
     const address = cleanText(customer.address, 500);
     if (!phone) return error('Phone number is required.');
-    if (!isGift && (!name || !address)) return error('Name and delivery address are required.');
+    if (!name || !address) return error('Name and delivery address are required.');
 
     const shippingFee = Math.max(0, Number(String(settings.shippingFee || '').replace(/[^\d]/g, '')) || 0);
     const freeThreshold = Math.max(0, Number(String(settings.freeThreshold || '').replace(/[^\d]/g, '')) || 0);
-    const shipping = !isGift && shippingFee > 0 && !(freeThreshold > 0 && subtotal >= freeThreshold) ? shippingFee : 0;
+    const shipping = shippingFee > 0 && !(freeThreshold > 0 && subtotal >= freeThreshold) ? shippingFee : 0;
     const now = new Date();
     const order = {
       no: makeOrderNo(),
-      customer: name || 'Бэлгийн захиалга',
+      customer: name,
       email,
       phone,
       address,
@@ -63,7 +62,6 @@ export async function onRequestPost(context) {
       subtotal,
       shipping,
       total: subtotal + shipping,
-      gift: isGift,
       status: 'pending',
     };
 

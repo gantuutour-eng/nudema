@@ -162,12 +162,6 @@
 
       <!-- buttons -->
       <div class="pd-actions" style="margin-top:44px;display:flex;gap:12px;">
-        <div style="position:relative;flex:0 0 58px;">
-          <div style="position:absolute;bottom:64px;left:50%;transform:translateX(-50%);white-space:nowrap;background:#fee500;color:#3a1d1d;font-size:12px;font-weight:700;padding:7px 12px;border-radius:16px;box-shadow:0 4px 12px rgba(16,37,95,.14);">Бэлэглэх</div>
-          <button onClick="{{ openGift }}" title="Бэлэглэх" style="width:58px;height:56px;border:1px solid #cfd6d0;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2a54e6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7S9.5 7 8 5.5 8 2.5 9.5 3 12 7 12 7z"></path><path d="M12 7s2.5 0 4-1.5S15.5 2.5 14 3s-2 4-2 4z"></path></svg>
-          </button>
-        </div>
         <sc-if value="{{ inStock }}" hint-placeholder-val="{{ true }}">
           <a href="{{ cartHref }}" style="flex:1;height:56px;line-height:56px;text-align:center;border:1px solid #2a54e6;border-radius:12px;background:#fff;color:#2a54e6;font-size:16px;font-weight:800;">Сагсанд нэмэх</a>
         </sc-if>
@@ -317,84 +311,12 @@
     <a href="Nudema%20Account.dc.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Профайл</a>
   </nav>
 
-  <!-- gift modal -->
-  <sc-if value="{{ giftOpen }}" hint-placeholder-val="{{ false }}">
-    <div onClick="{{ closeGift }}" style="position:fixed;inset:0;background:rgba(16,37,95,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;">
-      <div onClick="{{ stop }}" style="width:440px;max-width:100%;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(16,37,95,.28);">
-        <sc-if value="{{ giftForm }}" hint-placeholder-val="{{ true }}">
-          <div>
-            <div style="background:#2a54e6;padding:26px 28px;position:relative;">
-              <div style="display:flex;align-items:center;gap:10px;">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7S9.5 7 8 5.5 8 2.5 9.5 3 12 7 12 7z"></path><path d="M12 7s2.5 0 4-1.5S15.5 2.5 14 3s-2 4-2 4z"></path></svg>
-                <div style="font-size:18px;font-weight:800;color:#fff;">Хайртай хүндээ бэлэглэх</div>
-              </div>
-              <button onClick="{{ closeGift }}" style="position:absolute;top:20px;right:22px;background:none;border:none;font-size:24px;color:#fff;cursor:pointer;">×</button>
-            </div>
-            <div style="padding:26px 28px;">
-              <div style="display:flex;gap:14px;align-items:center;background:#f7f8f6;border-radius:14px;padding:14px 16px;margin-bottom:22px;">
-                <div style="width:56px;height:56px;background:#eef0f7;border-radius:10px;overflow:hidden;position:relative;flex:0 0 auto;">
-                  <sc-if value="{{ hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></sc-if>
-                  <sc-if value="{{ noImg }}" hint-placeholder-val="{{ true }}"><image-slot id="gift-thumb-{{ id }}" shape="rect" fit="contain" placeholder=""></image-slot></sc-if>
-                </div>
-                <div style="flex:1;">
-                  <div style="font-size:14px;font-weight:700;color:#16255f;">{{ title }}</div>
-                  <div style="font-size:14px;font-weight:800;color:#2a54e6;margin-top:3px;">{{ lineTotal }}</div>
-                </div>
-              </div>
-              <div style="display:flex;flex-direction:column;gap:13px;">
-                <div>
-                  <label style="font-size:12px;font-weight:600;color:#8a90a3;display:block;margin-bottom:6px;">Хүлээн авагчийн нэр</label>
-                  <input placeholder="Жишээ: Сарантуяа" style="width:100%;height:46px;border:1px solid #d7ddd7;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
-                </div>
-                <div>
-                  <label style="font-size:12px;font-weight:600;color:#8a90a3;display:block;margin-bottom:6px;">Мессеж (заавал биш)</label>
-                  <textarea placeholder="Төрсөн өдрийн мэнд хүргэе! 🎁" style="width:100%;height:78px;border:1px solid #d7ddd7;border-radius:10px;padding:12px 14px;font-family:inherit;font-size:14px;resize:none;"></textarea>
-                </div>
-              </div>
-              <a href="Nudema%20Checkout.dc.html?gift=1" style="width:100%;height:54px;margin-top:22px;background:#2a54e6;color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;">
-                Бэлгээр худалдан авах
-              </a>
-              <p style="font-size:11px;color:#9aa39c;text-align:center;margin:14px 0 0;line-height:1.6;">Төлбөрөө төлсний дараа бэлгийн холбоос үүснэ. Хүлээн авагч холбоосоор хаягаа оруулмагц бэлэг хүргэгдэнэ.</p>
-            </div>
-          </div>
-        </sc-if>
-        <sc-if value="{{ giftSent }}" hint-placeholder-val="{{ false }}">
-          <div style="padding:44px 34px 34px;text-align:center;">
-            <div style="width:78px;height:78px;border-radius:50%;background:#eaeefe;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
-              <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#2a54e6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9"></path><path d="M2 7h20v5H2z"></path><path d="M12 22V7"></path><path d="M12 7S9.5 7 8 5.5 8 2.5 9.5 3 12 7 12 7z"></path><path d="M12 7s2.5 0 4-1.5S15.5 2.5 14 3s-2 4-2 4z"></path></svg>
-            </div>
-            <h3 style="font-size:22px;font-weight:800;color:#16255f;margin:0 0 8px;">Бэлгийн холбоос бэлэн боллоо! 🎁</h3>
-            <p style="font-size:14px;color:#5c6660;line-height:1.7;margin:0 0 22px;">Доорх холбоосыг хуулж, дуртай мессенжерээрээ илгээгээрэй.</p>
-            <div style="display:flex;align-items:center;gap:8px;background:#f4f5f3;border:1px solid #e4e7e3;border-radius:12px;padding:6px 6px 6px 16px;margin-bottom:22px;">
-              <span style="flex:1;text-align:left;font-size:13px;color:#5c6660;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ giftLink }}</span>
-              <button onClick="{{ copyLink }}" style="border:none;background:#2a54e6;color:#fff;font-family:inherit;font-size:13px;font-weight:700;padding:10px 16px;border-radius:9px;cursor:pointer;white-space:nowrap;">{{ copyLabel }}</button>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;">
-              <a href="{{ shareMessenger }}" target="_blank" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 6px;border:1px solid #eee;border-radius:14px;">
-                <span style="width:44px;height:44px;border-radius:50%;background:#0a7cff;display:flex;align-items:center;justify-content:center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.3 2 2 6.1 2 11.5c0 3 1.5 5.7 3.8 7.5V22l3.5-1.9c.9.2 1.8.4 2.7.4 5.7 0 10-4.1 10-9.5S17.7 2 12 2zm1 12.3l-2.5-2.7-4.9 2.7 5.4-5.7 2.6 2.7 4.8-2.7-5.4 5.7z"/></svg></span>
-                <span style="font-size:12px;font-weight:700;color:#3a423c;">Messenger</span>
-              </a>
-              <a href="{{ shareViber }}" target="_blank" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 6px;border:1px solid #eee;border-radius:14px;">
-                <span style="width:44px;height:44px;border-radius:50%;background:#7360f2;display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C6.5 2 3 5.3 3 9.8c0 2.2.9 4.1 2.5 5.5v3.9l3.3-2c.9.2 1.9.3 3.2.3 5.5 0 9-3.3 9-7.8S17.5 2 12 2z"/></svg></span>
-                <span style="font-size:12px;font-weight:700;color:#3a423c;">Viber</span>
-              </a>
-              <a href="{{ shareSms }}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 6px;border:1px solid #eee;border-radius:14px;">
-                <span style="width:44px;height:44px;border-radius:50%;background:#22b573;display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
-                <span style="font-size:12px;font-weight:700;color:#3a423c;">SMS</span>
-              </a>
-            </div>
-            <button onClick="{{ closeGift }}" style="width:100%;height:52px;background:#fff;color:#3a423c;border:1px solid #cfd6d0;border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;">Хаах</button>
-          </div>
-        </sc-if>
-      </div>
-    </div>
-  </sc-if>
 
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  state = { qty: 1, option: 0, tab: 'detail', gift: '', copied: false, detailCount: 3 };
+  state = { qty: 1, option: 0, tab: 'detail', detailCount: 3 };
 
   componentDidMount() {
     this.reload();
@@ -403,7 +325,6 @@ class Component extends DCLogic {
 
   componentWillUnmount() {
     if (this._unsub) this._unsub();
-    clearTimeout(this._ct);
   }
 
   reload() {
@@ -451,8 +372,6 @@ class Component extends DCLogic {
         notFound: true, found: false,
         footerCompany: `${settings.shopName} ХХК · Улаанбаатар хот, Сүхбаатар дүүрэг, Энх тайваны өргөн чөлөө 12`,
         footerLine: `И-мэйл: ${settings.email} · Утас: ${settings.phone} · Ажлын цаг: Даваа–Баасан 09:00–18:00`,
-        giftOpen: false, giftForm: false, giftSent: false,
-        closeGift: () => {}, stop: () => {}, copyLink: () => {},
       };
     }
 
@@ -511,7 +430,7 @@ class Component extends DCLogic {
     const qty = Math.min(this.state.qty, maxQty);
     const unit = product.price + optionAdd;
     const total = unit * qty;
-    const delivery = NudemaStore.delivery(total, settings, false);
+    const delivery = NudemaStore.delivery(total, settings);
     const hasDeliveryPolicy = String(settings.shippingFee || '').trim() !== '' || String(settings.freeThreshold || '').trim() !== '';
     const deliveryLabel = delivery.shipping > 0 ? fmt(delivery.shipping) : 'Үнэгүй';
     const deliveryHint = delivery.shipping > 0 && delivery.remaining > 0
@@ -547,9 +466,6 @@ class Component extends DCLogic {
         href: 'Nudema%20Product.dc.html?id=' + p.id,
         img: p.img || '', hasImg: !!p.img, noImg: !p.img,
       }));
-
-    const giftLink = 'https://nudema.mn/gift/NDM-' + (1000 + (total % 9000));
-    const shareText = 'Танд Nudema-аас бэлэг ирлээ! 🎁 ' + giftLink;
 
     return {
       found: true, notFound: false,
@@ -617,29 +533,6 @@ class Component extends DCLogic {
       footerCompany: `${settings.shopName} ХХК · Улаанбаатар хот, Сүхбаатар дүүрэг, Энх тайваны өргөн чөлөө 12`,
       footerLine: `И-мэйл: ${settings.email} · Утас: ${settings.phone} · Ажлын цаг: Даваа–Баасан 09:00–18:00`,
 
-      giftOpen: this.state.gift !== '',
-      giftForm: this.state.gift === 'form',
-      giftSent: this.state.gift === 'sent',
-      openGift: (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ gift: 'form', copied: false }); },
-      closeGift: () => this.setState({ gift: '' }),
-      stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
-      giftLink,
-      shareMessenger: 'https://www.facebook.com/dialog/send?link=' + encodeURIComponent(giftLink) + '&app_id=0&redirect_uri=' + encodeURIComponent(giftLink),
-      shareViber: 'viber://forward?text=' + encodeURIComponent(shareText),
-      shareSms: 'sms:?body=' + encodeURIComponent(shareText),
-      copyLabel: this.state.copied ? '✓ Хууллаа' : 'Хуулах',
-      copyLink: () => {
-        const text = giftLink;
-        let ok = false;
-        try {
-          const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', '');
-          ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta);
-          ta.focus(); ta.select(); ta.setSelectionRange(0, text.length); ok = document.execCommand('copy'); document.body.removeChild(ta);
-        } catch (e) { ok = false; }
-        if (ok) { this.setState({ copied: true }); clearTimeout(this._ct); this._ct = setTimeout(() => this.setState({ copied: false }), 1500); }
-        else if (navigator.clipboard) { navigator.clipboard.writeText(text).then(() => this.setState({ copied: true }), () => window.prompt('Холбоосыг хуулж авна уу:', text)); }
-        else { window.prompt('Холбоосыг хуулж авна уу:', text); }
-      },
     };
   }
 }

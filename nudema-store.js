@@ -29,12 +29,12 @@
 
   // Нэг ижил хүргэлтийн бодлогыг бүтээгдэхүүн, сагс, checkout болон local fallback-д ашиглана.
   // Үнэгүй хүргэлтийн босго 0/хоосон бол босго идэвхгүй бөгөөд тохируулсан төлбөр үргэлж нэмэгдэнэ.
-  var deliveryQuote = function (subtotal, settings, isGift) {
+  var deliveryQuote = function (subtotal, settings) {
     var goods = Math.max(0, Math.round(Number(subtotal) || 0));
     var fee = amount(settings && settings.shippingFee);
     var threshold = amount(settings && settings.freeThreshold);
     var qualifies = threshold > 0 && goods >= threshold;
-    var shipping = isGift || fee === 0 || qualifies ? 0 : fee;
+    var shipping = fee === 0 || qualifies ? 0 : fee;
     return {
       subtotal: goods,
       fee: fee,
@@ -367,17 +367,17 @@
       item.unit = unit;
       return sum + unit * item.qty;
     }, 0);
-    var delivery = deliveryQuote(subtotal, settings, payload.gift === true);
+    var delivery = deliveryQuote(subtotal, settings);
     var order = {
       no: 'NDM-' + now.toISOString().slice(0, 10).replace(/-/g, '') + '-' + String(now.getTime()).slice(-6),
-      customer: payload.customer && payload.customer.name ? payload.customer.name : 'Бэлгийн захиалга',
+      customer: payload.customer && payload.customer.name ? payload.customer.name : 'Зочин',
       email: payload.customer && payload.customer.email ? payload.customer.email : '',
       phone: payload.customer && payload.customer.phone ? payload.customer.phone : '',
       address: payload.customer && payload.customer.address ? payload.customer.address : '',
       note: payload.customer && payload.customer.note ? payload.customer.note : '',
       date: now.toISOString().slice(0, 10), hour: now.getHours(), minute: now.getMinutes(),
       method: 'Данс шилжүүлэг', items: items, subtotal: subtotal, shipping: delivery.shipping,
-      total: delivery.total, gift: payload.gift === true, status: 'pending',
+      total: delivery.total, status: 'pending',
     };
     var orders = read('orders');
     orders.unshift(order);

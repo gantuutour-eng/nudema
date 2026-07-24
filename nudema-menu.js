@@ -6,7 +6,6 @@
     { label: 'Анхны худалдан авалт', href: 'Nudema%20Mongolia.dc.html' },
     { label: 'Төрлөөр', href: 'Nudema%20Mongolia.dc.html' },
     { label: 'Арьсны асуудлаар', href: 'Nudema%20Mongolia.dc.html' },
-    { label: 'Бэлэглэх', href: 'Nudema%20Mongolia.dc.html' },
     { label: 'Эвент', href: 'Nudema%20Mongolia.dc.html' },
   ];
   const SUB = [
