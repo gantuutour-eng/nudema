@@ -132,6 +132,28 @@ export async function readOrders(db) {
   });
 }
 
+// Демо сэтгэгдлүүд — nudema-store.js-ийн DEFAULTS.reviews-тэй ижил.
+// D1-д reviews мөр огт байхгүй үед л нэг удаа бичигдэнэ; админ бүх
+// сэтгэгдлээ устгавал мөр "[]" болж үлдэх тул дахин сэргэхгүй.
+const SEED_REVIEWS = [
+  { id: 1, name: 'Отгонцэцэг Б.', color: '#2a54e6', tag: 'Хуурай арьс', rating: 5, text: 'Хэрэглээд 2 долоо хоног болж байна. Арьс минь өдөржин чийгшилтэй, огт татахаа больсон. Дахин авна!', product: 'Гүн чийгшлийн багц', date: '2 хоногийн өмнө', hidden: false, reply: '' },
+  { id: 2, name: 'Мөнхзул Г.', color: '#e0730a', tag: 'Мэдрэмтгий', rating: 5, text: 'Мэдрэмтгий арьстай болохоор их болгоомжилдог байсан. Ямар ч улайлт өгсөнгүй, зөөлөн шимэгддэг.', product: 'Тайвшруулах тонер', date: '5 хоногийн өмнө', hidden: false, reply: '' },
+  { id: 3, name: 'Сарантуяа Д.', color: '#12934f', tag: 'Гэрэлтүүлэг', rating: 5, text: 'Амин С серумыг өглөө хэрэглэхэд царай тод, гэрэлтэй болсон гэж хамт олон хэлдэг боллоо 😊', product: 'Амин С серум', date: '1 долоо хоногийн өмнө', hidden: false, reply: '' },
+  { id: 4, name: 'Батбаяр Т.', color: '#7360f2', tag: 'Эрэгтэй', rating: 4, text: 'Эхлээд эргэлзэж байсан ч одоо өдөр бүр хэрэглэдэг болсон. Тослог биш, хөнгөн мэдрэмж.', product: 'Шөнийн крем', date: '1 долоо хоногийн өмнө', hidden: false, reply: '' },
+  { id: 5, name: 'Энхжаргал Б.', color: '#d63384', tag: 'Настай арьс', rating: 5, text: 'Нүдний эргэн тойрны нарийн үрчлээ багассан. 40-өөс дээш насныханд санал болгож байна.', product: 'Ретинол серум', date: '2 долоо хоногийн өмнө', hidden: false, reply: '' },
+  { id: 6, name: 'Тэмүүлэн О.', color: '#0a7cff', tag: 'Багц', rating: 5, text: 'Багцаар авахад хямд бас бүрэн арчилгаа болдог. Бэлэг болгож ээждээ авч өгсөн, их таалагдсан.', product: 'Арчилгааны багц', date: '3 долоо хоногийн өмнө', hidden: false, reply: '' },
+];
+
+export async function ensureReviewsSeeded(db, data) {
+  if (data.reviews !== undefined) return;
+  // Цоо шинэ (хоосон) D1 дээр seed хийхгүй — admin-ий анхны bootstrap
+  // "empty" төлөвт тулгуурладаг тул түүнийг эвдэхгүй.
+  const hasOtherState = Object.keys(data).some((name) => name !== 'reviews' && name !== 'orders');
+  if (!hasOtherState) return;
+  await writeState(db, 'reviews', SEED_REVIEWS);
+  data.reviews = SEED_REVIEWS;
+}
+
 export async function writeState(db, name, value) {
   await db.prepare(
     `INSERT INTO app_state (name, value, updated_at)
