@@ -277,7 +277,9 @@
       <a href="Nudema%20Terms.dc.html" style="color:#e6ecff;">Үйлчилгээний нөхцөл</a>
       <a href="#brand-story" style="color:#e6ecff;">Компанийн мэдээлэл</a>
       <a href="Nudema%20Privacy.dc.html" style="color:#fff;">Хувийн мэдээлэл боловсруулах бодлого</a>
-      <a href="mailto:help@nudema.mn" style="color:#e6ecff;">Хэрэглэгчийн төв</a>
+      <!-- И-мэйлийг binding-ээр өгнө — Cloudflare Email Obfuscation template доторх
+           mailto-г өөрчилдөг бөгөөд React дахин зурсны дараа сэргээгддэггүй. -->
+      <a href="{{ helpMailto }}" style="color:#e6ecff;">Хэрэглэгчийн төв</a>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:40px;flex-wrap:wrap;">
       <div style="font-size:12px;line-height:1.9;color:#b7c4ee;max-width:560px;">
@@ -480,6 +482,7 @@ class Component extends DCLogic {
       shopPhone: settings.phone,
       shopEmail: settings.email,
       footerLine: `И-мэйл: ${settings.email} · Утас: ${settings.phone} · Ажлын цаг: Даваа–Баасан 09:00–18:00`,
+      helpMailto: 'mailto:' + (settings.email || 'help@nudema.mn'),
       footerCompany: `${settings.shopName} ХХК · Улаанбаатар хот, Сүхбаатар дүүрэг, Энх тайваны өргөн чөлөө 12`,
     };
   }

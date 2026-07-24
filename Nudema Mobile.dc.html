@@ -245,7 +245,8 @@
     <div style="display:flex;flex-wrap:wrap;gap:12px 18px;font-size:12px;font-weight:600;margin-bottom:16px;">
       <a href="Nudema%20Terms.dc.html" style="color:#e6ecff;">Үйлчилгээний нөхцөл</a>
       <a href="Nudema%20Privacy.dc.html" style="color:#fff;">Хувийн мэдээлэл</a>
-      <a href="mailto:help@nudema.mn" style="color:#e6ecff;">Хэрэглэгчийн төв</a>
+      <!-- И-мэйлийг binding-ээр өгнө — Cloudflare Email Obfuscation-оос хамгаална -->
+      <a href="{{ helpMailto }}" style="color:#e6ecff;">Хэрэглэгчийн төв</a>
     </div>
     <div style="font-size:11px;line-height:1.8;color:#b7c4ee;">
       {{ footerCompany }}<br>{{ footerLine }}<br>NUDEMA MONGOLIA LLC. ALL RIGHTS RESERVED.
@@ -439,6 +440,7 @@ class Component extends DCLogic {
       shopName: settings.shopName,
       footerCompany: `${settings.shopName} ХХК · Улаанбаатар хот`,
       footerLine: `И-мэйл: ${settings.email} · Утас: ${settings.phone}`,
+      helpMailto: 'mailto:' + (settings.email || 'help@nudema.mn'),
       toggleMenu: () => this.setState(s => ({ menu: !s.menu })),
       closeMenu: () => this.setState({ menu: false }),
       scrimStyle: `position:fixed;top:0;bottom:0;width:min(100vw,430px);background:rgba(16,37,95,.42);z-index:40;transition:opacity .3s;opacity:${this.state.menu ? 1 : 0};pointer-events:${this.state.menu ? 'auto' : 'none'};`,
