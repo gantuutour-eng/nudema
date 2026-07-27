@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Nudema in Mongolia | Монголын арьс арчилгаа, гоо сайхны онлайн дэлгүүр</title>
+<title>Nudema in Mongolia</title>
+<meta name="application-name" content="Nudema in Mongolia">
 <meta name="description" content="Nudema in Mongolia — Монгол дахь арьс арчилгаа, гоо сайхны бүтээгдэхүүний онлайн дэлгүүр. Чанартай косметик бүтээгдэхүүнийг Улаанбаатар болон Монгол орон даяар захиалаарай.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <link rel="canonical" href="https://nudema-mongolia.com/">
@@ -12,7 +13,7 @@
 <meta property="og:type" content="website">
 <meta property="og:locale" content="mn_MN">
 <meta property="og:site_name" content="Nudema in Mongolia">
-<meta property="og:title" content="Nudema in Mongolia | Арьс арчилгаа, гоо сайхны онлайн дэлгүүр">
+<meta property="og:title" content="Nudema in Mongolia">
 <meta property="og:description" content="Монгол дахь арьс арчилгаа, гоо сайхны бүтээгдэхүүний онлайн дэлгүүр.">
 <meta property="og:url" content="https://nudema-mongolia.com/">
 <meta name="twitter:card" content="summary_large_image">
@@ -22,7 +23,6 @@
   "@type": "OnlineStore",
   "@id": "https://nudema-mongolia.com/#store",
   "name": "Nudema in Mongolia",
-  "alternateName": "NUDEMA",
   "url": "https://nudema-mongolia.com/",
   "description": "Монгол дахь арьс арчилгаа, гоо сайхны бүтээгдэхүүний онлайн дэлгүүр.",
   "email": "mailto:help@nudema.mn",
@@ -38,52 +38,8 @@
   "currenciesAccepted": "MNT"
 }
 </script>
-<!-- Үндсэн хаяг: төхөөрөмжөөс хамаарч PC эсвэл мобайл дэлгүүр рүү шууд шилжинэ.
-     Google OAuth брэндийн баталгаажуулалт: аппын нэр ("Nudema in Mongolia"), зорилго,
-     нууцлалын холбоос энэ HTML-д статикаар байгаа тул crawler шууд уншина.
-     Хүний шалгагч redirect-ээр дэлгүүрийн хуудсанд очиход мөн ижил нэр, зорилго,
-     нууцлалын холбоос статик байдлаар харагдана (store-intro хэсэг ба footer).
-     Бүх хуудсын жагсаалт: /menu.html · Оношилгоо: /whoami.html -->
-<script>
-  (function () {
-    var PC = './Nudema%20Mongolia.dc.html';
-    var MOBILE = './Nudema%20Mobile.dc.html';
-
-    // ?v=pc / ?v=mobile гэж хүчээр сонгож болно
-    var forced = (location.search.match(/[?&]v=(pc|mobile)/) || [])[1];
-    if (forced) { location.replace(forced === 'mobile' ? MOBILE : PC); return; }
-
-    var ua = navigator.userAgent || '';
-    var uaData = navigator.userAgentData;
-
-    // 1) Chromium-д хамгийн найдвартай дохио (Android, апп доторх хөтөч ч мөн)
-    if (uaData && uaData.mobile === true) { location.replace(MOBILE); return; }
-
-    // 2) UA — "Mobi" нь ихэнх мобайл ба апп доторх хөтчид байдаг
-    if (/Android|iPhone|iPod|IEMobile|BlackBerry|Opera Mini|Mobi/i.test(ua)) {
-      location.replace(MOBILE); return;
-    }
-
-    // 3) Шинэ iPad-ууд desktop UA илгээдэг тул мэдрэгчээр нь
-    if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) { location.replace(MOBILE); return; }
-
-    // 4) Өргөнөөр. screen.width нь Android дээр физик пиксел заадаг тул
-    //    зөвхөн layout-ийн өргөнийг ашиглана.
-    var w = Math.min(
-      document.documentElement.clientWidth || 99999,
-      window.innerWidth || 99999
-    );
-    if (w < 820) { location.replace(MOBILE); return; }
-
-    // 5) Хуруугаар удирддаг жижиг дэлгэц
-    if (window.matchMedia && matchMedia('(pointer: coarse)').matches && w < 1024) {
-      location.replace(MOBILE); return;
-    }
-
-    location.replace(PC);
-  })();
-</script>
-<noscript><meta http-equiv="refresh" content="0; url=./Nudema%20Mongolia.dc.html"></noscript>
+<!-- Google OAuth брэндийн баталгаажуулалтад ашиг되는 공개 홈페이지입니다.
+     자동 리디렉션 없이 앱 이름, 기능 설명, 개인정보처리방침 링크를 직접 표시합니다. -->
 <style>
   * { box-sizing: border-box; }
   body {
