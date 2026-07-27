@@ -3,6 +3,7 @@ import { dbFrom, ensureSchema, readState } from './_lib.js';
 const SITE_ORIGIN = 'https://nudema-mongolia.com';
 const STATIC_URLS = [
   '/',
+  '/oauth-home',
   '/Nudema%20Search.dc',
   '/Nudema%20Privacy.dc',
   '/Nudema%20Terms.dc',
