@@ -38,36 +38,11 @@
   "currenciesAccepted": "MNT"
 }
 </script>
-<!-- 일반 방문자는 기기에 맞는 쇼핑몰로 즉시 이동합니다.
-     Google OAuth 검토용 공개 페이지는 /oauth-home 에서 별도로 제공합니다. -->
-<script>
-  (function () {
-    var desktopStore = './Nudema%20Mongolia.dc.html';
-    var mobileStore = './Nudema%20Mobile.dc.html';
-    var forced = (location.search.match(/[?&]v=(pc|mobile)/) || [])[1];
-    if (forced) {
-      location.replace(forced === 'mobile' ? mobileStore : desktopStore);
-      return;
-    }
+<!-- Google OAuth 브랜드 인증 진행 중에는 자동 리디렉션을 하지 않습니다.
+     심사팀이 앱 이름·목적·개인정보 링크를 이 정적 페이지에서 바로 봐야 합니다.
+     인증 통과 후 자동 이동을 되살리려면 git 기록의 이전 스크립트를 복원하세요.
+     검토용 공개 페이지는 /oauth-home 에서도 제공됩니다. -->
 
-    var ua = navigator.userAgent || '';
-    var uaData = navigator.userAgentData;
-    var width = Math.min(
-      document.documentElement.clientWidth || 99999,
-      window.innerWidth || 99999
-    );
-    var isMobile = Boolean(
-      (uaData && uaData.mobile === true) ||
-      /Android|iPhone|iPod|IEMobile|BlackBerry|Opera Mini|Mobi/i.test(ua) ||
-      (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) ||
-      width < 820 ||
-      (window.matchMedia && matchMedia('(pointer: coarse)').matches && width < 1024)
-    );
-
-    location.replace(isMobile ? mobileStore : desktopStore);
-  })();
-</script>
-<noscript><meta http-equiv="refresh" content="0; url=./Nudema%20Mongolia.dc.html"></noscript>
 <style>
   * { box-sizing: border-box; }
   body {
