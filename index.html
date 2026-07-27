@@ -38,8 +38,36 @@
   "currenciesAccepted": "MNT"
 }
 </script>
-<!-- Google OAuth брэндийн баталгаажуулалтад ашиг되는 공개 홈페이지입니다.
-     자동 리디렉션 없이 앱 이름, 기능 설명, 개인정보처리방침 링크를 직접 표시합니다. -->
+<!-- 일반 방문자는 기기에 맞는 쇼핑몰로 즉시 이동합니다.
+     Google OAuth 검토용 공개 페이지는 /oauth-home 에서 별도로 제공합니다. -->
+<script>
+  (function () {
+    var desktopStore = './Nudema%20Mongolia.dc.html';
+    var mobileStore = './Nudema%20Mobile.dc.html';
+    var forced = (location.search.match(/[?&]v=(pc|mobile)/) || [])[1];
+    if (forced) {
+      location.replace(forced === 'mobile' ? mobileStore : desktopStore);
+      return;
+    }
+
+    var ua = navigator.userAgent || '';
+    var uaData = navigator.userAgentData;
+    var width = Math.min(
+      document.documentElement.clientWidth || 99999,
+      window.innerWidth || 99999
+    );
+    var isMobile = Boolean(
+      (uaData && uaData.mobile === true) ||
+      /Android|iPhone|iPod|IEMobile|BlackBerry|Opera Mini|Mobi/i.test(ua) ||
+      (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) ||
+      width < 820 ||
+      (window.matchMedia && matchMedia('(pointer: coarse)').matches && width < 1024)
+    );
+
+    location.replace(isMobile ? mobileStore : desktopStore);
+  })();
+</script>
+<noscript><meta http-equiv="refresh" content="0; url=./Nudema%20Mongolia.dc.html"></noscript>
 <style>
   * { box-sizing: border-box; }
   body {
