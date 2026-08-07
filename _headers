@@ -39,3 +39,6 @@
 
 /auth-page.css
   Cache-Control: no-cache, must-revalidate
+
+/user-ui.js
+  Cache-Control: no-cache, must-revalidate
