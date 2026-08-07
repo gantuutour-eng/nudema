@@ -27,11 +27,11 @@
     var shop = String(settings.shopName || 'Nudema Mongolia');
     var email = String(settings.email || 'help@nudema.mn');
     var phone = String(settings.phone || '7011-5007');
-    return '<div class="nudema-footer-inner"><div class="nudema-footer-logo">NUDEMA</div>' +
+    return '<div class="nudema-footer-inner"><div class="nudema-footer-logo">Nudema in Mongolia</div>' +
       '<nav class="nudema-footer-links" aria-label="Footer">' +
-      '<a href="Nudema%20Terms.dc.html">Үйлчилгээний нөхцөл</a>' +
+      '<a href="Nudema%20Terms.dc">Үйлчилгээний нөхцөл</a>' +
       '<a class="company-link" href="Nudema%20Mongolia.dc.html#brand-story">Компанийн мэдээлэл</a>' +
-      '<a href="Nudema%20Privacy.dc.html">Хувийн мэдээлэл</a>' +
+      '<a href="Nudema%20Privacy.dc">Хувийн мэдээлэл</a>' +
       '<a href="mailto:' + email + '">Хэрэглэгчийн төв</a></nav>' +
       '<div class="nudema-footer-row"><div class="nudema-footer-info">' + shop + ' ХХК · Улаанбаатар хот' +
       '<span class="nudema-footer-extra">, Сүхбаатар дүүрэг, Энх тайваны өргөн чөлөө 12<br>Захирал: Б.Оюунбилэг · Улсын бүртгэлийн дугаар: 106-86-43373</span><br>' +

@@ -64,15 +64,15 @@ Use these exact OAuth consent screen branding values while the app is under revi
 
 - App name: `Nudema in Mongolia`
 - App home page: `https://nudema-mongolia.com/`
-- Privacy policy: `https://nudema-mongolia.com/Nudema%20Privacy.dc.html`
-- Terms of service: `https://nudema-mongolia.com/Nudema%20Terms.dc.html`
+- Privacy policy: `https://nudema-mongolia.com/Nudema%20Privacy.dc`
+- Terms of service: `https://nudema-mongolia.com/Nudema%20Terms.dc`
 - Authorized domain: `nudema-mongolia.com`
 
 Do not submit the Pages preview domain or a storefront subpage as the app home page.
-The root HTML contains the exact app name, a visible English **App purpose**
-description, Google Sign-In usage, and the legal links. Browsers are immediately
-sent to the device-appropriate storefront, where the same app identity and purpose
-are visible; non-scripted review tools can read the static root content directly.
+The root route keeps `https://nudema-mongolia.com/` in the address bar and serves
+the device-appropriate storefront internally through `functions/index.js`. The
+storefront displays the exact app name, purpose, Google Sign-In usage, and legal
+links without redirecting the submitted OAuth homepage to another URL.
 
 - Authorized JavaScript origin: `https://nudema-mongolia.com`
 - Authorized redirect URI: `https://nudema-mongolia.com/api/auth/google/callback`
