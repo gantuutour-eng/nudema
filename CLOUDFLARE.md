@@ -60,18 +60,30 @@ If the Pages project uses the dashboard instead of `wrangler.jsonc`, create the 
 
 In Google Cloud Console, create an OAuth 2.0 client with application type **Web application**.
 
-- Authorized JavaScript origin: `https://nudema.pages.dev`
-- Authorized redirect URI: `https://nudema.pages.dev/api/auth/google/callback`
+Use these exact OAuth consent screen branding values while the app is under review:
+
+- App name: `Nudema in Mongolia`
+- App home page: `https://nudema-mongolia.com/`
+- Privacy policy: `https://nudema-mongolia.com/Nudema%20Privacy.dc.html`
+- Terms of service: `https://nudema-mongolia.com/Nudema%20Terms.dc.html`
+- Authorized domain: `nudema-mongolia.com`
+
+Do not submit the Pages preview domain or a storefront subpage as the app home page.
+The root page deliberately shows the exact app name, a visible English **App purpose**
+description, Google Sign-In usage, and the legal links without an automatic redirect.
+
+- Authorized JavaScript origin: `https://nudema-mongolia.com`
+- Authorized redirect URI: `https://nudema-mongolia.com/api/auth/google/callback`
 
 Add these values under Pages → Settings → Variables and Secrets → Production:
 
 - `GOOGLE_CLIENT_ID`: the Web application client ID
 - `GOOGLE_CLIENT_SECRET`: add as an encrypted secret, never commit it
-- `GOOGLE_REDIRECT_URI`: `https://nudema.pages.dev/api/auth/google/callback`
+- `GOOGLE_REDIRECT_URI`: `https://nudema-mongolia.com/api/auth/google/callback`
 
-If a custom domain becomes the primary domain, add its callback URI in Google and
-set `GOOGLE_REDIRECT_URI` to that exact URI. Google requires an exact redirect URI
-match. Redeploy after changing these values.
+Use the Pages URL only for a pre-production environment that is not submitted for
+OAuth brand verification. Google requires an exact redirect URI match. Redeploy
+after changing these values.
 
 ## 4. Configure the site admin login
 
