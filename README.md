@@ -11,7 +11,7 @@ Cloudflare 배포에서는 Pages Functions + D1이 기기 간 공유 저장소�
 
 | 파일 | 설명 |
 |---|---|
-| `index.html` | Google OAuth 브랜딩 검증용 공개 루트. 앱 이름·목적·개인정보 링크를 정적 HTML로 표시하고 CTA만 기기에 맞는 쇼핑몰로 연결 |
+| `index.html` | 루트에서 기기에 맞는 PC/모바일 홈으로 즉시 이동. 스크립트 미실행 검토 도구를 위해 앱 이름·목적·개인정보 링크도 정적 HTML로 포함 |
 | `menu.html` | 전체 페이지 목록 (개발·시연용) |
 | `Nudema Mongolia.dc.html` | PC 홈 |
 | `Nudema Mobile.dc.html` | 모바일 홈 (390px) |
