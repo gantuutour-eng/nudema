@@ -11,11 +11,11 @@ function safeReturnTo(value) {
   const path = String(value || '');
   return path.startsWith('/') && !path.startsWith('//') && !path.startsWith('/api/')
     ? path.slice(0, 500)
-    : '/Nudema Account.dc.html';
+    : '/account';
 }
 
 function loginError(request, code) {
-  const url = new URL('/Nudema Login.dc.html', request.url);
+  const url = new URL('/login', request.url);
   url.searchParams.set('oauth_error', code);
   return Response.redirect(url.toString(), 302);
 }

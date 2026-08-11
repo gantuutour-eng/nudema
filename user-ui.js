@@ -29,15 +29,15 @@
     var phone = String(settings.phone || '7011-5007');
     return '<div class="nudema-footer-inner"><div class="nudema-footer-logo">Nudema in Mongolia</div>' +
       '<nav class="nudema-footer-links" aria-label="Footer">' +
-      '<a href="Nudema%20Terms.dc">Үйлчилгээний нөхцөл</a>' +
-      '<a class="company-link" href="Nudema%20Mongolia.dc.html#brand-story">Компанийн мэдээлэл</a>' +
-      '<a href="Nudema%20Privacy.dc">Хувийн мэдээлэл</a>' +
+      '<a href="/terms">Үйлчилгээний нөхцөл</a>' +
+      '<a class="company-link" href="/#brand-story">Компанийн мэдээлэл</a>' +
+      '<a href="/privacy">Хувийн мэдээлэл</a>' +
       '<a href="mailto:' + email + '">Хэрэглэгчийн төв</a></nav>' +
       '<div class="nudema-footer-row"><div class="nudema-footer-info">' + shop + ' ХХК · Улаанбаатар хот' +
       '<span class="nudema-footer-extra">, Сүхбаатар дүүрэг, Энх тайваны өргөн чөлөө 12<br>Захирал: Б.Оюунбилэг · Улсын бүртгэлийн дугаар: 106-86-43373</span><br>' +
       'И-мэйл: ' + email + ' · Утас: ' + phone + '<span class="nudema-footer-extra"> · Ажлын цаг: Даваа–Баасан 09:00–18:00</span><br>' +
       'NUDEMA MONGOLIA LLC. ALL RIGHTS RESERVED.</div>' +
-      '<div class="nudema-footer-social"><a href="mailto:' + email + '" aria-label="Email">◎</a><a href="mailto:' + email + '" aria-label="Support">TALK</a><a href="Nudema%20Mongolia.dc.html#brand-story" aria-label="Brand video">▶</a></div></div></div>';
+      '<div class="nudema-footer-social"><a href="mailto:' + email + '" aria-label="Email">◎</a><a href="mailto:' + email + '" aria-label="Support">TALK</a><a href="/#brand-story" aria-label="Brand video">▶</a></div></div></div>';
   }
 
   function navLink(key, href, label, svg, badge) {
@@ -46,10 +46,10 @@
   }
 
   function navHtml() {
-    return navLink('home', 'Nudema%20Mobile.dc.html', 'Нүүр', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>') +
-      navLink('search', 'Nudema%20Search.dc.html', 'Хайх', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>') +
-      navLink('cart', 'Nudema%20Cart.dc.html', 'Сагс', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.3 10.2a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L20.5 8H6"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg>', true) +
-      navLink('account', 'Nudema%20Account.dc.html', 'Профайл', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>');
+    return navLink('home', '/', 'Нүүр', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>') +
+      navLink('search', '/search', 'Хайх', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>') +
+      navLink('cart', '/cart', 'Сагс', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.3 10.2a2 2 0 0 0 2-1.6L20.5 8H6"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg>', true) +
+      navLink('account', '/account', 'Профайл', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>');
   }
 
   function fixActions() {

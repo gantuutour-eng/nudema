@@ -162,7 +162,7 @@
         title: 'Гишүүн болоод\nбүх захиалгад 15% хямдрал',
         description: 'Бүртгэл үнэгүй · Төрсөн өдрийн купон · Үнэгүй хүргэлт',
         buttonText: 'Гишүүн болох ›',
-        href: 'Nudema%20Account.dc.html',
+        href: '/account',
       },
       // Дэлгүүрийн дээд талын гүйдэг мөр
       marquee: [
@@ -204,7 +204,7 @@
   var pathname = '';
   try { pathname = decodeURIComponent(locationInfo.pathname || ''); } catch (e) { pathname = locationInfo.pathname || ''; }
   // PC ба мобайл админ хоёулаа /api/admin/state-ээс уншиж, /api/admin/store руу бичнэ
-  var isAdminPage = /Nudema\s+Admin(?:\s+Mobile)?\.dc(?:\.html)?$/i.test(pathname);
+  var isAdminPage = /^\/admin\/?$/i.test(pathname) || /Nudema\s+Admin(?:\s+Mobile)?\.dc(?:\.html)?$/i.test(pathname);
   var isPlainLocalServer = /^(localhost|127\.0\.0\.1)$/i.test(locationInfo.hostname || '') && String(locationInfo.port || '') === '4321';
   var canFetchRemote = typeof fetch === 'function' && /^https?:$/i.test(locationInfo.protocol || '') && !isPlainLocalServer;
   remoteStatus.enabled = canFetchRemote;

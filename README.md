@@ -20,9 +20,22 @@ Cloudflare 배포에서는 Pages Functions + D1이 기기 간 공유 저장소�
 | `Nudema Admin.dc.html` | 관리자 (PC) |
 | `Nudema Admin Mobile.dc.html` | 관리자 (모바일) |
 
-PC 홈·PC 관리자 페이지는 `device-redirect.js`가 모바일 기기를 감지해
-각각 `Nudema Mobile.dc.html` / `Nudema Admin Mobile.dc.html`로 넘깁니다.
-`?v=pc`를 붙이면 넘어가지 않습니다.
+운영 환경에서는 아래의 짧은 공개 URL을 사용합니다. 기존 `.dc` 및
+`.dc.html` 주소는 호환성을 위해 대응하는 짧은 URL로 영구 이동합니다.
+
+| 공개 URL | 페이지 |
+|---|---|
+| `/` | 기기에 맞는 쇼핑몰 홈 |
+| `/admin` | 기기에 맞는 관리자 |
+| `/login`, `/signup`, `/account` | 고객 인증·계정 |
+| `/search`, `/product?id=1` | 검색·상품 상세 |
+| `/cart`, `/checkout` | 장바구니·결제 |
+| `/privacy`, `/terms` | 개인정보 처리방침·이용약관 |
+
+`/`와 `/admin`은 서버에서 기기를 감지해 같은 URL을 유지한 채 PC 또는
+모바일 화면을 제공합니다. 기존 긴 PC 주소로 직접 들어온 모바일 사용자는
+`device-redirect.js`가 각각 `/?v=mobile` 또는 `/admin?v=mobile`로 정리합니다.
+`?v=pc`를 붙이면 PC 화면을 강제로 확인할 수 있습니다.
 
 ## 관리자 기능
 

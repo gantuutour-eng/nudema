@@ -64,8 +64,8 @@ Use these exact OAuth consent screen branding values while the app is under revi
 
 - App name: `Nudema in Mongolia`
 - App home page: `https://nudema-mongolia.com/`
-- Privacy policy: `https://nudema-mongolia.com/Nudema%20Privacy.dc`
-- Terms of service: `https://nudema-mongolia.com/Nudema%20Terms.dc`
+- Privacy policy: `https://nudema-mongolia.com/privacy`
+- Terms of service: `https://nudema-mongolia.com/terms`
 - Authorized domain: `nudema-mongolia.com`
 
 Do not submit the Pages preview domain or a storefront subpage as the app home page.

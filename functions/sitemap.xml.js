@@ -4,9 +4,9 @@ const SITE_ORIGIN = 'https://nudema-mongolia.com';
 const STATIC_URLS = [
   '/',
   '/oauth-home',
-  '/Nudema%20Search.dc',
-  '/Nudema%20Privacy.dc',
-  '/Nudema%20Terms.dc',
+  '/search',
+  '/privacy',
+  '/terms',
 ];
 
 function escapeXml(value) {
@@ -42,7 +42,7 @@ export async function onRequestGet(context) {
     const id = Number(product && product.id);
     if (!Number.isFinite(id) || id < 1 || !String(product.title || '').trim()) continue;
     entries.push(sitemapEntry(
-      `${SITE_ORIGIN}/Nudema%20Product.dc?id=${encodeURIComponent(id)}`,
+      `${SITE_ORIGIN}/product?id=${encodeURIComponent(id)}`,
       productsUpdatedAt,
     ));
   }

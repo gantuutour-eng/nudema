@@ -10,8 +10,8 @@
   var path = decodeURIComponent(location.pathname || '');
   // Cloudflare Pages ".html"-ийг хасдаг тул хоёр хэлбэрийг хоёуланг нь тооцно
   var target = '';
-  if (/Nudema\s+Mongolia\.dc(\.html)?$/i.test(path)) target = './Nudema%20Mobile.dc.html';
-  else if (/Nudema\s+Admin\.dc(\.html)?$/i.test(path)) target = './Nudema%20Admin%20Mobile.dc.html';
+  if (/Nudema\s+Mongolia\.dc(\.html)?$/i.test(path)) target = '/?v=mobile';
+  else if (/Nudema\s+Admin\.dc(\.html)?$/i.test(path)) target = '/admin?v=mobile';
   if (!target) return;
 
   if (/[?&]v=(pc|mobile)/.test(location.search)) return;
@@ -34,6 +34,8 @@
   }
 
   if (isMobile) {
-    location.replace(target + (location.search || '') + (location.hash || ''));
+    var separator = target.indexOf('?') >= 0 ? '&' : '?';
+    var query = (location.search || '').replace(/^\?/, '');
+    location.replace(target + (query ? separator + query : '') + (location.hash || ''));
   }
 })();

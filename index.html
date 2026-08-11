@@ -43,8 +43,8 @@
      별도 검토 페이지는 /oauth-home 에서도 제공합니다. -->
 <script>
   (function () {
-    var desktopStore = './Nudema%20Mongolia.dc.html';
-    var mobileStore = './Nudema%20Mobile.dc.html';
+    var desktopStore = '/?v=pc';
+    var mobileStore = '/?v=mobile';
     var forced = (location.search.match(/[?&]v=(pc|mobile)/) || [])[1];
     if (forced) {
       location.replace(forced === 'mobile' ? mobileStore : desktopStore);
@@ -68,7 +68,7 @@
     location.replace(isMobile ? mobileStore : desktopStore);
   })();
 </script>
-<noscript><meta http-equiv="refresh" content="0; url=./Nudema%20Mongolia.dc.html"></noscript>
+<noscript><meta http-equiv="refresh" content="0; url=/?v=pc"></noscript>
 
 <style>
   * { box-sizing: border-box; }
@@ -118,11 +118,11 @@
     <p class="verification-name" lang="en"><strong>App name:</strong> Nudema in Mongolia</p>
     <p class="app-purpose">Nudema in Mongolia нь Монгол дахь арьс арчилгаа, гоо сайхны бүтээгдэхүүний онлайн дэлгүүр юм. Бүтээгдэхүүний дэлгэрэнгүй мэдээлэл, үнэ, хэрэглэгчийн үнэлгээг харьцуулан үзэж, Улаанбаатар хот болон Монгол орон даяар хүргэлттэйгээр онлайнаар захиалах боломжтой. Google бүртгэлээрээ нэвтэрч захиалгаа хялбар хийж, захиалгын түүх, урамшууллын оноогоо хянана.</p>
     <p class="app-purpose-en" lang="en"><strong class="verification-label">App purpose:</strong> Nudema in Mongolia is an online store for skincare and beauty products in Mongolia. Browse products, compare prices and reviews, and order online with delivery across Mongolia. Google Sign-In is used only to create or access a customer account, place orders, and track order history.</p>
-    <a id="enter-store" class="cta" href="./Nudema%20Mongolia.dc.html">Дэлгүүрт зочлох →</a>
+    <a id="enter-store" class="cta" href="/?v=pc">Дэлгүүрт зочлох →</a>
     <p class="alt-links">
-      <a href="./Nudema%20Mobile.dc.html">Мобайл хувилбар</a> ·
-      <a href="./Nudema%20Mongolia.dc.html?v=pc">PC хувилбар</a> ·
-      <a href="./Nudema%20Login.dc.html">Нэвтрэх</a>
+      <a href="/?v=mobile">Мобайл хувилбар</a> ·
+      <a href="/?v=pc">PC хувилбар</a> ·
+      <a href="/login">Нэвтрэх</a>
     </p>
     <ul class="features">
       <li>🚚 Монгол даяар хүргэлт</li>
@@ -133,8 +133,8 @@
   </main>
   <footer>
     <div class="footer-links">
-      <a href="./Nudema%20Privacy.dc">Хувийн мэдээллийн бодлого</a>
-      <a href="./Nudema%20Terms.dc">Үйлчилгээний нөхцөл</a>
+      <a href="/privacy">Хувийн мэдээллийн бодлого</a>
+      <a href="/terms">Үйлчилгээний нөхцөл</a>
       <a href="mailto:help@nudema.mn">help@nudema.mn</a>
       <a href="tel:+97670115007">+976 7011-5007</a>
     </div>

@@ -2,17 +2,17 @@
   if (customElements.get('nudema-menu')) return;
 
   const LINKS = [
-    { label: 'BEST', href: 'Nudema%20Mongolia.dc.html' },
-    { label: 'Анхны худалдан авалт', href: 'Nudema%20Mongolia.dc.html' },
-    { label: 'Төрлөөр', href: 'Nudema%20Mongolia.dc.html' },
-    { label: 'Арьсны асуудлаар', href: 'Nudema%20Mongolia.dc.html' },
-    { label: 'Эвент', href: 'Nudema%20Mongolia.dc.html' },
+    { label: 'BEST', href: '/' },
+    { label: 'Анхны худалдан авалт', href: '/' },
+    { label: 'Төрлөөр', href: '/' },
+    { label: 'Арьсны асуудлаар', href: '/' },
+    { label: 'Эвент', href: '/' },
   ];
   const SUB = [
-    { label: 'Брэндийн түүх', href: 'Nudema%20Mongolia.dc.html#brand-story' },
-    { label: 'Хайх', href: 'Nudema%20Search.dc.html' },
-    { label: 'Миний хуудас', href: 'Nudema%20Account.dc.html' },
-    { label: 'Сагс', href: 'Nudema%20Cart.dc.html' },
+    { label: 'Брэндийн түүх', href: '/#brand-story' },
+    { label: 'Хайх', href: '/search' },
+    { label: 'Миний хуудас', href: '/account' },
+    { label: 'Сагс', href: '/cart' },
   ];
 
   class NudemaMenu extends HTMLElement {
@@ -46,7 +46,7 @@
           <div class="scrim"></div>
           <aside class="drawer" role="dialog" aria-label="Цэс">
             <div class="dhead">
-              <a class="logo" href="Nudema%20Mongolia.dc.html">NUDEMA</a>
+              <a class="logo" href="/">NUDEMA</a>
               <button class="close" aria-label="Хаах">&times;</button>
             </div>
             <nav>

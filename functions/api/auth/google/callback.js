@@ -2,7 +2,7 @@ import { createSession, hashPassword, normalizeEmail, randomHex, sha256 } from '
 import { dbFrom, ensureSchema } from '../../../_lib.js';
 
 function authRedirect(request, path, errorCode, extraHeaders = {}) {
-  const url = new URL(path || '/Nudema Account.dc.html', request.url);
+  const url = new URL(path || '/account', request.url);
   if (errorCode) url.searchParams.set('oauth_error', errorCode);
   return new Response(null, { status: 302, headers: { Location: url.toString(), ...extraHeaders } });
 }
@@ -10,14 +10,14 @@ function authRedirect(request, path, errorCode, extraHeaders = {}) {
 export async function onRequestGet(context) {
   const { env, request } = context;
   const query = new URL(request.url).searchParams;
-  if (query.get('error')) return authRedirect(request, '/Nudema Login.dc.html', 'cancelled');
+  if (query.get('error')) return authRedirect(request, '/login', 'cancelled');
   if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
-    return authRedirect(request, '/Nudema Login.dc.html', 'not_configured');
+    return authRedirect(request, '/login', 'not_configured');
   }
 
   const code = query.get('code');
   const state = query.get('state');
-  if (!code || !state) return authRedirect(request, '/Nudema Login.dc.html', 'invalid_response');
+  if (!code || !state) return authRedirect(request, '/login', 'invalid_response');
 
   try {
     const db = dbFrom(context);
@@ -27,7 +27,7 @@ export async function onRequestGet(context) {
       'SELECT code_verifier, return_to FROM oauth_states WHERE state_hash = ? AND expires_at > ?',
     ).bind(stateHash, new Date().toISOString()).first();
     await db.prepare('DELETE FROM oauth_states WHERE state_hash = ?').bind(stateHash).run();
-    if (!oauthState) return authRedirect(request, '/Nudema Login.dc.html', 'expired');
+    if (!oauthState) return authRedirect(request, '/login', 'expired');
 
     const redirectUri = env.GOOGLE_REDIRECT_URI || new URL('/api/auth/google/callback', request.url).toString();
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
@@ -51,7 +51,7 @@ export async function onRequestGet(context) {
     const profile = await profileResponse.json();
     const email = normalizeEmail(profile.email);
     if (!profileResponse.ok || !profile.sub || !email || profile.email_verified !== true) {
-      return authRedirect(request, '/Nudema Login.dc.html', 'unverified_email');
+      return authRedirect(request, '/login', 'unverified_email');
     }
 
     let identity = await db.prepare(
@@ -84,11 +84,11 @@ export async function onRequestGet(context) {
     const cookie = await createSession(db, request, identity.id, true);
     return authRedirect(
       request,
-      oauthState.return_to || '/Nudema Account.dc.html',
+      oauthState.return_to || '/account',
       '',
       { 'Set-Cookie': cookie },
     );
   } catch {
-    return authRedirect(request, '/Nudema Login.dc.html', 'callback_failed');
+    return authRedirect(request, '/login', 'callback_failed');
   }
 }
