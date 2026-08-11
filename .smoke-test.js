@@ -187,7 +187,7 @@ check('футерт шинэ утас', m.footerLine.includes('9999-1234'), m.fo
 check('дээд мөрөнд дэлгүүрийн нэр', m.shopName === 'Nudema MN', m.shopName);
 check('quickLinks устгагдсан', m.quickLinks === undefined);
 check('эвент 3', m.events.length === 3);
-check('instagram 6', m.instaPosts.length === 6);
+check('instagram хэсэг устгагдсан', m.instaPosts === undefined);
 
 console.log('\n[12] Мобайл — таб ба цэс');
 check('бүх табд 4 бараа', m.bestFiltered.length === 4, m.bestFiltered.length);
