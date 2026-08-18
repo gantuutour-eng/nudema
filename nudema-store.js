@@ -132,7 +132,7 @@
       badges: ['Багц', 'Гишүүн', 'Vegan', 'Шинэ'],
     },
     settings: {
-      shopName: 'Nudema Mongolia',
+      shopName: 'Nudema in Mongolia',
       phone: '7011-5007',
       email: 'help@nudema.mn',
       shippingFee: '7,000₮',
