@@ -1,113 +1,106 @@
-const encoder = new TextEncoder();
-const ADMIN_COOKIE = 'nudema_admin_session';
+import { randomHex, sha256, normalizeEmail } from './_auth.js';
+import { ADMIN_SCHEMA } from './_admin-schema.js';
+
+export const ADMIN_MODULES = ['products', 'orders', 'customers', 'reviews', 'content', 'analytics', 'settings'];
+export const PRIMARY_OWNER_EMAIL = 'gantuutour@gmail.com';
+const COOKIE = 'nudema_admin_session';
 const SESSION_SECONDS = 12 * 60 * 60;
+const initialized = new WeakMap();
 
-function allowedEmails(env = {}) {
-  return String(env.ADMIN_EMAILS || '')
-    .split(',')
-    .map((value) => value.trim().toLowerCase())
-    .filter(Boolean);
+export async function ensureAdminSchema(db) {
+  if (initialized.has(db)) return initialized.get(db);
+  const promise = (async () => {
+  await db.batch(ADMIN_SCHEMA.map(sql => db.prepare(sql)));
+  // Provision only the specifically authorized owner. Claiming still requires Google.
+  // Never re-enable an account or change an existing membership during provisioning.
+  await db.prepare(`INSERT OR IGNORE INTO admin_members (id,email,role,status)
+    VALUES ('nudema-primary-owner',?,'owner','invited')`).bind(PRIMARY_OWNER_EMAIL).run();
+  })().catch(cause => { initialized.delete(db); throw cause; });
+  initialized.set(db, promise);
+  return promise;
 }
 
-function configurationError(env = {}) {
-  if (!allowedEmails(env).length) return 'ADMIN_EMAILS is not configured.';
-  if (String(env.ADMIN_PASSWORD || '').length < 12) return 'ADMIN_PASSWORD must contain at least 12 characters.';
-  if (String(env.ADMIN_SESSION_SECRET || '').length < 32) return 'ADMIN_SESSION_SECRET must contain at least 32 characters.';
-  return '';
-}
-
-function toBase64Url(bytes) {
-  let binary = '';
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary).replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '');
-}
-
-function encodePayload(value) {
-  return toBase64Url(encoder.encode(JSON.stringify(value)));
-}
-
-function decodePayload(value) {
-  try {
-    const normalized = String(value || '').replaceAll('-', '+').replaceAll('_', '/');
-    const padded = normalized + '='.repeat((4 - normalized.length % 4) % 4);
-    const binary = atob(padded);
-    const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
-    return JSON.parse(new TextDecoder().decode(bytes));
-  } catch {
-    return null;
-  }
-}
-
-async function sha256(value) {
-  return new Uint8Array(await crypto.subtle.digest('SHA-256', encoder.encode(String(value))));
-}
-
-function constantTimeEqual(left, right) {
-  const a = typeof left === 'string' ? encoder.encode(left) : left;
-  const b = typeof right === 'string' ? encoder.encode(right) : right;
-  const length = Math.max(a.length, b.length);
-  let mismatch = a.length ^ b.length;
-  for (let index = 0; index < length; index += 1) mismatch |= (a[index] || 0) ^ (b[index] || 0);
-  return mismatch === 0;
-}
-
-async function signature(payload, secret) {
-  const key = await crypto.subtle.importKey(
-    'raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
-  );
-  return toBase64Url(new Uint8Array(await crypto.subtle.sign('HMAC', key, encoder.encode(payload))));
-}
-
-function cookieValue(request) {
-  const raw = request.headers.get('Cookie') || '';
-  for (const part of raw.split(';')) {
-    const [name, ...rest] = part.trim().split('=');
-    if (name === ADMIN_COOKIE) return rest.join('=');
+export function adminCookieValue(request, name = COOKIE) {
+  const parts = (request.headers.get('Cookie') || '').split(';');
+  for (const part of parts) {
+    const [key, ...value] = part.trim().split('=');
+    if (key === name) return value.join('=');
   }
   return '';
 }
 
-function cookie(request, value, maxAge) {
-  const secure = new URL(request.url).protocol === 'https:' ? '; Secure' : '';
-  return `${ADMIN_COOKIE}=${value}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}${secure}`;
+export function adminCookie(request, token, seconds = SESSION_SECONDS) {
+  return `${COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${seconds}${new URL(request.url).protocol === 'https:' ? '; Secure' : ''}`;
 }
 
-export async function verifyAdminCredentials(emailValue, passwordValue, env = {}) {
-  const error = configurationError(env);
-  if (error) return { ok: false, configurationError: error };
-
-  const email = String(emailValue || '').trim().toLowerCase();
-  const supplied = await sha256(passwordValue || '');
-  const expected = await sha256(env.ADMIN_PASSWORD);
-  const emailAllowed = allowedEmails(env).includes(email);
-  return { ok: emailAllowed && constantTimeEqual(supplied, expected), email };
+export function publicAdmin(member) {
+  let permissions = [];
+  try { permissions = JSON.parse(member.permissions); } catch {}
+  if (!Array.isArray(permissions)) permissions = [];
+  return {
+    id: member.id, email: member.email, name: member.name || member.email.split('@')[0],
+    role: member.role, status: member.status, revision: Number(member.revision),
+    permissions: member.role === 'operator' ? ADMIN_MODULES.filter(p => permissions.includes(p)) : [...ADMIN_MODULES],
+    inviteExpiresAt: member.invite_expires_at, lastLoginAt: member.last_login_at,
+    createdAt: member.created_at,
+  };
 }
 
-export async function createAdminSession(request, email, env = {}) {
-  const now = Math.floor(Date.now() / 1000);
-  const payload = encodePayload({ email, iat: now, exp: now + SESSION_SECONDS, version: 1 });
-  const token = `${payload}.${await signature(payload, String(env.ADMIN_SESSION_SECRET || ''))}`;
-  return cookie(request, token, SESSION_SECONDS);
+export function canAdmin(identity, permission) {
+  if (!identity || identity.status !== 'active') return false;
+  if (identity.role === 'owner' || identity.role === 'admin') return true;
+  if (permission === 'team' || permission === 'audit') return false;
+  if (permission === 'dashboard') return identity.permissions.includes('orders');
+  return identity.permissions.includes(permission);
 }
 
-export async function adminSessionIdentity(request, env = {}) {
-  if (configurationError(env)) return null;
-  const token = cookieValue(request);
-  const separator = token.lastIndexOf('.');
-  if (separator < 1) return null;
-  const payload = token.slice(0, separator);
-  const suppliedSignature = token.slice(separator + 1);
-  const expectedSignature = await signature(payload, env.ADMIN_SESSION_SECRET);
-  if (!constantTimeEqual(suppliedSignature, expectedSignature)) return null;
-
-  const decoded = decodePayload(payload);
-  const email = String(decoded && decoded.email || '').trim().toLowerCase();
-  const now = Math.floor(Date.now() / 1000);
-  if (!decoded || decoded.version !== 1 || !Number.isFinite(decoded.exp) || decoded.exp <= now) return null;
-  if (!allowedEmails(env).includes(email)) return null;
-  return { email };
+export function adminStateNames(identity) {
+  // Catalog and store settings are already public, and used by every admin view.
+  const names = ['products', 'taxonomy', 'settings'];
+  if (canAdmin(identity, 'content')) names.push('content');
+  if (canAdmin(identity, 'reviews')) names.push('reviews');
+  if (['orders', 'customers', 'analytics'].some(p => canAdmin(identity, p))) names.push('orders', 'statuses');
+  return names;
 }
 
-export function clearAdminSession(request) {
-  return cookie(request, '', 0);
+export function sameOriginMutation(request) {
+  const origin = request.headers.get('Origin');
+  return origin === new URL(request.url).origin;
+}
+
+export async function createAdminSession(db, request, memberId) {
+  const token = randomHex(32);
+  await db.prepare('DELETE FROM admin_sessions WHERE expires_at <= ?').bind(new Date().toISOString()).run();
+  await db.prepare('INSERT INTO admin_sessions (token_hash,member_id,expires_at) VALUES (?,?,?)')
+    .bind(await sha256(token), memberId, new Date(Date.now() + SESSION_SECONDS * 1000).toISOString()).run();
+  return adminCookie(request, token);
+}
+
+export async function adminSessionIdentity(request, env = {}, { allowInvitation = false } = {}) {
+  const token = adminCookieValue(request);
+  if (!/^[0-9a-f]{64}$/.test(token) || !env.DB) return null;
+  await ensureAdminSchema(env.DB);
+  const member = await env.DB.prepare(`SELECT m.* FROM admin_sessions s
+    JOIN admin_members m ON m.id=s.member_id WHERE s.token_hash=? AND s.expires_at>?`)
+    .bind(await sha256(token), new Date().toISOString()).first();
+  if (!member || !member.google_sub) return null;
+  if (member.status !== 'active' && !(allowInvitation && member.status === 'invited' && member.invite_expires_at > new Date().toISOString())) return null;
+  return publicAdmin(member);
+}
+
+export async function deleteAdminSession(db, request) {
+  const token = adminCookieValue(request);
+  if (token && db) await db.prepare('DELETE FROM admin_sessions WHERE token_hash=?').bind(await sha256(token)).run();
+  return adminCookie(request, '', 0);
+}
+
+export const clearAdminSession = request => adminCookie(request, '', 0);
+
+export function auditStatement(db, actor, action, target = '', details = {}) {
+  return db.prepare('INSERT INTO admin_audit (id,actor_id,actor_email,action,target,details) VALUES (?,?,?,?,?,?)')
+    .bind(crypto.randomUUID(), actor.id || 'local', normalizeEmail(actor.email), action, String(target).slice(0, 200), JSON.stringify(details));
+}
+
+export async function recordAdminAudit(db, actor, action, target, details) {
+  await auditStatement(db, actor, action, target, details).run();
 }

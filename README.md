@@ -133,6 +133,7 @@ node --test .catalog-test.js # 대분류·카테고리·상품 저장·검색·�
 node --test .address-test.js # 주소 검색 결과와 주문 좌표 저장 검증
 node --test .account-test.js # 마이페이지의 401·404·503 처리와 정상 프로필 표시 검증
 node --test .google-auth-test.js # Google 계정 생성·연결과 잘못된 OAuth 응답 차단 검증
+node --test .admin-auth-test.js # Google 관리자·초대·권한·세션 회수·접근 차단 검증
 node --test .serve-test.js # 페이지·정적 자산 26개, HEAD, 404, 경로 이탈 차단 검증
 node --test .mobile-test.js .image-upload-test.js # 설치 안내·캐시 격리·상세 로딩·WebP 업로드 검증
 ```
@@ -197,7 +198,7 @@ Cloudflare Browser Cache TTL은 `Respect Existing Headers`로 설정합니다.
 | `nudema_content` | 마퀴·히어로 슬라이드·브랜드 영상 |
 | `nudema_settings` | 상점 정보·계좌·배송비 |
 | `nudema_taxonomy` | 카테고리·태그 |
-| `nudema_admin` | 관리자 계정 |
+| 관리자 인증 | localStorage에 저장하지 않음. D1의 Google 계정 권한과 HttpOnly 세션 사용 |
 
 ## ⚠️ 알아두실 점
 

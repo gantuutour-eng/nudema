@@ -58,3 +58,6 @@
 
 /pwa-install.css
   Cache-Control: no-cache, must-revalidate
+
+/admin-team.js
+  Cache-Control: no-cache, must-revalidate
