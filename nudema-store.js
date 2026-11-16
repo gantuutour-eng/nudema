@@ -6,7 +6,7 @@
  */
 (function () {
   // The store is loaded in the document head and by the DC helmet. Initialize once.
-  if (window.NudemaStore && window.NudemaStore.version === '20261116-r4') return;
+  if (window.NudemaStore && window.NudemaStore.version === '20261116-r5') return;
   var KEYS = {
     products: 'nudema_products',
     settings: 'nudema_settings',
@@ -213,10 +213,14 @@
     medical: ['Бүртгэлийн дугаар', 'Зориулалт', 'Ариун эсэх', 'Хадгалах нөхцөл', 'Анхааруулга'],
     household: ['Материал', 'Хэмжээ', 'Арчилгаа / хэрэглэх заавар'],
   };
-  function normalizeTaxonomy(value) {
+  function normalizeTaxonomy(value, products) {
     var tax = value && typeof value === 'object' ? value : {};
     var departments = Array.isArray(tax.departments) && tax.departments.length ? tax.departments.slice() : DEPARTMENTS.slice();
     var categories = Array.isArray(tax.categories) ? tax.categories.slice() : [];
+    (products || []).forEach(function (product) {
+      var name = String(product.category || '').trim();
+      if (name && !categories.includes(name)) categories.push(name);
+    });
     var links = Object.create(null);
     categories.forEach(function (name) {
       var group = tax.categoryDepartments && Object.prototype.hasOwnProperty.call(tax.categoryDepartments, name) ? tax.categoryDepartments[name] : '';
@@ -384,9 +388,9 @@
       if (!Array.isArray(def) && typeof def === 'object' && !Array.isArray(parsed) && typeof parsed === 'object') {
         var merged = clone(def);
         for (var k in parsed) if (Object.prototype.hasOwnProperty.call(parsed, k)) merged[k] = parsed[k];
-        return name === 'taxonomy' ? normalizeTaxonomy(merged) : merged;
+        return name === 'taxonomy' ? normalizeTaxonomy(merged, read('products')) : merged;
       }
-      return parsed;
+      return name === 'taxonomy' ? normalizeTaxonomy(parsed, read('products')) : parsed;
     } catch (e) {
       return name === 'taxonomy' ? normalizeTaxonomy(clone(def)) : clone(def);
     }
@@ -424,12 +428,27 @@
     };
   };
 
-  var emitRemote = function (name, ok, message) {
+  var mutationEpoch = 0;
+  remoteStatus.pendingWrites = 0;
+  remoteStatus.errorStatus = 0;
+  var emitRemote = function (name, ok, message, cause, operation) {
     try {
       window.dispatchEvent(new CustomEvent(ok ? 'nudema:remote' : 'nudema:remote-error', {
-        detail: { name: name || null, ok: ok, message: message || '' },
+        detail: { name: name || null, ok: ok, message: message || '', status: cause && cause.status || 0, authExpired: !!(cause && cause.status === 401), operation: operation || 'sync' },
       }));
     } catch (e) {}
+  };
+
+  var remoteFailure = function (name, cause, operation) {
+    remoteStatus.error = cause && cause.message || 'Холболт түр тасарлаа. Дахин оролдоно уу.';
+    remoteStatus.errorStatus = cause && cause.status || 0;
+    // Validation, permission and connection errors do not end a valid login.
+    if (isAdminPage && remoteStatus.errorStatus === 401) {
+      remoteStatus.ready = false;
+      remoteStatus.identity = null;
+      applyRemote({});
+    }
+    emitRemote(name, false, remoteStatus.error, cause, operation);
   };
 
   var applyRemote = function (data) {
@@ -456,7 +475,11 @@
       headers: { 'Accept': 'application/json' },
     }, options || {})).then(function (response) {
       return response.json().catch(function () { return {}; }).then(function (body) {
-        if (!response.ok) throw new Error(body.error || ('HTTP ' + response.status));
+        if (!response.ok) {
+          var cause = new Error(body.error || ('HTTP ' + response.status));
+          cause.status = response.status;
+          throw cause;
+        }
         return body;
       });
     });
@@ -464,7 +487,7 @@
 
   // Rename category links and products together. D1 uses one atomic batch;
   // local preview rolls back both cache entries if storage is full.
-  var saveCatalog = function (taxonomy, products) {
+  var cacheCatalog = function (taxonomy, products) {
     var names = ['taxonomy', 'products'];
     var values = [taxonomy, products];
     var previous;
@@ -480,39 +503,48 @@
     names.forEach(function (name) {
       window.dispatchEvent(new CustomEvent('nudema:change', { detail: { name: name, key: KEYS[name], ok: true } }));
     });
-    if (canFetchRemote && isAdminPage) {
-      remoteRequest('/api/admin/catalog', {
-        method: 'PUT', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-        body: JSON.stringify({ taxonomy: taxonomy, products: products }),
-      }).then(function () { emitRemote('taxonomy', true, ''); }).catch(function (cause) {
-        remoteStatus.error = cause.message || 'Catalog save failed';
-        emitRemote('taxonomy', false, remoteStatus.error);
-      });
-    }
+    return true;
+  };
+
+  var saveCatalogAsync = function (taxonomy, products) {
+    if (!canFetchRemote || !isAdminPage) return Promise.resolve(cacheCatalog(taxonomy, products));
+    mutationEpoch++; remoteStatus.pendingWrites++;
+    return remoteRequest('/api/admin/catalog', {
+      method: 'PUT', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ taxonomy: taxonomy, products: products }),
+    }).then(function () {
+      if (!cacheCatalog(taxonomy, products)) throw new Error('Серверт хадгалагдсан боловч хөтчийн хадгалах сан дүүрсэн. Хуудсыг шинэчилнэ үү.');
+      remoteStatus.error = ''; remoteStatus.errorStatus = 0;
+      emitRemote('taxonomy', true, '', null, 'save');
+      return true;
+    }).catch(function (cause) { remoteFailure('taxonomy', cause, 'save'); return false; })
+      .then(function (ok) { remoteStatus.pendingWrites--; return ok; });
+  };
+  var saveCatalog = function (taxonomy, products) {
+    if (!canFetchRemote || !isAdminPage) return cacheCatalog(taxonomy, products);
+    saveCatalogAsync(taxonomy, products);
     return true;
   };
 
   var syncRemote = function () {
     if (!canFetchRemote) return Promise.resolve(false);
+    if (remoteStatus.pendingWrites) return Promise.resolve(remoteStatus.ready);
     if (remoteStatus.syncing) return remotePromise || Promise.resolve(false);
+    var epoch = mutationEpoch;
     remoteStatus.syncing = true;
     var url = isAdminPage ? '/api/admin/state' : '/api/storefront';
     remotePromise = remoteRequest(url).then(function (body) {
+      if (epoch !== mutationEpoch) return remoteStatus.ready;
       remoteStatus.identity = body.identity || null;
       applyRemote(body.data || {});
       remoteStatus.ready = true;
       remoteStatus.error = '';
+      remoteStatus.errorStatus = 0;
       remoteStatus.updatedAt = new Date().toISOString();
       emitRemote(null, true, '');
       return true;
     }).catch(function (cause) {
-      remoteStatus.error = cause && cause.message ? cause.message : String(cause || 'Remote sync failed');
-      if (isAdminPage) {
-        remoteStatus.ready = false;
-        remoteStatus.identity = null;
-        applyRemote({});
-      }
-      emitRemote(null, false, remoteStatus.error);
+      remoteFailure(null, cause, 'sync');
       return false;
     }).then(function (result) {
       remoteStatus.syncing = false;
@@ -524,6 +556,7 @@
 
   var pushRemote = function (name, value) {
     if (!canFetchRemote || !isAdminPage || ADMIN_NAMES.indexOf(name) < 0) return;
+    mutationEpoch++; remoteStatus.pendingWrites++;
     remoteRequest('/api/admin/store/' + encodeURIComponent(name), {
       method: 'PUT',
       headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
@@ -531,12 +564,12 @@
     }).then(function () {
       remoteStatus.ready = true;
       remoteStatus.error = '';
+      remoteStatus.errorStatus = 0;
       remoteStatus.updatedAt = new Date().toISOString();
-      emitRemote(name, true, '');
+      emitRemote(name, true, '', null, 'save');
     }).catch(function (cause) {
-      remoteStatus.error = cause && cause.message ? cause.message : String(cause || 'Remote save failed');
-      emitRemote(name, false, remoteStatus.error);
-    });
+      remoteFailure(name, cause, 'save');
+    }).then(function () { remoteStatus.pendingWrites--; });
   };
 
   var createLocalOrder = function (payload) {
@@ -631,7 +664,7 @@
   }
 
   window.NudemaStore = {
-    version: '20261116-r4',
+    version: '20261116-r5',
     KEYS: KEYS,
     DEFAULTS: DEFAULTS,
     EMPTY_DEFAULTS: EMPTY_DEFAULTS,
@@ -649,6 +682,7 @@
     localPreview: isPlainLocalServer,
     catalog: {
       save: saveCatalog,
+      saveAsync: saveCatalogAsync,
       normalizeTaxonomy: normalizeTaxonomy,
       editTaxonomy: editTaxonomy,
       removeTaxonomy: removeTaxonomy,

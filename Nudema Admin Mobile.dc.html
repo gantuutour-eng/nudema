@@ -5,13 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>NUDEMA Admin — Мобайл</title>
 <meta name="robots" content="noindex,nofollow,noarchive">
+<style>
+body.nd-admin-booting{margin:0;background:#f4fafc}x-dc{visibility:hidden!important}
+body.nd-admin-booting #dc-root{visibility:hidden!important}
+#nd-admin-startup{position:fixed;inset:0;z-index:100000;background:linear-gradient(120deg,#eefbfe,#fafbfc);display:flex;align-items:center;justify-content:center;font:13px/1.6 system-ui;color:#72828a}
+#nd-admin-startup[hidden]{display:none!important}.nd-startup-content{text-align:center;padding:30px}.nd-startup-content img{width:150px;height:60px;object-fit:contain;display:block;margin:0 auto 18px}.nd-startup-content button{border:1px solid #7bd7e7;border-radius:9px;background:white;color:#008ca5;padding:10px 18px;margin-top:15px;cursor:pointer}
+</style>
 <script src="./assets/vendor/react-18.3.1.production.min.js"></script>
 <script src="./assets/vendor/react-dom-18.3.1.production.min.js"></script>
 <script defer src="/support.js?v=20261116-r2"></script>
-<script src="/admin-team.js?v=20261116-admin1"></script>
-<script src="/nudema-store.js?v=20261116-r4"></script>
+<script src="/admin-team.js?v=20261116-admin2"></script>
+<script src="/nudema-store.js?v=20261116-r5"></script>
 </head>
-<body class="nd-admin nd-admin-mobile">
+<body class="nd-admin nd-admin-mobile nd-admin-booting">
+<div id="nd-admin-startup" role="status" aria-live="polite"><div class="nd-startup-content"><img src="/assets/brand/nudema-logo.svg" alt="Nudema"><span id="nd-admin-startup-message">Түр хүлээнэ үү…</span><br><button id="nd-admin-startup-retry" type="button" hidden>Дахин ачаалах</button></div></div>
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,7 +45,7 @@
     [style*="animation:sheetUp"],[style*="animation:fadeIn"]{animation:none !important;}
   }
 </style>
-<script src="/nudema-store.js?v=20261116-r4"></script>
+<script src="/nudema-store.js?v=20261116-r5"></script>
 <link rel="stylesheet" href="/catalog-admin.css?v=20261116-r2">
 <link rel="stylesheet" href="/admin-theme.css?v=20261116-r2">
 </helmet>
@@ -62,7 +69,8 @@
 
       <sc-if value="{{ authReady }}" hint-placeholder-val="{{ false }}">
       <div class="nd-admin-login-card" style="background:#fff;border-radius:20px;padding:22px 20px;margin-top:30px;box-shadow:0 20px 50px rgba(0,0,0,.3);">
-<sc-if value="{{ notInvitation }}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{ hasDataError }}" hint-placeholder-val="{{ false }}"><div role="alert" style="font-size:13px;line-height:1.7;color:#b25f24;">{{ dataError }}</div><button type="button" class="catalog-action" onClick="{{ retryConnection }}" style="margin-top:15px;">Дахин оролдох</button></sc-if>
+<sc-if value="{{ noDataError }}" hint-placeholder-val="{{ true }}"><sc-if value="{{ notInvitation }}" hint-placeholder-val="{{ true }}">
           <p style="font-size:13px;line-height:1.7;color:#75858e;margin:0 0 18px;">Уригдсан Google бүртгэлээрээ нэвтэрнэ үү.</p>
           <a class="nd-admin-google" href="/api/admin-auth/google/start" style="display:flex;align-items:center;justify-content:center;min-height:48px;border:1px solid #dce6eb;border-radius:10px;color:#263238;background:white;text-decoration:none;font:700 14px system-ui;">Google-ээр нэвтрэх</a>
         </sc-if>
@@ -72,6 +80,7 @@
           <a href="/api/admin-auth/google/start" style="display:block;margin-top:14px;color:#008ca5;font-size:12px;">Өөр Google бүртгэлээр нэвтрэх</a>
         </sc-if>
         <sc-if value="{{ hasLoginError }}" hint-placeholder-val="{{ false }}"><div role="alert" style="margin-top:14px;background:#fff1f1;border:1px solid #f5cece;color:#b32b2b;font-size:12px;line-height:1.6;padding:12px;border-radius:10px;">{{ loginError }}</div></sc-if>
+</sc-if>
 <sc-if value="{{ localPreview }}" hint-placeholder-val="{{ false }}"><div class="catalog-help" style="margin-top:16px;">Энэ төхөөрөмжийн демо өгөгдөл. Үйлдвэрлэлийн өгөгдөлтэй холбогдохгүй.</div><button type="button" class="catalog-action" onClick="{{ openLocalPreview }}">Локал демо нээх</button></sc-if>
       </div>
       </sc-if>
@@ -256,7 +265,7 @@
   <div style="flex:1;min-height:0;display:flex;flex-direction:column;">
     <div style="padding:14px 16px 12px;flex-shrink:0;">
       <div style="font-size:12.5px;color:#8a92a8;font-weight:500;">{{ productCountLabel }}</div>
-      <div class="catalog-row"><select class="catalog-group-select" aria-label="Жагсаалтын дээд бүлэг" onChange="{{ onAdminDepartment }}"><sc-for list="{{ adminDepartmentOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option></sc-for></select><select class="catalog-group-select" aria-label="Жагсаалтын ангилал" onChange="{{ onAdminCategory }}"><sc-for list="{{ adminCategoryOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option></sc-for></select></div>
+      <div class="catalog-row"><select class="catalog-group-select" aria-label="Жагсаалтын дээд бүлэг" onChange="{{ onAdminDepartment }}"><sc-for list="{{ adminDepartmentOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}" label="{{ o.label }}">{{ o.label }}</option></sc-for></select><select class="catalog-group-select" aria-label="Жагсаалтын ангилал" onChange="{{ onAdminCategory }}"><sc-for list="{{ adminCategoryOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}" label="{{ o.label }}">{{ o.label }}</option></sc-for></select></div>
       <div style="display:flex;gap:9px;margin-top:11px;">
         <div onClick="{{ goTaxonomy }}" style="flex:1;text-align:center;font-size:12.5px;font-weight:600;color:#3a4160;background:#fff;border:1px solid #e2e6f0;border-radius:11px;padding:11px 8px;cursor:pointer;">Ангилал / Таг удирдах</div>
         <div onClick="{{ goProductNew }}" style="flex:1;text-align:center;font-size:12.5px;font-weight:700;color:#fff;background:#00b6d4;border-radius:11px;padding:11px 8px;cursor:pointer;">+ Шинэ бүтээгдэхүүн</div>
@@ -294,6 +303,7 @@
 
   <!-- ======= TAXONOMY SCREEN ======= -->
   <sc-if value="{{ isTaxonomy }}" hint-placeholder-val="">
+<sc-if value="{{ taxSaving }}" hint-placeholder-val="{{ false }}"><div role="status" style="padding:10px;color:#009bb6;font-size:12px;">Хадгалж байна…</div></sc-if>
   <div style="flex:1;min-height:0;display:flex;flex-direction:column;">
     <div style="display:flex;align-items:center;gap:12px;padding:14px 16px 12px;flex-shrink:0;">
       <div onClick="{{ goProducts }}" style="display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:#3a4160;background:#fff;border:1px solid #e2e6f0;border-radius:10px;padding:8px 14px;cursor:pointer;">‹ Буцах</div>
@@ -313,7 +323,7 @@
     <div class="catalog-row"><span>{{ g.name }} · {{ g.count }} ангилал</span><button type="button" onClick="{{ g.onEdit }}">Засах</button><button type="button" class="catalog-danger" onClick="{{ g.onRemove }}">Устгах</button></div>
   </sc-for>
   <button type="button" onClick="{{ addDepartment }}">+ Дээд бүлэг нэмэх</button>
-  <sc-if value="{{ editingDepartment }}" hint-placeholder-val="{{ false }}"><div class="catalog-row"><input aria-label="Дээд бүлгийн нэр" value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Дээд бүлгийн нэр"><button type="button" onClick="{{ commitTaxEdit }}">Хадгалах</button><button type="button" onClick="{{ cancelTaxEdit }}">Цуцлах</button></div></sc-if>
+  <sc-if value="{{ editingDepartment }}" hint-placeholder-val="{{ false }}"><div class="catalog-row"><input aria-label="Дээд бүлгийн нэр" value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Дээд бүлгийн нэр"><button type="button" disabled="{{ taxSaving }}" onClick="{{ commitTaxEdit }}">Хадгалах</button><button type="button" onClick="{{ cancelTaxEdit }}">Цуцлах</button></div></sc-if>
 
 </div>
       <!-- Ангилал -->
@@ -334,8 +344,8 @@
             </sc-if>
             <sc-if value="{{ c.isEditing }}" hint-placeholder-val="">
               <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;">
-                <select aria-label="Ангиллын дээд бүлэг" class="catalog-group-select" style="flex-basis:100%;" onChange="{{ onTaxDepartment }}"><sc-for list="{{ taxDepartmentOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option></sc-for></select><input value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Ангиллын нэр" style="flex:1;min-width:0;font-size:13px;color:#263238;border:1px solid #dfe3ee;border-radius:10px;padding:9px 12px;background:#fff;" />
-                <div onClick="{{ commitTaxEdit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#00b6d4;border-radius:9px;padding:9px 14px;cursor:pointer;flex-shrink:0;">Хадгалах</div>
+                <select aria-label="Ангиллын дээд бүлэг" class="catalog-group-select" style="flex-basis:100%;" onChange="{{ onTaxDepartment }}"><sc-for list="{{ taxDepartmentOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}" label="{{ o.label }}">{{ o.label }}</option></sc-for></select><input value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Ангиллын нэр" style="flex:1;min-width:0;font-size:13px;color:#263238;border:1px solid #dfe3ee;border-radius:10px;padding:9px 12px;background:#fff;" />
+                <button type="button" disabled="{{ taxSaving }}" onClick="{{ commitTaxEdit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#00b6d4;border-radius:9px;padding:9px 14px;cursor:pointer;flex-shrink:0;">Хадгалах</button>
                 <div onClick="{{ cancelTaxEdit }}" style="font-size:12.5px;font-weight:600;color:#3a4160;background:#fff;border:1px solid #e2e6f0;border-radius:9px;padding:9px 12px;cursor:pointer;flex-shrink:0;">Болих</div>
               </div>
             </sc-if>
@@ -343,8 +353,8 @@
         </sc-for>
         <sc-if value="{{ addingCategory }}" hint-placeholder-val="">
           <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:13px;border:1.5px solid #00b6d4;border-radius:13px;padding:9px;">
-            <select aria-label="Ангиллын дээд бүлэг" class="catalog-group-select" style="flex-basis:100%;" onChange="{{ onTaxDepartment }}"><sc-for list="{{ taxDepartmentOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option></sc-for></select><input value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Шинэ ангиллын нэр" style="flex:1;min-width:0;font-size:13px;color:#263238;border:none;background:transparent;padding:6px 6px;" />
-            <div onClick="{{ commitTaxEdit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#00b6d4;border-radius:9px;padding:9px 16px;cursor:pointer;flex-shrink:0;">Нэмэх</div>
+            <select aria-label="Ангиллын дээд бүлэг" class="catalog-group-select" style="flex-basis:100%;" onChange="{{ onTaxDepartment }}"><sc-for list="{{ taxDepartmentOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}" label="{{ o.label }}">{{ o.label }}</option></sc-for></select><input value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Шинэ ангиллын нэр" style="flex:1;min-width:0;font-size:13px;color:#263238;border:none;background:transparent;padding:6px 6px;" />
+            <button type="button" disabled="{{ taxSaving }}" onClick="{{ commitTaxEdit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#00b6d4;border-radius:9px;padding:9px 16px;cursor:pointer;flex-shrink:0;">Нэмэх</button>
             <div onClick="{{ cancelTaxEdit }}" style="font-size:12.5px;font-weight:600;color:#3a4160;background:#fff;border:1px solid #e2e6f0;border-radius:9px;padding:9px 12px;cursor:pointer;flex-shrink:0;">Цуцлах</div>
           </div>
         </sc-if>
@@ -372,7 +382,7 @@
             <sc-if value="{{ t.isEditing }}" hint-placeholder-val="">
               <div style="display:flex;align-items:center;gap:8px;">
                 <input value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Тагийн нэр" style="flex:1;min-width:0;font-size:13px;color:#263238;border:1px solid #dfe3ee;border-radius:10px;padding:9px 12px;background:#fff;" />
-                <div onClick="{{ commitTaxEdit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#00b6d4;border-radius:9px;padding:9px 14px;cursor:pointer;flex-shrink:0;">Хадгалах</div>
+                <button type="button" disabled="{{ taxSaving }}" onClick="{{ commitTaxEdit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#00b6d4;border-radius:9px;padding:9px 14px;cursor:pointer;flex-shrink:0;">Хадгалах</button>
                 <div onClick="{{ cancelTaxEdit }}" style="font-size:12.5px;font-weight:600;color:#3a4160;background:#fff;border:1px solid #e2e6f0;border-radius:9px;padding:9px 12px;cursor:pointer;flex-shrink:0;">Болих</div>
               </div>
             </sc-if>
@@ -381,7 +391,7 @@
         <sc-if value="{{ addingBadge }}" hint-placeholder-val="">
           <div style="display:flex;align-items:center;gap:8px;margin-top:13px;border:1.5px solid #00b6d4;border-radius:13px;padding:9px;">
             <input value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Шинэ тагийн нэр" style="flex:1;min-width:0;font-size:13px;color:#263238;border:none;background:transparent;padding:6px 6px;" />
-            <div onClick="{{ commitTaxEdit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#00b6d4;border-radius:9px;padding:9px 16px;cursor:pointer;flex-shrink:0;">Нэмэх</div>
+            <button type="button" disabled="{{ taxSaving }}" onClick="{{ commitTaxEdit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#00b6d4;border-radius:9px;padding:9px 16px;cursor:pointer;flex-shrink:0;">Нэмэх</button>
             <div onClick="{{ cancelTaxEdit }}" style="font-size:12.5px;font-weight:600;color:#3a4160;background:#fff;border:1px solid #e2e6f0;border-radius:9px;padding:9px 12px;cursor:pointer;flex-shrink:0;">Цуцлах</div>
           </div>
         </sc-if>
@@ -436,9 +446,9 @@
 <div class="catalog-panel">
   <h3>Барааны бүртгэл</h3>
   <p class="catalog-help">Бүлэг, ангилал нь дэлгүүрийн шүүлтүүрийг, барааны төрөл нь мэдээллийн загварыг тодорхойлно. SKU нь бараа бүрийн давтагдахгүй дотоод код.</p>
-  <label>Дээд бүлэг *</label><select aria-label="Барааны дээд бүлэг" onChange="{{ onFDepartment }}"><sc-for list="{{ departmentOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option></sc-for></select>
-<label>Ангилал *</label><select aria-label="Барааны ангилал" onChange="{{ onFCategory }}"><sc-for list="{{ catalogCategoryOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option></sc-for></select>
-  <label>Барааны төрөл *</label><select aria-label="Барааны төрөл" onChange="{{ onFProductType }}"><sc-for list="{{ productTypeOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option></sc-for></select>
+  <label>Дээд бүлэг *</label><select aria-label="Барааны дээд бүлэг" onChange="{{ onFDepartment }}"><sc-for list="{{ departmentOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}" label="{{ o.label }}">{{ o.label }}</option></sc-for></select>
+<label>Ангилал *</label><select aria-label="Барааны ангилал" onChange="{{ onFCategory }}"><sc-for list="{{ catalogCategoryOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}" label="{{ o.label }}">{{ o.label }}</option></sc-for></select>
+  <label>Барааны төрөл *</label><select aria-label="Барааны төрөл" onChange="{{ onFProductType }}"><sc-for list="{{ productTypeOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}" label="{{ o.label }}">{{ o.label }}</option></sc-for></select>
 
 </div>
 
@@ -449,7 +459,7 @@
             <div style="font-size:12.5px;font-weight:600;color:#3a4160;margin-bottom:6px;">Таг (badge)</div>
             <select onChange="{{ onFBadge }}" style="width:100%;font-size:13px;color:#263238;border:1px solid #dfe3ee;border-radius:11px;padding:12px 10px;background:#fff;">
               <sc-for list="{{ badgeOptions }}" as="o" hint-placeholder-count="5">
-                <option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option>
+                <option value="{{ o.value }}" selected="{{ o.selected }}" label="{{ o.label }}">{{ o.label }}</option>
               </sc-for>
             </select>
           </div>
@@ -903,21 +913,12 @@ class Component extends DCLogic {
   componentDidMount() {
     this.reload();
     this._unsub = NudemaStore.subscribe(() => this.reload());
-    this._onRemoteError = (event) => {
-      const detail = event && event.detail ? event.detail : {};
-      this.setState({
-        authed: false,
-        authLoading: false,
-        loginBusy: false,
-        loginPassword: '',
-        loginError: !this.state.authed && /authentication is required|HTTP 401/i.test(detail.message || '') ? ((window.NudemaAdminAccess && window.NudemaAdminAccess.errorMessage(new URLSearchParams(window.location.search).get('admin_error'))) || '') : (detail.message || 'Нэвтрэх сесс дууссан эсвэл D1 холболт тасарлаа.'),
-      });
-    };
+    this._onRemoteError = event => this.handleRemoteError(event);
     window.addEventListener('nudema:remote-error', this._onRemoteError);
     this._onRemoteReady = () => {
       const identity = NudemaStore.remoteStatus.identity;
-      if (this.state.authed && identity) {
-        this.setState({ adminIdentity: identity, screen: this.adminSection(identity, false) }); this.reload();
+      if (identity && identity.status === 'active') {
+        this.setState({ authed: true, sessionVerified: true, authLoading: false, dataError: '', remoteNotice: '', adminIdentity: identity, screen: this.adminSection(identity, false) }); this.reload();
       }
     };
     window.addEventListener('nudema:remote', this._onRemoteReady);
@@ -933,6 +934,30 @@ class Component extends DCLogic {
   }
 
   /* ---- Нэвтрэлт — PC админтай ижил /api/admin-auth ---- */
+  handleRemoteError(event) {
+    const detail = event && event.detail || {};
+    if (detail.authExpired === true || detail.status === 401) {
+      if (this.state.adminInvitation) return;
+      const expired = this.state.authed || this.state.sessionVerified;
+      this.setState({ authed: false, sessionVerified: false, authLoading: false, loginBusy: false,
+        adminIdentity: null, dataError: '', remoteNotice: '',
+        loginError: expired ? 'Нэвтрэх сесс дууссан. Google-ээр дахин нэвтэрнэ үү.' : (this.state.loginError || '') });
+      this.reload(); return;
+    }
+    // A failed save or a temporary network error must preserve the user's session and drafts.
+    const message = detail.message || 'Холболт түр тасарлаа. Дахин оролдоно уу.';
+    this.setState(this.state.authed ? { remoteNotice: message } : { dataError: message, authLoading: false });
+  }
+
+  componentDidUpdate() {
+    if (!this.state.authLoading && window.NudemaAdminAccess && window.NudemaAdminAccess.reveal) window.NudemaAdminAccess.reveal();
+  }
+
+  retryConnection() {
+    return this.state.sessionVerified && this.state.adminIdentity
+      ? this.finishAuthentication(this.state.adminIdentity) : this.verifySession();
+  }
+
   adminCan(section) {
     if (!NudemaStore.remoteStatus.enabled) return true;
     const identity = NudemaStore.remoteStatus.identity || this.state.adminIdentity;
@@ -975,22 +1000,17 @@ class Component extends DCLogic {
   }
 
   verifySession() {
-    // Deployed бус орчинд шалгах API байхгүй — нэвтрэх маягтыг чимээгүй үзүүлнэ
     if (!NudemaStore.remoteStatus.enabled) {
-      this.setState({ authed: false, authLoading: false, loginError: '' });
-      return;
+      this.setState({ authed: false, sessionVerified: false, authLoading: false, loginError: '' }); return;
     }
-    this.setState({ authed: false, authLoading: true, loginBusy: false, loginError: '' });
-    this.authRequest('/api/admin-auth/session').then((body) => {
-      return this.finishAuthentication(body.identity || {});
-    }).catch((cause) => {
-      this.setState({
-        authed: false,
-        authLoading: false,
-        loginBusy: false,
-        loginError: (window.NudemaAdminAccess && window.NudemaAdminAccess.errorMessage(new URLSearchParams(window.location.search).get('admin_error'))) || (cause.status === 401 ? '' : (cause.details || cause.message || 'Нэвтрэх эрхийг шалгаж чадсангүй.')),
+    this.setState({ authLoading: true, loginBusy: false, loginError: '', dataError: '' });
+    return this.authRequest('/api/admin-auth/session').then(body => this.finishAuthentication(body.identity || {}))
+      .catch(cause => {
+        const oauthError = window.NudemaAdminAccess && window.NudemaAdminAccess.errorMessage(new URLSearchParams(window.location.search).get('admin_error'));
+        this.setState({ authed: false, sessionVerified: false, authLoading: false, loginBusy: false,
+          loginError: cause.status === 401 ? (oauthError || '') : '',
+          dataError: cause.status === 401 ? '' : 'Нэвтрэх эрхийг түр шалгаж чадсангүй. Дахин оролдоно уу.' });
       });
-    });
   }
 
   finishAuthentication(identity) {
@@ -998,7 +1018,7 @@ class Component extends DCLogic {
       this.setState({ authed: false, authLoading: false, loginBusy: false, adminInvitation: identity, loginError: '' });
       return Promise.resolve(false);
     }
-    this.setState({ authLoading: true, loginBusy: false, loginError: '' });
+    this.setState({ sessionVerified: true, adminIdentity: identity, authLoading: true, loginBusy: false, loginError: '', dataError: '' });
     return NudemaStore.sync().then((ok) => {
       const status = NudemaStore.remoteStatus;
       if (!ok) {
@@ -1006,11 +1026,14 @@ class Component extends DCLogic {
           authed: false,
           authLoading: false,
           loginBusy: false,
-          loginError: status.error || 'D1 өгөгдлийг ачаалж чадсангүй.',
+          sessionVerified: status.errorStatus !== 401,
+          dataError: status.errorStatus === 401 ? '' : 'Өгөгдөл түр ачаалагдсангүй. Нэвтрэлт хадгалагдсан. Дахин оролдоно уу.',
+          loginError: status.errorStatus === 401 ? 'Google-ээр дахин нэвтэрнэ үү.' : '',
         });
         return false;
       }
       const activeIdentity = status.identity || identity || {};
+      this.setState({ dataError: '', remoteNotice: '' });
       const section = this.adminSection(activeIdentity, true);
       if (['customers', 'reviews', 'analytics'].includes(section)) { window.location.assign('/admin?v=pc&section=' + section); return false; }
       this.reload();
@@ -1327,19 +1350,32 @@ class Component extends DCLogic {
     this.setState({ taxEdit: kind + ':' + index, taxDraft: name, taxDepartment: this.taxonomy().categoryDepartments[name] || this.taxonomy().departments[0], taxError: '' });
   }
   cancelTaxEdit() { this.setState({ taxEdit: '', taxDraft: '', taxError: '' }); }
+  persistTaxonomy(result) {
+    if (this.state.taxSaving) return;
+    const apply = () => this.setState({ taxonomy: result.taxonomy, products: result.products, taxEdit: '', taxDraft: '', taxError: '', taxConfirm: '', taxSaving: false });
+    if (!NudemaStore.remoteStatus.enabled) {
+      if (!NudemaStore.catalog.save(result.taxonomy, result.products)) return this.setState({ taxError: QUOTA_MSG });
+      apply(); return true;
+    }
+    this.setState({ taxSaving: true, taxError: '' });
+    return NudemaStore.catalog.saveAsync(result.taxonomy, result.products).then(ok => {
+      if (ok) apply();
+      else this.setState({ taxSaving: false, taxError: NudemaStore.remoteStatus.error || 'Хадгалж чадсангүй. Дахин оролдоно уу.' });
+      return ok;
+    });
+  }
+
   commitTaxEdit() {
     const [kind, raw] = (this.state.taxEdit || '').split(':');
     if (!kind) return;
     const result = NudemaStore.catalog.editTaxonomy(this.taxonomy(), this.products(), kind, Number(raw), this.state.taxDraft, this.state.taxDepartment || this.taxonomy().departments[0]);
     if (result.error) return this.setState({ taxError: result.error });
-    if (!NudemaStore.catalog.save(result.taxonomy, result.products)) return this.setState({ taxError: QUOTA_MSG });
-    this.setState({ taxonomy: result.taxonomy, products: result.products, taxEdit: '', taxDraft: '', taxError: '', taxConfirm: '' });
+    return this.persistTaxonomy(result);
   }
   removeTaxonomy(kind, index) {
     const result = NudemaStore.catalog.removeTaxonomy(this.taxonomy(), this.products(), kind, index);
     if (result.error) return this.setState({ taxError: result.error, taxConfirm: '' });
-    if (!NudemaStore.write('taxonomy', result.taxonomy)) return this.setState({ taxError: QUOTA_MSG });
-    this.setState({ taxonomy: result.taxonomy, taxEdit: '', taxError: '', taxConfirm: '' });
+    return this.persistTaxonomy(result);
   }
   taxRows(kind) {
     return this.taxonomy()[kind].map((name, i) => {
@@ -1759,6 +1795,8 @@ class Component extends DCLogic {
       invitationEmail: state.adminInvitation ? state.adminInvitation.email : '',
       acceptInvitation: () => this.acceptInvitation(), loginBusy: !!state.loginBusy,
       isTeam: screen === 'team',
+      dataError: state.dataError || '', hasDataError: !!state.dataError, noDataError: !state.dataError,
+      retryConnection: () => this.retryConnection(),
       /* толгой ба нэвтрэлт */
       pageTitle: titles[screen] || '',
       todayLabel,
@@ -1832,6 +1870,8 @@ class Component extends DCLogic {
       tagRows: this.taxRows('badges'),
       taxDraft: state.taxDraft || '',
       onTaxDraft: (e) => this.setState({ taxDraft: e.target.value }),
+      taxSaving: !!this.state.taxSaving,
+      taxSavingLabel: this.state.taxSaving ? 'Хадгалж байна…' : '',
       commitTaxEdit: () => this.commitTaxEdit(),
       cancelTaxEdit: () => this.cancelTaxEdit(),
       addCategory: () => this.startTaxEdit('categories', -1),

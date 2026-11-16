@@ -7,7 +7,7 @@ export async function onRequestPut(context) {
   if (!body) return error('Catalog data is required.');
   const issue = validateTaxonomy(body.taxonomy) || validateProducts(body.products);
   if (issue) return error(issue);
-  if (body.products.some(p => !body.taxonomy.categories.includes(p.category))) return error('A product references an unknown category.');
+  if (body.products.some(p => !body.taxonomy.categories.includes(p.category))) return error('Бүтээгдэхүүний ангилал бүртгэлгүй байна. Ангиллын жагсаалтыг шинэчлээд дахин оролдоно уу.');
   try {
     const db = dbFrom(context);
     await ensureSchema(db);

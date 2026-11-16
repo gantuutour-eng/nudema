@@ -1,3 +1,22 @@
+// Reconstruct missing legacy taxonomy entries from the products that still use them.
+// This is a read projection; explicit catalog edits still reject new orphan products.
+export function reconcileTaxonomy(value, products = []) {
+  const tax = value && typeof value === 'object' ? value : {};
+  const defaults = ['Гоо сайхан', 'Эмнэлгийн хэрэгсэл', 'Гэр ахуй', 'Бусад'];
+  const departments = Array.isArray(tax.departments) && tax.departments.length ? [...tax.departments] : defaults;
+  const categories = Array.isArray(tax.categories) ? [...tax.categories] : [];
+  const links = { ...(tax.categoryDepartments || {}) };
+  for (const product of products) {
+    const category = typeof product.category === 'string' ? product.category.trim() : '';
+    if (!category) continue;
+    if (!categories.includes(category)) categories.push(category);
+    const preferred = ({ beauty: defaults[0], medical: defaults[1], household: defaults[2] })[product.productType] || defaults[0];
+    if (!departments.includes(links[category])) links[category] = departments.includes(preferred) ? preferred : departments.at(-1);
+  }
+  for (const category of categories) if (!departments.includes(links[category])) links[category] = departments.includes(defaults[0]) ? defaults[0] : departments.at(-1);
+  return { ...tax, departments, categories, categoryDepartments: links, badges: Array.isArray(tax.badges) ? [...tax.badges] : [] };
+}
+
 export function validateProducts(products) {
   if (!Array.isArray(products)) return 'products must be an array.';
   const ids = new Set(), skus = new Set();
