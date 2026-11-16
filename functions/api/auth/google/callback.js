@@ -1,4 +1,4 @@
-import { createSession, hashPassword, normalizeEmail, randomHex, sha256 } from '../../../_auth.js';
+import { createSession, normalizeEmail, randomHex, sha256 } from '../../../_auth.js';
 import { dbFrom, ensureSchema } from '../../../_lib.js';
 
 function authRedirect(request, path, errorCode, extraHeaders = {}) {
@@ -64,7 +64,9 @@ export async function onRequestGet(context) {
       let user = await db.prepare('SELECT id FROM users WHERE email = ?').bind(email).first();
       if (!user) {
         const id = crypto.randomUUID();
-        const unusablePassword = await hashPassword(randomHex(48));
+        // Google-only accounts have no password to derive. Random placeholders
+        // cannot be used to sign in and avoid Workers' PBKDF2 iteration limit.
+        const unusablePassword = { hash: randomHex(32), salt: randomHex(16) };
         const phone = `google_${(await sha256(String(profile.sub))).slice(0, 20)}`;
         const name = String(profile.name || profile.given_name || email.split('@')[0])
           .trim().replace(/\s+/g, ' ').slice(0, 120) || 'Google user';
