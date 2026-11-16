@@ -149,6 +149,18 @@ data excludes customer contact/address/name fields. Team changes and their
 audit events commit together; other successful admin writes record resource
 names without storing customer payloads or credentials in the audit log.
 
+Admin clients distinguish HTTP 401 from validation, permission and network errors.
+Only a real unauthorized response clears the session UI. Temporary polling errors
+retain the last confirmed data; initial data errors offer retry without Google
+reauthentication. Category edits wait for server confirmation before changing the
+local cache. Older polling responses cannot overwrite a newer local save.
+
+Catalog reads reconstruct legacy missing taxonomy entries from existing product
+categories without changing products or deleting category data. A subsequent
+catalog save persists that coherent taxonomy. Explicit edits still reject newly
+orphaned product categories. Admin HTML hides raw templates and provisional
+screens behind one static startup screen until authentication has been checked.
+
 ## 5. Initialize the database
 
 After the first deployment and migration:

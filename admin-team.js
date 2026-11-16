@@ -13,6 +13,25 @@
   const access = { modules, roles, can, first: identity => ['dashboard', ...Object.keys(modules), 'team'].find(s => can(identity, s)) || 'products', errorMessage: code => errors[code] || '' };
   if (typeof module === 'object' && module.exports) { module.exports = access; return; }
   if (window.NudemaAdminAccess) return;
+  let startupTimer;
+  access.reveal = function () {
+    document.body.classList.remove('nd-admin-booting');
+    const startup = document.getElementById('nd-admin-startup');
+    if (startup) startup.hidden = true;
+    clearTimeout(startupTimer);
+  };
+  function startupFallback() {
+    const button = document.getElementById('nd-admin-startup-retry');
+    if (!button) return;
+    button.addEventListener('click', () => location.reload());
+    startupTimer = setTimeout(() => {
+      if (!document.body.classList.contains('nd-admin-booting')) return;
+      document.getElementById('nd-admin-startup-message').textContent = 'Ачаалж чадсангүй. Холболтоо шалгаад дахин оролдоно уу.';
+      button.hidden = false;
+    }, 20000);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startupFallback, { once: true });
+  else startupFallback();
   window.NudemaAdminAccess = access;
   const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const statuses = { invited: 'Урилга илгээсэн', active: 'Идэвхтэй', suspended: 'Түр зогсоосон', revoked: 'Эрх цуцалсан' };

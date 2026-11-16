@@ -1,3 +1,4 @@
+import { reconcileTaxonomy } from './_catalog.js';
 const PUBLIC_STATE_NAMES = ['products', 'settings', 'taxonomy', 'reviews', 'content'];
 const ADMIN_STATE_NAMES = [...PUBLIC_STATE_NAMES, 'orders', 'statuses'];
 
@@ -120,6 +121,7 @@ export async function readState(db, names) {
       // Ignore a damaged row so one bad value does not take down the storefront.
     }
   }
+  if (names.includes('taxonomy') && Array.isArray(data.products)) data.taxonomy = reconcileTaxonomy(data.taxonomy, data.products);
   return { data, updatedAt };
 }
 
