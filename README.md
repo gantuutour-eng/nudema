@@ -127,14 +127,35 @@ Cloudflare Pages + D1 배포 방법은 [`CLOUDFLARE.md`](./CLOUDFLARE.md)를 참
 ## 개발용 스크립트
 
 ```bash
-node .smoke-test.js      # 355개 동작 검증
+node .smoke-test.js      # 356개 동작 검증
 node .check-bindings.js  # 템플릿 바인딩 누락 검사
 node --test .catalog-test.js # 대분류·카테고리·상품 저장·검색·서버 검증
 node --test .address-test.js # 주소 검색 결과와 주문 좌표 저장 검증
 node --test .account-test.js # 마이페이지의 401·404·503 처리와 정상 프로필 표시 검증
 node --test .google-auth-test.js # Google 계정 생성·연결과 잘못된 OAuth 응답 차단 검증
-node --test .serve-test.js # 페이지·정적 자산 21개, HEAD, 404, 경로 이탈 차단 검증
+node --test .serve-test.js # 페이지·정적 자산 26개, HEAD, 404, 경로 이탈 차단 검증
+node --test .mobile-test.js .image-upload-test.js # 설치 안내·캐시 격리·상세 로딩·WebP 업로드 검증
 ```
+
+## 모바일 설치와 로딩
+
+고객 화면 상단의 몽골어 설치 배너와 푸터의 `Nudema апп суулгах` 버튼은
+홈 화면에 설치하는 웹 앱(PWA)을 제공합니다. 설치 요청을 지원하는 브라우저에서는
+사용자가 버튼을 누를 때 네이티브 설치 창을 엽니다. iPhone/iPad에서는 공유 메뉴의
+`Add to Home Screen`, 삼성 인터넷에서는 홈 화면 추가 메뉴를 안내합니다.
+앱 내부 브라우저는 외부 브라우저에서 열도록 안내하며, 안내를 닫으면 7일 동안 배너를 숨깁니다.
+설치된 앱의 독립 실행 화면에서는 설치 배너를 숨깁니다.
+
+`manifest.webmanifest`와 PNG 앱 아이콘, `sw.js`를 사용합니다. 서비스 워커는
+오프라인 안내만 저장하고 상품 가격·계정·주문 API는 캐시하지 않습니다.
+상품 사진 업로드는 계속 WebP를 사용하며, 운영 상품에서도 WebP MIME과 RIFF 시그니처를 확인했습니다.
+
+모바일 오류는 캐시된 구버전 `nudema-store.js`와 새 화면의 API 불일치로 재현됐습니다.
+공통 스크립트의 버전을 통일하고 스토어를 렌더링 전에 한 번만 초기화합니다.
+Cloudflare Browser Cache TTL은 `Respect Existing Headers`로 설정합니다.
+공통 메뉴·푸터는 React가 관리하는 DOM을 교체하지 않고 별도 노드에서 렌더링합니다.
+상세 이미지는 지연 로드·비동기 디코딩하며 상세 블록은 3개씩 더 볼 수 있습니다.
+공개 상품 이미지는 변경되지 않는 키를 기준으로 Cloudflare 엣지 캐시를 재사용합니다.
 
 ## 2026-11-16 동작 점검
 

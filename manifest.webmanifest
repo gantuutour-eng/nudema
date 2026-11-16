@@ -1,0 +1,18 @@
+{
+  "id": "/",
+  "name": "Nudema in Mongolia",
+  "short_name": "Nudema",
+  "description": "Гоо сайхан, эрүүл мэнд, гэр ахуйн онлайн дэлгүүр",
+  "lang": "mn",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#00b6d4",
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "/assets/pwa/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/pwa/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/pwa/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

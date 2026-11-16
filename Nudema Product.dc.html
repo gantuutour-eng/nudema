@@ -16,10 +16,19 @@
 <meta name="twitter:card" content="summary_large_image">
 <script src="./assets/vendor/react-18.3.1.production.min.js"></script>
 <script src="./assets/vendor/react-dom-18.3.1.production.min.js"></script>
-<script defer src="./support.js?v=20260723-3"></script>
-<link rel="stylesheet" href="./storefront.css?v=20261116">
-<link rel="stylesheet" href="./storefront-addwel.css?v=20261116-addwel2">
-<script defer src="./storefront-ui.js?v=20261116"></script>
+<script defer src="/support.js?v=20261116-r2"></script>
+<link rel="stylesheet" href="/storefront.css?v=20261116-r2">
+<link rel="stylesheet" href="/storefront-addwel.css?v=20261116-r2">
+<script defer src="/storefront-ui.js?v=20261116-r2"></script>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#00b6d4">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Nudema">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/pwa/apple-touch-icon.png">
+<link rel="stylesheet" href="/pwa-install.css?v=20261116-r2">
+<script src="/nudema-store.js?v=20261116-r2"></script>
+<script defer src="/pwa-install.js?v=20261116-r2"></script>
 </head>
 <body class="nd-storefront">
 <x-dc>
@@ -34,12 +43,12 @@
   a { color: inherit; text-decoration: none; }
   a:hover { color: #1e46c8; }
 </style>
-<link rel="stylesheet" href="./responsive.css?v=20260723-4">
-<script src="./image-slot.js"></script>
-<script src="./nudema-store.js?v=20260724-2"></script>
-<script src="./nudema-cart.js"></script>
-<link rel="stylesheet" href="./user-ui.css?v=20260723-3">
-<script src="./user-ui.js?v=20260807-1"></script>
+<link rel="stylesheet" href="/responsive.css?v=20261116-r2">
+<script src="/image-slot.js?v=20261116-r2"></script>
+<script src="/nudema-store.js?v=20261116-r2"></script>
+<script src="/nudema-cart.js?v=20261116-r2"></script>
+<link rel="stylesheet" href="/user-ui.css?v=20261116-r2">
+<script src="/user-ui.js?v=20261116-r2"></script>
 </helmet>
 <!-- Өнгөт туузууд дэлгэц дүүрэн; доторх агуулга 1280px -->
 <div class="pd-page" style="width:100%;background:#fff;">
@@ -47,6 +56,8 @@
   <!-- header -->
   <nudema-shop-header></nudema-shop-header>
 
+  <sc-if value="{{ loadingProduct }}" hint-placeholder-val="{{ false }}"><div class="pd-load-state" role="status">Бүтээгдэхүүнийг ачаалж байна...</div></sc-if>
+  <sc-if value="{{ productLoadError }}" hint-placeholder-val="{{ false }}"><div class="pd-load-state" role="alert"><p>Бүтээгдэхүүнийг ачаалж чадсангүй. Сүлжээгээ шалгаад дахин оролдоно уу.</p><button type="button" onClick="{{ retryProduct }}">Дахин оролдох</button></div></sc-if>
   <!-- бүтээгдэхүүн олдоогүй -->
   <sc-if value="{{ notFound }}" hint-placeholder-val="{{ false }}">
     <div style="max-width:1280px;margin:0 auto;padding:110px 40px 130px;text-align:center;">
@@ -70,7 +81,7 @@
     <div>
       <div style="position:relative;background:#f4f5f3;border-radius:16px;aspect-ratio:1/1;overflow:hidden;">
         <sc-if value="{{ hasImg }}" hint-placeholder-val="{{ false }}">
-          <img src="{{ img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;">
+          <img src="{{ img }}" alt="{{ title }}" decoding="async" fetchpriority="high" width="1024" height="1024" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;">
         </sc-if>
         <sc-if value="{{ noImg }}" hint-placeholder-val="{{ true }}">
           <img src="{{ productPlaceholder }}" alt="Бүтээгдэхүүний зураг бэлтгэгдэж байна" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;">
@@ -83,7 +94,7 @@
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px;">
           <sc-for list="{{ thumbs }}" as="t" hint-placeholder-count="4">
             <button onClick="{{ t.onClick }}" style="{{ t.style }}">
-              <img src="{{ t.src }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;">
+              <img src="{{ t.src }}" alt="{{ title }}" loading="lazy" decoding="async" fetchpriority="low" width="120" height="120" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;">
             </button>
           </sc-for>
         </div>
@@ -197,7 +208,7 @@
           <sc-if value="{{ hasDetailBlocks }}" hint-placeholder-val="{{ true }}">
             <div style="display:flex;flex-direction:column;gap:18px;">
               <sc-for list="{{ detailBlocks }}" as="d" hint-placeholder-count="2">
-                <div>
+                <div class="pd-detail-block">
                   <sc-if value="{{ d.isDivider }}" hint-placeholder-val="{{ false }}">
                     <div style="height:1px;background:#e4e7e3;"></div>
                   </sc-if>
@@ -205,33 +216,34 @@
                     <p style="{{ d.textStyle }}">{{ d.text }}</p>
                   </sc-if>
                   <sc-if value="{{ d.isImage }}" hint-placeholder-val="{{ false }}">
-                    <img src="{{ d.img }}" style="display:block;width:100%;border-radius:14px;">
+                    <img src="{{ d.img }}" alt="{{ title }}" loading="lazy" decoding="async" style="display:block;width:100%;height:auto;min-height:80px;border-radius:14px;">
                   </sc-if>
                   <sc-if value="{{ d.isVideo }}" hint-placeholder-val="{{ false }}">
                     <div style="position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#e4e7e3;">
-                      <iframe src="{{ d.embed }}" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
+                      <iframe src="{{ d.embed }}" title="{{ title }}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
                     </div>
                   </sc-if>
                   <sc-if value="{{ d.isImageText }}" hint-placeholder-val="{{ false }}">
                     <div class="pd-split" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;">
-                      <img src="{{ d.img }}" style="display:block;width:100%;border-radius:14px;">
+                      <img src="{{ d.img }}" alt="{{ title }}" loading="lazy" decoding="async" style="display:block;width:100%;height:auto;min-height:80px;border-radius:14px;">
                       <p style="font-size:15px;line-height:1.85;color:#5c6660;margin:0;text-align:left;">{{ d.text }}</p>
                     </div>
                   </sc-if>
                   <sc-if value="{{ d.isTextImage }}" hint-placeholder-val="{{ false }}">
                     <div class="pd-split" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center;">
                       <p style="font-size:15px;line-height:1.85;color:#5c6660;margin:0;text-align:left;">{{ d.text }}</p>
-                      <img src="{{ d.img }}" style="display:block;width:100%;border-radius:14px;">
+                      <img src="{{ d.img }}" alt="{{ title }}" loading="lazy" decoding="async" style="display:block;width:100%;height:auto;min-height:80px;border-radius:14px;">
                     </div>
                   </sc-if>
                   <sc-if value="{{ d.isTwoImages }}" hint-placeholder-val="{{ false }}">
                     <div class="pd-split" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-                      <img src="{{ d.img }}" style="display:block;width:100%;border-radius:14px;">
-                      <img src="{{ d.img2 }}" style="display:block;width:100%;border-radius:14px;">
+                      <img src="{{ d.img }}" alt="{{ title }}" loading="lazy" decoding="async" style="display:block;width:100%;height:auto;min-height:80px;border-radius:14px;">
+                      <img src="{{ d.img2 }}" alt="{{ title }}" loading="lazy" decoding="async" style="display:block;width:100%;height:auto;min-height:80px;border-radius:14px;">
                     </div>
                   </sc-if>
                 </div>
               </sc-for>
+              <sc-if value="{{ hasMoreDetailBlocks }}" hint-placeholder-val="{{ false }}"><button class="pd-more-details" type="button" onClick="{{ moreDetails }}">{{ moreDetailsLabel }}</button></sc-if>
             </div>
           </sc-if>
         </div>
@@ -269,7 +281,7 @@
       <sc-for list="{{ related }}" as="p" hint-placeholder-count="4">
         <div style="display:block;">
           <a href="{{ p.href }}" style="position:relative;display:block;background:#f4f5f3;border-radius:14px;aspect-ratio:1/1;overflow:hidden;">
-            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></sc-if>
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" alt="{{ p.title }}" loading="lazy" decoding="async" width="300" height="300" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></sc-if>
             <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><img src="./assets/storefront/care.svg" alt="Бүтээгдэхүүний зураг бэлтгэгдэж байна" style="width:100%;height:100%;object-fit:contain;"></sc-if>
           </a>
           <a href="{{ p.href }}" style="display:block;margin-top:12px;font-size:14px;font-weight:600;line-height:1.4;color:#2a302b;">{{ p.title }}</a>
@@ -325,11 +337,16 @@ class Component extends DCLogic {
 
   componentDidMount() {
     this.reload();
-    this._unsub = NudemaStore.subscribe(() => this.reload());
+    this._unsub = NudemaStore.subscribe(name => { if (!name || ['products', 'reviews', 'settings', 'taxonomy'].includes(name)) this.reload(); });
+    this._remoteReady = () => this.reload();
+    window.addEventListener('nudema:remote', this._remoteReady);
+    window.addEventListener('nudema:remote-error', this._remoteReady);
   }
 
   componentWillUnmount() {
     if (this._unsub) this._unsub();
+    window.removeEventListener('nudema:remote', this._remoteReady);
+    window.removeEventListener('nudema:remote-error', this._remoteReady);
   }
 
   reload() {
@@ -484,8 +501,13 @@ class Component extends DCLogic {
     const product = id === null ? products[0] : products.find(p => Number(p.id) === id);
 
     if (!product) {
+      const remote = NudemaStore.remoteStatus || {};
+      const waiting = !!remote.enabled && !remote.ready;
       return {
-        notFound: true, found: false,
+        notFound: !waiting, found: false,
+        loadingProduct: waiting && !remote.error,
+        productLoadError: waiting && !!remote.error,
+        retryProduct: () => { NudemaStore.sync().then(() => this.reload()); },
         footerCompany: `${settings.shopName} ХХК · Улаанбаатар хот, Сүхбаатар дүүрэг, Энх тайваны өргөн чөлөө 12`,
         footerLine: `И-мэйл: ${settings.email} · Утас: ${settings.phone} · Ажлын цаг: Даваа–Баасан 09:00–18:00`,
         helpMailto: 'mailto:' + (settings.email || 'help@nudema.mn'),
@@ -503,7 +525,7 @@ class Component extends DCLogic {
     const rawBlocks = (Array.isArray(product.detailBlocks) && product.detailBlocks.length)
       ? product.detailBlocks
       : (product.detailImages || []).map((src, i) => ({ id: i + 1, type: 'image', img: src }));
-    const detailBlocks = rawBlocks
+    const allDetailBlocks = rawBlocks
       // Хоосон блокыг харуулахгүй
       .filter(b => {
         if (b.type === 'divider') return true;
@@ -527,6 +549,8 @@ class Component extends DCLogic {
         embed: b.type === 'video' ? this.toEmbed(b.url) : '',
         textStyle: `font-size:15px;line-height:1.9;color:#5c6660;margin:0;text-align:${b.align === 'center' ? 'center' : 'left'};white-space:pre-wrap;`,
       }));
+
+    const detailBlocks = allDetailBlocks.slice(0, this.state.detailCount || 3);
 
     /* ---- Үнэ ба сонголт — админаас ирнэ ---- */
     const optionDefs = Array.isArray(product.options) ? product.options.filter(o => o && o.label) : [];
@@ -650,6 +674,12 @@ class Component extends DCLogic {
       hasDescription: !!String(product.desc || '').trim(),
       // Дэлгэрэнгүй блокууд админаас (Бүтээгдэхүүн → засах → Дэлгэрэнгүй тайлбар)
       detailBlocks,
+      loadingProduct: false,
+      productLoadError: false,
+      retryProduct: () => { NudemaStore.sync().then(() => this.reload()); },
+      hasMoreDetailBlocks: allDetailBlocks.length > detailBlocks.length,
+      moreDetailsLabel: 'Дэлгэрэнгүйг үргэлжлүүлэн үзэх (' + Math.max(0, allDetailBlocks.length - detailBlocks.length) + ')',
+      moreDetails: () => this.setState(s => ({ detailCount: (s.detailCount || 3) + 3 })),
       hasDetailBlocks: detailBlocks.length > 0,
       noDetailBlocks: detailBlocks.length === 0,
       isReviews: this.state.tab === 'reviews',

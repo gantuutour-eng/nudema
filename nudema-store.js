@@ -5,6 +5,8 @@
  * бичих бүрд "nudema:change" custom event нэмж илгээнэ.
  */
 (function () {
+  // The store is loaded in the document head and by the DC helmet. Initialize once.
+  if (window.NudemaStore && window.NudemaStore.version === '20261116-r2') return;
   var KEYS = {
     products: 'nudema_products',
     settings: 'nudema_settings',
@@ -624,6 +626,7 @@
   }
 
   window.NudemaStore = {
+    version: '20261116-r2',
     KEYS: KEYS,
     DEFAULTS: DEFAULTS,
     EMPTY_DEFAULTS: EMPTY_DEFAULTS,

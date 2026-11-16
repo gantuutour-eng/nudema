@@ -71,6 +71,14 @@
   function apply() {
     fixActions();
     var footer = document.querySelector('footer');
+    // Keep shared UI outside the DC/React-owned tree. Replacing React children
+    // leaves detached nodes behind and breaks subsequent quantity/tab updates.
+    if (footer && footer.closest('#dc-root')) {
+      footer.hidden = true;
+      footer.setAttribute('data-nudema-legacy', '1');
+      footer = document.querySelector('body > footer[data-nudema-common="1"]');
+      if (!footer) { footer = document.createElement('footer'); document.body.appendChild(footer); }
+    }
     if (footer && !footer.dataset.nudemaCommon) {
       footer.className = (footer.className ? footer.className + ' ' : '') + 'nudema-common-footer';
       footer.innerHTML = footerHtml();
@@ -78,13 +86,12 @@
     }
 
     if (window.matchMedia && window.matchMedia('(max-width: 820px)').matches) {
-      var oldNav = document.querySelector('.m-bottom-nav,.product-bottom-nav,nav.bottom,.nudema-mobile-nav');
-      if (!oldNav || !oldNav.classList.contains('nudema-mobile-nav')) {
+      if (!document.querySelector('body > .nudema-mobile-nav')) {
         var nav = document.createElement('nav');
         nav.className = 'nudema-mobile-nav';
         nav.setAttribute('aria-label', 'Mobile navigation');
         nav.innerHTML = navHtml();
-        if (oldNav) oldNav.replaceWith(nav); else document.body.appendChild(nav);
+        document.body.appendChild(nav);
       }
       document.body.classList.add('nudema-has-mobile-nav');
       try { if (window.NudemaCart) window.NudemaCart.updateBadges(); } catch (ignore) {}
@@ -108,7 +115,7 @@
     var observer = new MutationObserver(function () {
       var mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
       if ((document.querySelector('footer') && !document.querySelector('footer[data-nudema-common="1"]')) ||
-          (mobile && !document.querySelector('.nudema-mobile-nav'))) apply();
+          (mobile && !document.querySelector('body > .nudema-mobile-nav'))) apply();
     });
     observer.observe(target, { childList: true, subtree: true });
     setTimeout(function () { apply(); observer.disconnect(); }, 4000);
