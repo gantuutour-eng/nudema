@@ -57,9 +57,8 @@ revalidation enabled. The worker caches only the public offline notice and icon.
 
 Add these production variables:
 
-- `ADMIN_EMAILS`: comma-separated email addresses allowed to administer the store
-- `ADMIN_PASSWORD`: add the separate site-admin password as an encrypted secret (minimum 12 characters; do not reuse the Cloudflare account password)
-- `ADMIN_SESSION_SECRET`: add a random value of at least 32 characters as an encrypted secret; rotating it signs out every admin session
+- Administrator membership and sessions now live in D1. The old `ADMIN_EMAILS`,
+  `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET` values no longer grant access.
 - `ALLOW_LOCAL_ADMIN`: `false`
 
 If the Pages project uses the dashboard instead of `wrangler.jsonc`, create the same D1 binding and variables in both Production and Preview environments. Redeploy after changing bindings.
@@ -119,23 +118,44 @@ Keep OAuth secrets in Cloudflare; do not copy their values into this document.
 
 ## 4. Configure the site admin login
 
-The admin page has its own email/password form and does not require a Cloudflare
-Zero Trust Access application. The login API compares the submitted email with
-`ADMIN_EMAILS` and the password with the encrypted `ADMIN_PASSWORD` secret.
-Successful login creates a signed, `HttpOnly`, `SameSite=Strict` cookie that is
-valid for 12 hours. `ADMIN_SESSION_SECRET` signs the cookie and never reaches the
-browser. D1 rate-limits repeated failed login attempts.
+Administrators use **Google sign-in** at `/admin`. The specifically authorized
+first owner is `gantuutour@gmail.com`. This row starts unclaimed; only a verified
+Google sign-in for that address can bind it to a Google `sub` and activate it.
+Customer login sessions never grant administrator access. Password-era admin
+cookies and the old password endpoint no longer authorize access (HTTP 410).
 
-Do not put the Cloudflare account password into these variables. Use a separate,
-unique password for the Nudema administrator.
+The existing Google OAuth client and `/api/auth/google/callback` are reused.
+Admin requests use separate browser-bound, single-use state, PKCE, membership,
+and session tables. No additional Google scopes or callback registration are needed.
+Opaque administrator cookies are HttpOnly/Secure/SameSite=Lax and expire after
+12 hours. Only their hashes are stored in D1; every request rechecks membership.
+
+Migration `0005_google_admin_team.sql` creates these tables. Admin Functions also
+create them safely on first use without modifying existing shop/customer data.
+The first owner's role cannot be removed, reassigned or suspended in the UI/API.
+Owner transfer is intentionally not part of this release.
+
+Under **Администратор удирдах**, the owner can invite admins or operators.
+Admins can manage operators only. Operators have selected module permissions
+and cannot manage the team. Invitations expire after seven days and require
+explicit acceptance after Google login. Initial account claims require Gmail
+or Google Workspace, where Google is authoritative for the email address.
+There is no automatic invitation email: use the button to copy `/admin` and share
+it with the invited person. Suspended/revoked memberships cannot authenticate;
+role changes also delete all existing sessions for that member immediately.
+
+Admin read/write endpoints enforce module permissions. Analytics-only order
+data excludes customer contact/address/name fields. Team changes and their
+audit events commit together; other successful admin writes record resource
+names without storing customer payloads or credentials in the audit log.
 
 ## 5. Initialize the database
 
 After the first deployment and migration:
 
 1. Open the deployed admin page in the browser that contains the authoritative current Nudema data.
-2. Sign in with the email from `ADMIN_EMAILS` and the separate `ADMIN_PASSWORD` value.
-3. Wait for the page to load. If D1 is empty, the client uploads its current products, content, settings, taxonomy, reviews, orders, statuses, and admin profile once.
+2. Sign in with the verified owner Google account `gantuutour@gmail.com`.
+3. Wait for the page to load. Existing D1 shop data is preserved; seed a new empty installation separately before selling products.
 4. Open `/api/health`; it must return `{"ok":true,"database":"connected"}`.
 5. Open the storefront in a private window or on a phone and verify that the same products appear.
 
@@ -163,11 +183,14 @@ Do not initialize from multiple browsers at the same time. Once D1 has data, nor
 | `GET /api/auth/google/start` | Public | Start Google OAuth with state and PKCE |
 | `GET /api/auth/google/callback` | Public | Link/create customer and issue session |
 | `GET /api/images/:key` | Public | Immutable R2 image delivery |
-| `POST /api/admin-auth/login` | Public, rate-limited | Verify admin credentials and create a signed session |
+| `GET /api/admin-auth/google/start` | Public | Begin Google administrator sign-in with browser-bound state and PKCE |
+| `POST /api/admin-auth/login` | Disabled (410) | Password login retired |
+| `POST /api/admin-auth/accept` | Invited Google admin, same origin | Accept an unexpired invitation |
 | `GET /api/admin-auth/session` | Admin session | Return the active admin identity |
 | `POST /api/admin-auth/logout` | Public | Clear the admin session cookie |
-| `GET /api/admin/state` | Admin session | Full admin state |
-| `POST /api/admin/state` | Admin session | First-time D1 bootstrap |
+| `GET /api/admin/state` | Active admin | State filtered by module permissions |
+| `GET/POST/PUT /api/admin/team` | Owner/admin, role constrained | List, invite, change roles/permissions, suspend or revoke |
+| `GET /api/admin/audit` | Owner/admin | Latest 100 administrator events |
 | `PUT /api/admin/store/:name` | Admin session | Admin updates |
 | `POST /api/admin/images` | Admin session | R2 image upload |
 | `DELETE /api/admin/images/:key` | Admin session | R2 image deletion |

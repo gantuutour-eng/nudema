@@ -928,13 +928,13 @@ const productSource = fs.readFileSync('Nudema Product.dc.html', 'utf8');
 const checkoutSource = fs.readFileSync('Nudema Checkout.dc.html', 'utf8');
 const menuSource = fs.readFileSync('nudema-menu.js', 'utf8');
 const orderApiSource = fs.readFileSync('functions/api/orders.js', 'utf8');
-check('админ и-мэйл/нууц үгийн маягттай', adminSource.includes('type="email"') && adminSource.includes('type="password"'));
+check('админ Google нэвтрэлттэй', adminSource.includes('/api/admin-auth/google/start') && !adminSource.includes('type="password"'));
 check('client-side hardcoded нууц үг байхгүй', !/nudema2026|ADMIN_PASSWORD\s*=/.test(adminSource));
 check('өөрийн login/session/logout API ашиглана',
-  adminSource.includes('/api/admin-auth/login') && adminSource.includes('/api/admin-auth/session') && adminSource.includes('/api/admin-auth/logout'));
+  adminSource.includes('/api/admin-auth/google/start') && adminSource.includes('/api/admin-auth/session') && adminSource.includes('/api/admin-auth/logout'));
 check('Cloudflare Access redirect хасагдсан', !adminSource.includes('/cdn-cgi/access/logout') && !adminMiddlewareSource.includes('Cf-Access-Authenticated-User-Email'));
 check('HttpOnly гарын үсэгтэй cookie ашиглана',
-  adminAuthSource.includes("HttpOnly; SameSite=Strict") && adminAuthSource.includes("name: 'HMAC'"));
+  adminAuthSource.includes('HttpOnly; SameSite=Lax') && adminAuthSource.includes('admin_sessions'));
 check('admin store key устсан', !Object.prototype.hasOwnProperty.call(win.NudemaStore.KEYS, 'admin'));
 check('зочны захиалга login-гүй харагдана',
   accountSource.includes('guestOrderSection') && accountSource.includes('localGuestOrder') && accountSource.includes("new URLSearchParams(location.search).get('order')"));

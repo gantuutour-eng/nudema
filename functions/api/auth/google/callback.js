@@ -1,5 +1,6 @@
 import { createSession, normalizeEmail, randomHex, sha256 } from '../../../_auth.js';
 import { dbFrom, ensureSchema } from '../../../_lib.js';
+import { finishAdminGoogle } from '../../../_admin-google.js';
 
 function authRedirect(request, path, errorCode, extraHeaders = {}) {
   const url = new URL(path || '/account', request.url);
@@ -10,6 +11,7 @@ function authRedirect(request, path, errorCode, extraHeaders = {}) {
 export async function onRequestGet(context) {
   const { env, request } = context;
   const query = new URL(request.url).searchParams;
+  if (String(query.get('state') || '').startsWith('adm_')) return finishAdminGoogle(context);
   if (query.get('error')) return authRedirect(request, '/login', 'cancelled');
   if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
     return authRedirect(request, '/login', 'not_configured');

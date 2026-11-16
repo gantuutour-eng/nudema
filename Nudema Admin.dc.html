@@ -9,6 +9,8 @@
 <script src="./assets/vendor/react-18.3.1.production.min.js"></script>
 <script src="./assets/vendor/react-dom-18.3.1.production.min.js"></script>
 <script defer src="/support.js?v=20261116-r2"></script>
+<script src="/admin-team.js?v=20261116-admin1"></script>
+<script src="/nudema-store.js?v=20261116-r4"></script>
 </head>
 <body class="nd-admin">
 <x-dc>
@@ -28,7 +30,7 @@
   .aScroll::-webkit-scrollbar { height: 8px; }
 </style>
 <script src="/image-slot.js?v=20261116-r2"></script>
-<script src="/nudema-store.js?v=20261116-r2"></script>
+<script src="/nudema-store.js?v=20261116-r4"></script>
 <link rel="stylesheet" href="/catalog-admin.css?v=20261116-r2">
 <link rel="stylesheet" href="/admin-theme.css?v=20261116-r2">
 </helmet>
@@ -43,17 +45,16 @@
       </sc-if>
 
       <sc-if value="{{ authReady }}" hint-placeholder-val="{{ false }}">
-        <form onSubmit="{{ submitLogin }}">
-          <label style="display:block;font-size:12px;font-weight:700;color:#4f5870;margin-bottom:7px;">И-мэйл</label>
-          <input type="email" name="email" autocomplete="username" value="{{ loginEmail }}" onInput="{{ onLoginEmail }}" placeholder="admin@example.com" style="width:100%;height:48px;border:1px solid #dce1ec;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;color:#263238;outline:none;margin-bottom:16px;">
-          <label style="display:block;font-size:12px;font-weight:700;color:#4f5870;margin-bottom:7px;">Нууц үг</label>
-          <input type="password" name="password" autocomplete="current-password" value="{{ loginPassword }}" onInput="{{ onLoginPassword }}" placeholder="Нууц үгээ оруулна уу" style="width:100%;height:48px;border:1px solid #dce1ec;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;color:#263238;outline:none;">
-
-          <sc-if value="{{ authFailed }}" hint-placeholder-val="{{ false }}">
-            <div role="alert" style="background:#fef2f2;border:1px solid #f5d5d3;color:#c8322a;font-size:12.5px;font-weight:600;line-height:1.6;padding:11px 13px;border-radius:10px;margin-top:14px;">{{ loginError }}</div>
-          </sc-if>
-          <button type="submit" disabled="{{ loginBusy }}" style="{{ loginButtonStyle }}">{{ loginButtonLabel }}</button>
-        </form>
+<sc-if value="{{ notInvitation }}" hint-placeholder-val="{{ true }}">
+          <p style="font-size:13px;line-height:1.7;color:#75858e;margin:0 0 18px;">Уригдсан Google бүртгэлээрээ нэвтэрнэ үү.</p>
+          <a class="nd-admin-google" href="/api/admin-auth/google/start" style="display:flex;align-items:center;justify-content:center;min-height:48px;border:1px solid #dce6eb;border-radius:10px;color:#263238;background:white;text-decoration:none;font:700 14px system-ui;">Google-ээр нэвтрэх</a>
+        </sc-if>
+        <sc-if value="{{ hasInvitation }}" hint-placeholder-val="{{ false }}">
+          <p style="font-size:13px;line-height:1.7;color:#526b75;">{{ invitationEmail }} · Танд администраторын урилга ирсэн байна.</p>
+          <button type="button" disabled="{{ loginBusy }}" onClick="{{ acceptInvitation }}" style="width:100%;border:0;background:#00b6d4;color:white;border-radius:10px;padding:14px;margin-top:15px;font:700 14px system-ui;">Урилгыг хүлээн авах</button>
+          <a href="/api/admin-auth/google/start" style="display:block;margin-top:14px;color:#008ca5;font-size:12px;">Өөр Google бүртгэлээр нэвтрэх</a>
+        </sc-if>
+        <sc-if value="{{ hasLoginError }}" hint-placeholder-val="{{ false }}"><div role="alert" style="margin-top:14px;background:#fff1f1;border:1px solid #f5cece;color:#b32b2b;font-size:12px;line-height:1.6;padding:12px;border-radius:10px;">{{ loginError }}</div></sc-if>
 <sc-if value="{{ localPreview }}" hint-placeholder-val="{{ false }}"><div class="catalog-help" style="margin-top:16px;">Энэ төхөөрөмжийн демо өгөгдөл. Үйлдвэрлэлийн өгөгдөлтэй холбогдохгүй.</div><button type="button" class="catalog-action" onClick="{{ openLocalPreview }}">Локал демо нээх</button></sc-if>
       </sc-if>
     </div>
@@ -124,6 +125,7 @@
     </header>
 
     <div class="nd-admin-workspace" style="padding:28px 32px 48px;">
+    <sc-if value="{{ isTeam }}" hint-placeholder-val="{{ false }}"><nudema-admin-team></nudema-admin-team></sc-if>
       <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
       <div>
       <!-- KPI cards -->
@@ -1113,14 +1115,42 @@ class Component extends DCLogic {
         authLoading: false,
         loginBusy: false,
         loginPassword: '',
-        loginError: detail.message || 'Нэвтрэх сесс дууссан эсвэл D1 холболт тасарлаа.',
+        loginError: !this.state.authed && /authentication is required|HTTP 401/i.test(detail.message || '') ? ((window.NudemaAdminAccess && window.NudemaAdminAccess.errorMessage(new URLSearchParams(window.location.search).get('admin_error'))) || '') : (detail.message || 'Нэвтрэх сесс дууссан эсвэл D1 холболт тасарлаа.'),
       });
     };
     window.addEventListener('nudema:remote-error', this._onRemoteError);
+    this._onRemoteReady = () => {
+      const identity = NudemaStore.remoteStatus.identity;
+      if (this.state.authed && identity) {
+        this.setState({ adminIdentity: identity, section: this.adminSection(identity, false) }); this.reload();
+      }
+    };
+    window.addEventListener('nudema:remote', this._onRemoteReady);
     this.verifySession();
   }
 
   /* ---- Сайтын өөрийн админ нэвтрэлт ---- */
+  adminCan(section) {
+    if (!NudemaStore.remoteStatus.enabled) return true;
+    const identity = NudemaStore.remoteStatus.identity || this.state.adminIdentity;
+    return !!(window.NudemaAdminAccess && window.NudemaAdminAccess.can(identity, section));
+  }
+
+  adminSection(identity, initial) {
+    const current = this.state.section || this.state.screen;
+    const requested = initial ? new URLSearchParams(window.location.search).get('section') : '';
+    const access = window.NudemaAdminAccess;
+    return access && access.can(identity, requested || current) ? (requested || current) : access ? access.first(identity) : 'products';
+  }
+
+  acceptInvitation() {
+    if (this.state.loginBusy) return;
+    this.setState({ loginBusy: true, loginError: '' });
+    this.authRequest('/api/admin-auth/accept', { method: 'POST' })
+      .then(body => { this.setState({ adminInvitation: null }); return this.finishAuthentication(body.identity); })
+      .catch(cause => this.setState({ loginBusy: false, loginError: cause.message }));
+  }
+
   openLocalPreview() {
     if (!NudemaStore.localPreview) return;
     this.setState({ authed: true, authLoading: false, loginError: '', adminEmail: 'Локал демо' });
@@ -1158,12 +1188,16 @@ class Component extends DCLogic {
         authed: false,
         authLoading: false,
         loginBusy: false,
-        loginError: cause.status === 401 ? '' : (cause.details || cause.message || 'Нэвтрэх эрхийг шалгаж чадсангүй.'),
+        loginError: (window.NudemaAdminAccess && window.NudemaAdminAccess.errorMessage(new URLSearchParams(window.location.search).get('admin_error'))) || (cause.status === 401 ? '' : (cause.details || cause.message || 'Нэвтрэх эрхийг шалгаж чадсангүй.')),
       });
     });
   }
 
   finishAuthentication(identity) {
+    if (identity.status === 'invited') {
+      this.setState({ authed: false, authLoading: false, loginBusy: false, adminInvitation: identity, loginError: '' });
+      return Promise.resolve(false);
+    }
     this.setState({ authLoading: true, loginBusy: false, loginError: '' });
     return NudemaStore.sync().then((ok) => {
       const status = NudemaStore.remoteStatus;
@@ -1177,6 +1211,8 @@ class Component extends DCLogic {
         return false;
       }
       const activeIdentity = status.identity || identity || {};
+      const section = this.adminSection(activeIdentity, true);
+
       this.reload();
       this.setState({
         authed: true,
@@ -1185,6 +1221,7 @@ class Component extends DCLogic {
         loginPassword: '',
         loginError: '',
         adminEmail: activeIdentity.email || identity.email || '',
+        adminIdentity: activeIdentity, adminInvitation: null, section: section,
       });
       return true;
     });
@@ -1192,33 +1229,18 @@ class Component extends DCLogic {
 
   login(event) {
     if (event && event.preventDefault) event.preventDefault();
-    if (this.state.loginBusy) return;
-    const email = String(this.state.loginEmail || '').trim();
-    const password = String(this.state.loginPassword || '');
-    if (!email || !password) {
-      this.setState({ loginError: 'И-мэйл болон нууц үгээ оруулна уу.' });
-      return;
+    if (!NudemaStore.remoteStatus.enabled) {
+      this.setState({ loginError: 'Google нэвтрэлт Cloudflare дээрх админ хуудаст ажиллана.' }); return;
     }
-    this.setState({ loginBusy: true, loginError: '' });
-    this.authRequest('/api/admin-auth/login', {
-      method: 'POST',
-      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    }).then((body) => this.finishAuthentication(body.identity || { email })).catch((cause) => {
-      this.setState({
-        authed: false,
-        authLoading: false,
-        loginBusy: false,
-        loginPassword: '',
-        loginError: cause.details || cause.message || 'Нэвтэрч чадсангүй.',
-      });
-    });
+    window.location.assign('/api/admin-auth/google/start');
   }
 
   logout() {
     this.authRequest('/api/admin-auth/logout', { method: 'POST' }).catch(() => ({})).then(() => {
       NudemaStore.remoteStatus.ready = false;
       NudemaStore.remoteStatus.identity = null;
+      ['orders','statuses','reviews','content'].forEach(name => { try { localStorage.removeItem(NudemaStore.KEYS[name]); } catch {} });
+      this.reload();
       this.setState({
         authed: false, authLoading: false, askLogout: false,
         adminEmail: '', loginPassword: '', loginError: '',
@@ -1228,6 +1250,7 @@ class Component extends DCLogic {
 
   componentWillUnmount() {
     if (this._unsub) this._unsub();
+    if (this._onRemoteReady) window.removeEventListener('nudema:remote', this._onRemoteReady);
     if (this._onRemoteError) window.removeEventListener('nudema:remote-error', this._onRemoteError);
     clearTimeout(this._cs); clearTimeout(this._ps); clearTimeout(this._ss);
     clearTimeout(this._cpub); clearTimeout(this._pv);
@@ -1876,8 +1899,9 @@ class Component extends DCLogic {
       { key: 'content', label: 'Контент', icon: '🖼' },
       { key: 'analytics', label: 'Статистик', icon: '📈' },
       { key: 'settings', label: 'Тохиргоо', icon: '⚙' },
+      { key: 'team', label: 'Администратор удирдах', icon: '♙' },
     ];
-    const titleMap = { dashboard: 'Хяналтын самбар', orders: 'Захиалга', products: 'Бүтээгдэхүүн', customers: 'Хэрэглэгчид', reviews: 'Сэтгэгдэл', content: 'Контент — Нүүр хуудас', analytics: 'Статистик', settings: 'Тохиргоо' };
+    const titleMap = { dashboard: 'Хяналтын самбар', orders: 'Захиалга', products: 'Бүтээгдэхүүн', customers: 'Хэрэглэгчид', reviews: 'Сэтгэгдэл', content: 'Контент — Нүүр хуудас', analytics: 'Статистик', settings: 'Тохиргоо', team: 'Администратор удирдах' };
 
     const st = (bg, fg) => `background:${bg};color:${fg};font-size:12px;font-weight:700;padding:5px 11px;border-radius:14px;white-space:nowrap;`;
     const cInit = (n) => n.charAt(0);
@@ -2096,7 +2120,7 @@ class Component extends DCLogic {
     // Хяналтын самбарын "Сүүлийн захиалгууд" — мөн адил төлвийг тусгана.
     const orders = allOrders.slice(0, 6);
 
-    const nav = navDefs.map(n => {
+    const nav = navDefs.filter(n => this.adminCan(n.key)).map(n => {
       const active = this.state.section === n.key;
       const badge = n.key === 'orders' ? (pendingCount ? String(pendingCount) : '') : '';
       return {
@@ -2317,12 +2341,15 @@ class Component extends DCLogic {
       loginBusy: !!this.state.loginBusy,
       loginButtonLabel: this.state.loginBusy ? 'Нэвтэрч байна…' : 'Нэвтрэх',
       loginButtonStyle: `width:100%;height:48px;margin-top:18px;background:${this.state.loginBusy ? '#9bace8' : '#00b6d4'};color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:${this.state.loginBusy ? 'wait' : 'pointer'};`,
-      onLoginEmail: (e) => this.setState({ loginEmail: e.target.value, loginError: '' }),
-      onLoginPassword: (e) => this.setState({ loginPassword: e.target.value, loginError: '' }),
       submitLogin: (e) => this.login(e),
+      hasInvitation: !!this.state.adminInvitation, notInvitation: !this.state.adminInvitation,
+      invitationEmail: this.state.adminInvitation ? this.state.adminInvitation.email : '',
+      acceptInvitation: () => this.acceptInvitation(),
+      hasLoginError: !!this.state.loginError,
+      isTeam: this.state.section === 'team',
       adminEmail,
       adminName,
-      adminRole: 'Администратор',
+      adminRole: (window.NudemaAdminAccess && window.NudemaAdminAccess.roles[(NudemaStore.remoteStatus.identity || this.state.adminIdentity || {}).role]) || 'Администратор',
       adminInitial: String(adminName || 'A').charAt(0).toUpperCase(),
       askLogout: () => this.setState({ askLogout: true }),
       cancelLogout: () => this.setState({ askLogout: false }),

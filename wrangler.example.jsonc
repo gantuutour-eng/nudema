@@ -19,7 +19,6 @@
     }
   ],
   "vars": {
-    "ADMIN_EMAILS": "REPLACE_WITH_ADMIN_EMAIL",
     "ALLOW_LOCAL_ADMIN": "true"
   }
 }

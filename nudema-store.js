@@ -6,7 +6,7 @@
  */
 (function () {
   // The store is loaded in the document head and by the DC helmet. Initialize once.
-  if (window.NudemaStore && window.NudemaStore.version === '20261116-r2') return;
+  if (window.NudemaStore && window.NudemaStore.version === '20261116-r4') return;
   var KEYS = {
     products: 'nudema_products',
     settings: 'nudema_settings',
@@ -360,6 +360,10 @@
   var isPlainLocalServer = /^(localhost|127\.0\.0\.1)$/i.test(locationInfo.hostname || '') && String(locationInfo.port || '') === '4321';
   var canFetchRemote = typeof fetch === 'function' && /^https?:$/i.test(locationInfo.protocol || '') && !isPlainLocalServer;
   remoteStatus.enabled = canFetchRemote;
+  // Keep restricted administrator responses out of the public storefront cache.
+  if (canFetchRemote && isAdminPage) ADMIN_NAMES.forEach(function (name) {
+    KEYS[name] = 'nudema_admin_cache_' + name;
+  });
 
   // Хуучин demo нэвтрэлтийн нууц үгийг deployed admin хөтчөөс цэвэрлэнэ.
   if (canFetchRemote && isAdminPage) {
@@ -494,8 +498,8 @@
     remoteStatus.syncing = true;
     var url = isAdminPage ? '/api/admin/state' : '/api/storefront';
     remotePromise = remoteRequest(url).then(function (body) {
-      applyRemote(body.data || {});
       remoteStatus.identity = body.identity || null;
+      applyRemote(body.data || {});
       remoteStatus.ready = true;
       remoteStatus.error = '';
       remoteStatus.updatedAt = new Date().toISOString();
@@ -506,6 +510,7 @@
       if (isAdminPage) {
         remoteStatus.ready = false;
         remoteStatus.identity = null;
+        applyRemote({});
       }
       emitRemote(null, false, remoteStatus.error);
       return false;
@@ -626,7 +631,7 @@
   }
 
   window.NudemaStore = {
-    version: '20261116-r2',
+    version: '20261116-r4',
     KEYS: KEYS,
     DEFAULTS: DEFAULTS,
     EMPTY_DEFAULTS: EMPTY_DEFAULTS,
