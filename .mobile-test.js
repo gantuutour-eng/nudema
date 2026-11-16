@@ -2,13 +2,14 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
-const { guidance } = require('./pwa-install');
 
 test('customer pages use one release of the store before rendering and expose install metadata', () => {
   for (const file of fs.readdirSync('.').filter(f => /^Nudema .*\.html$/.test(f) && !f.includes('Admin'))) {
     const html = fs.readFileSync(file, 'utf8'), head = html.split('</head>')[0];
     assert.match(head, /src="\/nudema-store\.js\?v=20261116-r2"/, file);
     assert.match(head, /rel="manifest" href="\/manifest.webmanifest"/, file);
+    assert.match(head, /src="\/pwa-install\.js\?v=20261116-r3"/, file);
+    assert.match(head, /href="\/pwa-install\.css\?v=20261116-r3"/, file);
     for (const match of html.matchAll(/(?:src|href)="[^"?]*\/(?:nudema-store|storefront-ui|user-ui)\.js(?:\?([^"#]*))?"/g)) assert.equal(match[1], 'v=20261116-r2', file);
   }
 });
@@ -23,26 +24,70 @@ test('manifest includes valid PNG icons, home scope and standalone launch', () =
   assert.ok(manifest.icons.some(icon => icon.sizes === '192x192'));
   assert.ok(manifest.icons.some(icon => icon.sizes === '512x512' && icon.purpose === 'maskable'));
 });
-test('Safari, other iOS browsers and iPad get Share instructions; Samsung and in-app browsers get their own instructions', () => {
-  for (const ua of ['iPhone Safari', 'iPhone CriOS', 'iPad FxiOS', 'iPod EdgiOS']) assert.match(guidance(ua, '', 0).steps.join(' '), /Share/);
-  assert.match(guidance('Macintosh Safari', 'MacIntel', 5).steps.join(' '), /Share/);
-  assert.match(guidance('Android SamsungBrowser/27', '', 5).title, /Samsung/);
-  assert.match(guidance('Android Chrome', '', 5).steps.join(' '), /Install app/);
-  assert.match(guidance('iPhone Instagram', '', 5).title, /хөтөчдөө/);
-});
-function installHarness() {
-  const events = {}, mem = new Map();
-  const window = { addEventListener: (name, fn) => { events[name] = fn; }, matchMedia: () => ({ matches: false, addEventListener() {} }), isSecureContext: false };
-  vm.runInNewContext(fs.readFileSync('pwa-install.js', 'utf8'), { window, navigator: { userAgent: 'Android Chrome', platform: '', maxTouchPoints: 1 }, document: { readyState: 'loading', addEventListener() {} }, localStorage: { getItem: key => mem.get(key), setItem: (key, value) => mem.set(key, value) }, Date, setTimeout });
-  return { window, events, mem };
+function installHarness({ standalone = false, footerInitiallyPresent = true } = {}) {
+  const events = {}, mem = new Map(), created = [], bodyChildren = [], footerChildren = [];
+  let mutationCallback, footerPresent = footerInitiallyPresent;
+  const element = tag => {
+    const listeners = {}, children = new Map();
+    const el = { tag, hidden: false, dataset: {}, listeners, setAttribute() {}, addEventListener: (name, fn) => { listeners[name] = fn; }, querySelector: selector => children.get(selector) || null };
+    if (tag === 'aside') for (const selector of ['.nd-install-close', '.nd-install-button']) children.set(selector, element('button'));
+    created.push(el); return el;
+  };
+  const footer = { querySelector: selector => selector === 'nav' ? { appendChild: button => footerChildren.push(button) } : footerChildren.find(b => b.dataset.installLauncher) };
+  const document = {
+    readyState: 'complete',
+    createElement: element,
+    querySelector: selector => selector.startsWith('footer') && footerPresent ? footer : null,
+    querySelectorAll: () => footerChildren,
+    body: { prepend: el => bodyChildren.unshift(el) }
+  };
+  const window = { addEventListener: (name, fn) => { events[name] = fn; }, matchMedia: () => ({ matches: standalone, addEventListener() {} }), isSecureContext: false };
+  vm.runInNewContext(fs.readFileSync('pwa-install.js', 'utf8'), { window, navigator: {}, document, localStorage: { getItem: key => mem.get(key), setItem: (key, value) => mem.set(key, value) }, Date, setTimeout() {}, MutationObserver: class { constructor(fn) { mutationCallback = fn; } observe() {} } });
+  return { window, events, mem, created, banner: bodyChildren[0], footerChildren, addFooter() { footerPresent = true; mutationCallback(); } };
 }
+test('no install buttons or fallback dialog appear without an actual browser install prompt', async () => {
+  const { window, banner, footerChildren, created } = installHarness();
+  assert.equal(banner.hidden, true); assert.equal(footerChildren.length, 0);
+  const count = created.length;
+  assert.equal(await window.NudemaInstall.open(), false);
+  assert.equal(created.length, count); assert.equal(banner.hidden, true);
+});
 for (const outcome of ['accepted', 'dismissed']) test(`native install prompt is user-triggered and handles ${outcome}`, async () => {
-  const { window, events, mem } = installHarness(); let prompts = 0, prevented = false;
+  const { window, events, mem, banner, footerChildren } = installHarness(); let prompts = 0, prevented = false;
   events.beforeinstallprompt({ preventDefault: () => { prevented = true; }, prompt: async () => { prompts++; }, userChoice: Promise.resolve({ outcome }) });
   assert.equal(prompts, 0); assert.equal(prevented, true);
-  await window.NudemaInstall.open(); assert.equal(prompts, 1);
+  assert.equal(banner.hidden, false); assert.equal(footerChildren.length, 1);
+  const result = banner.querySelector('.nd-install-button').listeners.click();
+  assert.equal(prompts, 1, 'prompt must run synchronously in the click handler');
+  assert.equal(banner.hidden, true); assert.equal(footerChildren[0].hidden, true);
+  assert.equal(await result, outcome === 'accepted');
   assert.equal(mem.has('nudema_install_dismissed_until'), outcome === 'dismissed');
-  if (outcome === 'accepted') { await window.NudemaInstall.open(); assert.equal(prompts, 1); }
+  await window.NudemaInstall.open(); assert.equal(prompts, 1, 'consumed prompts cannot be reused');
+  if (outcome === 'dismissed') {
+    events.beforeinstallprompt({ preventDefault() {}, prompt: async () => { prompts++; }, userChoice: Promise.resolve({ outcome: 'accepted' }) });
+    assert.equal(banner.hidden, true, 'dismissed banner stays hidden for seven days');
+    assert.equal(footerChildren[0].hidden, false, 'a fresh native prompt can still be requested from the footer');
+    await footerChildren[0].listeners.click(); assert.equal(prompts, 2);
+  }
+});
+test('prompt failures never open instructions; a fresh browser event can recover', async () => {
+  const { window, events, banner, created } = installHarness();
+  events.beforeinstallprompt({ preventDefault() {}, prompt() { throw new Error('no activation'); } });
+  const count = created.length;
+  assert.equal(await window.NudemaInstall.open(), false);
+  assert.equal(created.length, count); assert.equal(banner.hidden, true);
+  events.beforeinstallprompt({ preventDefault() {}, prompt: async () => {}, userChoice: Promise.resolve({ outcome: 'accepted' }) });
+  assert.equal(banner.hidden, false); assert.equal(await window.NudemaInstall.open(), true);
+});
+test('installed apps stay hidden and asynchronous footer rendering retains the native install action', () => {
+  const installed = installHarness({ standalone: true });
+  installed.events.beforeinstallprompt({ preventDefault() {}, prompt() {} });
+  assert.equal(installed.banner.hidden, true); assert.equal(installed.footerChildren.length, 0);
+  const later = installHarness({ footerInitiallyPresent: false });
+  later.events.beforeinstallprompt({ preventDefault() {}, prompt() {} }); later.addFooter();
+  assert.equal(later.footerChildren.length, 1); assert.equal(later.banner.hidden, false);
+  later.events.appinstalled();
+  assert.equal(later.banner.hidden, true); assert.equal(later.footerChildren[0].hidden, true);
 });
 test('service worker never intercepts customer/admin APIs, auth, foreign requests or POSTs', () => {
   const listeners = {};
