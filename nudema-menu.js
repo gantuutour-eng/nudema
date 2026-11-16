@@ -4,8 +4,8 @@
   const LINKS = [
     { label: 'BEST', href: '/' },
     { label: 'Анхны худалдан авалт', href: '/' },
-    { label: 'Төрлөөр', href: '/' },
-    { label: 'Арьсны асуудлаар', href: '/' },
+    { label: 'Бүх бүтээгдэхүүн', href: '/search' },
+    { label: 'Ангиллаар хайх', href: '/search' },
     { label: 'Эвент', href: '/' },
   ];
   const SUB = [
@@ -33,11 +33,11 @@
                     font-family:'Manrope',-apple-system,sans-serif; }
           .open .drawer { transform:translateX(0); }
           .dhead { display:flex; align-items:center; justify-content:space-between; padding:22px 24px; border-bottom:1px solid #eee; }
-          .logo { font-size:22px; font-weight:800; letter-spacing:.08em; color:#2a54e6; text-decoration:none; }
+          .logo { font-size:22px; font-weight:800; letter-spacing:.08em; color:#00b6d4; text-decoration:none; }
           .close { background:none; border:none; font-size:26px; line-height:1; color:#1a1c1a; cursor:pointer; }
           nav { padding:12px 8px; overflow:auto; flex:1; }
           nav a { display:block; padding:15px 18px; font-size:16px; font-weight:700; color:#16255f; text-decoration:none; border-radius:10px; }
-          nav a:hover { background:#f2f5ff; color:#2a54e6; }
+          nav a:hover { background:#f2f5ff; color:#00b6d4; }
           .sep { height:1px; background:#eee; margin:12px 16px; }
           .sub a { font-size:14px; font-weight:600; color:#5c6660; padding:12px 18px; }
         </style>

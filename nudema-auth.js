@@ -2,9 +2,12 @@
   'use strict';
 
   function api(path, options) {
+    var controller = new AbortController();
+    var timeout = setTimeout(function () { controller.abort(); }, 10000);
     return fetch(path, Object.assign({
       credentials: 'same-origin',
       headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      signal: controller.signal,
     }, options || {})).then(function (response) {
       return response.json().catch(function () { return {}; }).then(function (body) {
         if (!response.ok) {
@@ -14,7 +17,10 @@
         }
         return body;
       });
-    });
+    }).catch(function (cause) {
+      if (cause.name === 'AbortError') throw new Error('Серверээс хариу ирсэнгүй. Дахин оролдоно уу.');
+      throw cause;
+    }).finally(function () { clearTimeout(timeout); });
   }
 
   function showMessage(element, message) {

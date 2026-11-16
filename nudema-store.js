@@ -196,6 +196,156 @@
 
   var clone = function (v) { return JSON.parse(JSON.stringify(v)); };
 
+  // Keep the original string categories for existing pages and D1 records.
+  // Departments add a second level without replacing product/category names.
+  var DEPARTMENTS = ['Гоо сайхан', 'Эмнэлгийн хэрэгсэл', 'Гэр ахуй', 'Бусад'];
+  var PRODUCT_TYPES = [
+    { value: 'general', label: 'Ерөнхий бараа' },
+    { value: 'beauty', label: 'Гоо сайхан' },
+    { value: 'medical', label: 'Эмнэлгийн хэрэгсэл' },
+    { value: 'household', label: 'Гэр ахуйн бараа' },
+  ];
+  var SPEC_PRESETS = {
+    general: ['Загвар', 'Хэмжээ'],
+    beauty: ['Арьсны төрөл', 'Хэмжээ / эзлэхүүн', 'Хэрэглэх заавар'],
+    medical: ['Бүртгэлийн дугаар', 'Зориулалт', 'Ариун эсэх', 'Хадгалах нөхцөл', 'Анхааруулга'],
+    household: ['Материал', 'Хэмжээ', 'Арчилгаа / хэрэглэх заавар'],
+  };
+  function normalizeTaxonomy(value) {
+    var tax = value && typeof value === 'object' ? value : {};
+    var departments = Array.isArray(tax.departments) && tax.departments.length ? tax.departments.slice() : DEPARTMENTS.slice();
+    var categories = Array.isArray(tax.categories) ? tax.categories.slice() : [];
+    var links = Object.create(null);
+    categories.forEach(function (name) {
+      var group = tax.categoryDepartments && Object.prototype.hasOwnProperty.call(tax.categoryDepartments, name) ? tax.categoryDepartments[name] : '';
+      if (!departments.includes(group)) {
+        group = DEFAULTS.taxonomy.categories.includes(name) && departments.includes(DEPARTMENTS[0]) ? DEPARTMENTS[0] : departments[departments.length - 1];
+      }
+      links[name] = group;
+    });
+    return Object.assign({}, tax, { departments: departments, categories: categories, categoryDepartments: links, badges: Array.isArray(tax.badges) ? tax.badges.slice() : [] });
+  }
+  function editTaxonomy(value, products, kind, index, draft, department) {
+    var tax = normalizeTaxonomy(value);
+    if (!['categories', 'departments', 'badges'].includes(kind)) return { error: 'Буруу ангилал.' };
+    var name = String(draft || '').trim();
+    if (!name || name.length > 100) return { error: 'Нэрийг 1–100 тэмдэгтээр оруулна уу.' };
+    if (index !== -1 && !tax[kind][index]) return { error: 'Жагсаалтыг шинэчилнэ үү.' };
+    if (tax[kind].some(function (v, i) { return i !== index && v.toLocaleLowerCase() === name.toLocaleLowerCase(); })) return { error: 'Энэ нэр аль хэдийн байна.' };
+    if (kind === 'categories' && !tax.departments.includes(department)) return { error: 'Дээд бүлгээ сонгоно уу.' };
+    var old = index === -1 ? null : tax[kind][index];
+    tax[kind] = index === -1 ? tax[kind].concat(name) : tax[kind].map(function (v, i) { return i === index ? name : v; });
+    if (kind === 'categories') {
+      if (old !== null) delete tax.categoryDepartments[old];
+      tax.categoryDepartments[name] = department;
+    }
+    if (kind === 'departments' && old !== null) {
+      tax.categories.forEach(function (c) { if (tax.categoryDepartments[c] === old) tax.categoryDepartments[c] = name; });
+    }
+    var nextProducts = products;
+    if (old !== null && kind !== 'departments') {
+      var field = kind === 'categories' ? 'category' : 'badge';
+      nextProducts = products.map(function (p) {
+        return p[field] === old ? Object.assign({}, p, { [field]: name }, kind === 'categories' ? { cat: name } : {}) : p;
+      });
+    }
+    return { taxonomy: tax, products: nextProducts };
+  }
+  function removeTaxonomy(value, products, kind, index) {
+    var tax = normalizeTaxonomy(value);
+    if (!['categories', 'departments', 'badges'].includes(kind) || !tax[kind][index]) return { error: 'Жагсаалтыг шинэчилнэ үү.' };
+    var name = tax[kind][index];
+    var used = kind === 'departments'
+      ? tax.categories.some(function (c) { return tax.categoryDepartments[c] === name; })
+      : products.some(function (p) { return p[kind === 'categories' ? 'category' : 'badge'] === name; });
+    if (used) return { error: 'Ашиглаж буй бүлэг / ангилал / тагийг устгах боломжгүй. Эхлээд холбогдсон бараа, ангиллыг шилжүүлнэ үү.' };
+    if (kind !== 'badges' && tax[kind].length <= 1) return { error: 'Дор хаяж нэг бүлэг / ангилал үлдээнэ үү.' };
+    tax[kind].splice(index, 1);
+    if (kind === 'categories') delete tax.categoryDepartments[name];
+    return { taxonomy: tax, products: products };
+  }
+  function typeForDepartment(department) {
+    return ['beauty', 'medical', 'household'][DEPARTMENTS.indexOf(department)] || 'general';
+  }
+  function catalogForm(product, value) {
+    var p = product || {};
+    var tax = normalizeTaxonomy(value);
+    var department = tax.categoryDepartments[p.category] || tax.departments[0] || '';
+    var fields = { department: department, productType: p.productType || typeForDepartment(department), specifications: clone(Array.isArray(p.specifications) ? p.specifications : []) };
+    ['sku', 'brand', 'manufacturer', 'country', 'unit', 'expiryDate', 'ingredients'].forEach(function (key) { fields[key] = p[key] || ''; });
+    return fields;
+  }
+  function catalogProductFields(form) {
+    var fields = {};
+    ['sku', 'brand', 'manufacturer', 'country', 'unit', 'expiryDate', 'ingredients', 'productType'].forEach(function (key) { fields[key] = String(form[key] || '').trim(); });
+    fields.specifications = (form.specifications || []).filter(function (s) { return String(s.name || '').trim() && String(s.value || '').trim(); }).map(function (s) { return { name: s.name.trim(), value: s.value.trim() }; });
+    return fields;
+  }
+  function validateCatalogProduct(form, products, editId, value) {
+    var tax = normalizeTaxonomy(value);
+    if (!tax.categories.includes(form.category) || tax.categoryDepartments[form.category] !== form.department) return 'Бүлэг болон ангиллаа сонгоно уу. Ангилал байхгүй бол эхлээд үүсгэнэ үү.';
+    if (!PRODUCT_TYPES.some(function (t) { return t.value === form.productType; })) return 'Барааны төрлөө сонгоно уу.';
+    var sku = String(form.sku || '').trim().toLocaleLowerCase();
+    if (sku && products.some(function (p) { return String(p.id) !== String(editId) && String(p.sku || '').trim().toLocaleLowerCase() === sku; })) return 'SKU давхардсан байна. Өөр код оруулна уу.';
+    var price = String(form.price || '').replace(/,/g, '').trim();
+    var stock = String(form.stock == null ? '' : form.stock).replace(/,/g, '').trim();
+    var original = String(form.original || '').replace(/,/g, '').trim();
+    if (!/^\d+$/.test(price) || !Number.isSafeInteger(Number(price)) || Number(price) <= 0) return 'Үнэ нь тэгээс их бүхэл тоо байна.';
+    if (!/^\d+$/.test(stock) || !Number.isSafeInteger(Number(stock))) return 'Нөөц нь 0 эсвэл эерэг бүхэл тоо байна.';
+    if (original && (!/^\d+$/.test(original) || !Number.isSafeInteger(Number(original)) || (Number(original) > 0 && Number(original) < Number(price)))) return 'Хуучин үнэ нь зарах үнээс бага байж болохгүй.';
+    var names = [];
+    for (var spec of form.specifications || []) {
+      var name = String(spec.name || '').trim().toLocaleLowerCase();
+      var val = String(spec.value || '').trim();
+      if (!!name !== !!val) return 'Үзүүлэлтийн нэр, утгыг хоёуланг нь бөглөнө үү эсвэл хоосон мөрөө устгана уу.';
+      if (name && names.includes(name)) return 'Үзүүлэлтийн нэр давхардсан байна.';
+      if (name) names.push(name);
+    }
+    return '';
+  }
+
+  // Shared form bindings keep PC and mobile administration in sync.
+  function catalogAdminValues(component) {
+    var c = component, tax = normalizeTaxonomy(c.taxonomy()), f = c.form();
+    function options(values, selected) { return values.map(function (v) { return { value: v, label: v, selected: v === selected ? 'selected' : '' }; }); }
+    function start(kind, index) {
+      var name = index < 0 ? '' : tax[kind][index];
+      c.setState({ taxEdit: kind + ':' + index, taxDraft: name, taxDepartment: tax.categoryDepartments[name] || tax.departments[0] || '', taxError: '', taxConfirm: '' });
+    }
+    return {
+      adminDepartmentOptions: [{ value: '', label: 'Бүх бүлэг', selected: !c.state.pDepartment ? 'selected' : '' }].concat(options(tax.departments, c.state.pDepartment)),
+      adminCategoryOptions: [{ value: '', label: 'Бүх ангилал', selected: !c.state.pCategory ? 'selected' : '' }].concat(options(tax.categories.filter(function (name) { return !c.state.pDepartment || tax.categoryDepartments[name] === c.state.pDepartment; }), c.state.pCategory)),
+      onAdminDepartment: function (e) { c.setState({ pDepartment: e.target.value, pCategory: '' }); },
+      onAdminCategory: function (e) { c.setState({ pCategory: e.target.value }); },
+      departmentRows: tax.departments.map(function (name, i) { return { name: name, count: tax.categories.filter(function (cat) { return tax.categoryDepartments[cat] === name; }).length, onEdit: function () { start('departments', i); }, onRemove: function () { c.removeTaxonomy('departments', i); } }; }),
+      addDepartment: function () { start('departments', -1); },
+      editingDepartment: /^departments:/.test(c.state.taxEdit || ''),
+      editingCategory: /^categories:/.test(c.state.taxEdit || ''),
+      taxDepartmentOptions: options(tax.departments, c.state.taxDepartment || tax.departments[0]),
+      onTaxDepartment: function (e) { c.setState({ taxDepartment: e.target.value }); },
+      departmentOptions: options(tax.departments, f.department),
+      onFDepartment: function (e) {
+        var department = e.target.value;
+        c.updForm({ department: department, category: tax.categories.find(function (name) { return tax.categoryDepartments[name] === department; }) || '', productType: typeForDepartment(department) });
+      },
+      catalogCategoryOptions: [{ value: '', label: 'Ангилал сонгох', selected: !f.category ? 'selected' : '' }].concat(options(tax.categories.filter(function (name) { return tax.categoryDepartments[name] === f.department; }), f.category)),
+      productTypeOptions: PRODUCT_TYPES.map(function (t) { return Object.assign({}, t, { selected: f.productType === t.value ? 'selected' : '' }); }),
+      onFProductType: function (e) { c.updForm({ productType: e.target.value }); },
+      catalogFields: [ ['sku', 'SKU / барааны код'], ['brand', 'Брэнд'], ['manufacturer', 'Үйлдвэрлэгч'], ['country', 'Үйлдвэрлэсэн улс'], ['unit', 'Борлуулах нэгж (ш, хайрцаг, кг…)'], ['expiryDate', 'Дуусах хугацаа'] ].map(function (entry) { return { key: entry[0], label: entry[1], type: entry[0] === 'expiryDate' ? 'date' : 'text', value: f[entry[0]] || '', onInput: function (e) { c.updForm({ [entry[0]]: e.target.value }); } }; }),
+      isBeautyProduct: f.productType === 'beauty',
+      specificationRows: (f.specifications || []).map(function (s, i) {
+        function update(patch) { c.updForm({ specifications: f.specifications.map(function (v, n) { return n === i ? Object.assign({}, v, patch) : v; }) }); }
+        return { name: s.name, value: s.value, onName: function (e) { update({ name: e.target.value }); }, onValue: function (e) { update({ value: e.target.value }); }, onRemove: function () { c.updForm({ specifications: f.specifications.filter(function (_, n) { return n !== i; }) }); } };
+      }),
+      addSpecification: function () { if ((f.specifications || []).length < 20) c.updForm({ specifications: (f.specifications || []).concat({ name: '', value: '' }) }); },
+      addSpecificationPreset: function () {
+        var list = (f.specifications || []).filter(function (s) { return s.name || s.value; });
+        (SPEC_PRESETS[f.productType] || []).forEach(function (name) { if (!list.some(function (s) { return s.name === name; }) && list.length < 20) list.push({ name: name, value: '' }); });
+        c.updForm({ specifications: list });
+      },
+    };
+  }
+
   var PUBLIC_NAMES = ['products', 'settings', 'taxonomy', 'reviews', 'content'];
   var ADMIN_NAMES = PUBLIC_NAMES.concat(['orders', 'statuses']);
   var remoteStatus = { enabled: false, syncing: false, ready: false, error: '', updatedAt: null, identity: null };
@@ -218,21 +368,21 @@
     var key = KEYS[name];
     var def = canFetchRemote ? EMPTY_DEFAULTS[name] : DEFAULTS[name];
     // Admin нь D1 баталгаажихаас өмнө хуучин localStorage cache-ийг огт үзүүлэхгүй.
-    if (canFetchRemote && isAdminPage && !remoteStatus.ready) return clone(def);
+    if (canFetchRemote && isAdminPage && !remoteStatus.ready) return name === 'taxonomy' ? normalizeTaxonomy(clone(def)) : clone(def);
     try {
       var raw = localStorage.getItem(key);
-      if (!raw) return clone(def);
+      if (!raw) return name === 'taxonomy' ? normalizeTaxonomy(clone(def)) : clone(def);
       var parsed = JSON.parse(raw);
-      if (parsed === null || parsed === undefined) return clone(def);
+      if (parsed === null || parsed === undefined) return name === 'taxonomy' ? normalizeTaxonomy(clone(def)) : clone(def);
       // Объект төрлийн тохиргоог үндсэн утган дээр давхарлаж, дутуу талбарыг нөхнө.
       if (!Array.isArray(def) && typeof def === 'object' && !Array.isArray(parsed) && typeof parsed === 'object') {
         var merged = clone(def);
         for (var k in parsed) if (Object.prototype.hasOwnProperty.call(parsed, k)) merged[k] = parsed[k];
-        return merged;
+        return name === 'taxonomy' ? normalizeTaxonomy(merged) : merged;
       }
       return parsed;
     } catch (e) {
-      return clone(def);
+      return name === 'taxonomy' ? normalizeTaxonomy(clone(def)) : clone(def);
     }
   };
 
@@ -306,6 +456,36 @@
     });
   };
 
+  // Rename category links and products together. D1 uses one atomic batch;
+  // local preview rolls back both cache entries if storage is full.
+  var saveCatalog = function (taxonomy, products) {
+    var names = ['taxonomy', 'products'];
+    var values = [taxonomy, products];
+    var previous;
+    try {
+      previous = names.map(function (name) { return localStorage.getItem(KEYS[name]); });
+      names.forEach(function (name, i) { localStorage.setItem(KEYS[name], JSON.stringify(values[i])); });
+    } catch (cause) {
+      if (previous) names.forEach(function (name, i) {
+        try { if (previous[i] === null) localStorage.removeItem(KEYS[name]); else localStorage.setItem(KEYS[name], previous[i]); } catch (ignore) {}
+      });
+      return false;
+    }
+    names.forEach(function (name) {
+      window.dispatchEvent(new CustomEvent('nudema:change', { detail: { name: name, key: KEYS[name], ok: true } }));
+    });
+    if (canFetchRemote && isAdminPage) {
+      remoteRequest('/api/admin/catalog', {
+        method: 'PUT', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taxonomy: taxonomy, products: products }),
+      }).then(function () { emitRemote('taxonomy', true, ''); }).catch(function (cause) {
+        remoteStatus.error = cause.message || 'Catalog save failed';
+        emitRemote('taxonomy', false, remoteStatus.error);
+      });
+    }
+    return true;
+  };
+
   var syncRemote = function () {
     if (!canFetchRemote) return Promise.resolve(false);
     if (remoteStatus.syncing) return remotePromise || Promise.resolve(false);
@@ -375,6 +555,7 @@
       email: payload.customer && payload.customer.email ? payload.customer.email : '',
       phone: payload.customer && payload.customer.phone ? payload.customer.phone : '',
       address: payload.customer && payload.customer.address ? payload.customer.address : '',
+      location: payload.customer && payload.customer.location ? clone(payload.customer.location) : null,
       note: payload.customer && payload.customer.note ? payload.customer.note : '',
       date: now.toISOString().slice(0, 10), hour: now.getHours(), minute: now.getMinutes(),
       method: 'Данс шилжүүлэг', items: items, subtotal: subtotal, shipping: delivery.shipping,
@@ -457,6 +638,30 @@
     money: money,
     amount: amount,
     delivery: deliveryQuote,
+    localPreview: isPlainLocalServer,
+    catalog: {
+      save: saveCatalog,
+      normalizeTaxonomy: normalizeTaxonomy,
+      editTaxonomy: editTaxonomy,
+      removeTaxonomy: removeTaxonomy,
+      formFields: catalogForm,
+      productFields: catalogProductFields,
+      validateProduct: validateCatalogProduct,
+      adminValues: catalogAdminValues,
+      filterProducts: function (products, value, filters) {
+        var tax = normalizeTaxonomy(value), f = filters || {}, q = String(f.q || '').trim().toLocaleLowerCase();
+        return products.filter(function (p) {
+          var department = tax.categoryDepartments[p.category] || '';
+          if (f.department && f.department !== department) return false;
+          if (f.category && f.category !== p.category) return false;
+          return !q || [p.title, p.category, department, p.desc, p.badge, p.sku, p.brand, p.manufacturer, p.country].concat((p.specifications || []).map(function (s) { return s.name + ' ' + s.value; })).join(' ').toLocaleLowerCase().includes(q);
+        });
+      },
+      productInfo: function (p) {
+        var labels = { sku: 'SKU', brand: 'Брэнд', manufacturer: 'Үйлдвэрлэгч', country: 'Үйлдвэрлэсэн улс', unit: 'Борлуулах нэгж', expiryDate: 'Дуусах хугацаа' };
+        return Object.keys(labels).filter(function (key) { return p[key]; }).map(function (key) { return { name: labels[key], value: p[key] }; }).concat(Array.isArray(p.specifications) ? p.specifications : []);
+      },
+    },
     // Дараагийн чөлөөт id
     nextId: function (list) {
       var max = 0;

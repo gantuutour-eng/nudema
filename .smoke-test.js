@@ -90,7 +90,7 @@ a = admin.renderVals();
 check('захиалгын дугаараар хайв', a.ordersFull.length === 1 && a.ordersFull[0].no === someOrderNo, a.ordersFull.length);
 admin.setState({ q: 'тонер', section: 'products' });
 a = admin.renderVals();
-check('бүтээгдэхүүний нэрээр хайв', a.productList.length === 1, a.productList.length);
+check('бүтээгдэхүүний нэр болон ангиллаар хайв', a.productList.length === 2 && a.productList.every(p => p.category === 'Тонер / Эссенс'), a.productList.length);
 admin.setState({ q: '', section: 'dashboard' });
 
 console.log('\n[4] Захиалгын төлөв өөрчлөх');
@@ -727,6 +727,14 @@ admin.saveSettings();
 const backAgain = openCheckout().renderVals();
 check('данс буцаж ирсэн', backAgain.methods.some((m) => m.label === 'Данс шилжүүлэг'));
 check('дүн хуулах товч ажиллана', typeof backAgain.copyAmount === 'function');
+const mappedCheckout = openCheckout();
+const selectedLocation = { lat: 47.918813, lng: 106.916897, label: 'Сүхбаатарын талбай' };
+mappedCheckout.setState({ customerName: 'QA', phone: '00000000', district: 'Сүхбаатар', khoroo: '1-р хороо', address: 'Test details', deliveryLocation: selectedLocation });
+let mappedPayload;
+mappedCheckout.submitOrder = (payload) => { mappedPayload = payload; };
+mappedCheckout.renderVals().pay();
+check('сонгосон газрын координат захиалгад дамжсан', mappedPayload.customer.location.lat === selectedLocation.lat && mappedPayload.customer.location.lng === selectedLocation.lng);
+check('газрын нэр ба дэлгэрэнгүй хаяг хамт дамжсан', mappedPayload.customer.address.includes(selectedLocation.label) && mappedPayload.customer.address.includes('Test details'));
 
 // Хүргэлтийн төлбөр ч тохиргооноос
 admin.updSettings({ shippingFee: '9,500₮', freeThreshold: '100,000₮' });
@@ -771,14 +779,14 @@ let g = openProduct('?id=1').renderVals();
 check('гол зураг = эхний', g.img.endsWith('AAA'), g.img.slice(-3));
 check('thumbnail 3', g.thumbs.length === 3, g.thumbs.length);
 check('thumbnail мөр харагдана', g.hasThumbs === true);
-check('эхний thumbnail сонгогдсон', g.thumbs[0].style.includes('#2a54e6'));
+check('эхний thumbnail сонгогдсон', g.thumbs[0].style.includes('#00b6d4'));
 
 // Thumbnail дарж солих
 const gc = openProduct('?id=1');
 gc.renderVals().thumbs[2].onClick();
 g = gc.renderVals();
 check('3 дахь зураг руу солигдсон', g.img.endsWith('CCC'), g.img.slice(-3));
-check('сонголтын хүрээ шилжсэн', g.thumbs[2].style.includes('#2a54e6') && !g.thumbs[0].style.includes('#2a54e6'));
+check('сонголтын хүрээ шилжсэн', g.thumbs[2].style.includes('#00b6d4') && !g.thumbs[0].style.includes('#00b6d4'));
 
 // Дараалал солих — нүүр зураг өөрчлөгдөнө
 admin.openEditProduct(1);

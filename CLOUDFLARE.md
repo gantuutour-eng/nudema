@@ -87,6 +87,28 @@ Use the Pages URL only for a pre-production environment that is not submitted fo
 OAuth brand verification. Google requires an exact redirect URI match. Redeploy
 after changing these values.
 
+Production registration completed on 2026-11-16:
+
+- Google Cloud project: `Nudema in Mongolia` (`nudema-in-mongolia-514906`)
+- Web OAuth client: `Nudema Web Login`
+- Audience: External, Production
+- Login scopes: `openid email profile`; no sensitive or restricted Google scopes
+- Cloudflare Pages project: `nudema`; all three Google variables are encrypted
+- Production callback: `https://nudema-mongolia.com/api/auth/google/callback`
+
+The Google-only account creation fix is deployed in commit `93e0b4c`.
+It stores random, unusable password placeholders instead of deriving a password
+that the customer never set. This avoids the Workers PBKDF2 limit during Google
+signup without changing existing password accounts. The live Google sign-in,
+account page, profile navigation, and session persistence were verified.
+Google brand verification is separate from the production publishing status.
+The Google brand verification passed and the verified branding was published
+on 2026-11-16; Google confirms it is displayed to users.
+The domain property `nudema-mongolia.com` is verified in Google Search Console
+for the Google Cloud project owner's account. Its new verification TXT record
+was added alongside the existing verification record; retain both records.
+Keep OAuth secrets in Cloudflare; do not copy their values into this document.
+
 ## 4. Configure the site admin login
 
 The admin page has its own email/password form and does not require a Cloudflare

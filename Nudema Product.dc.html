@@ -3,22 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Арьс арчилгааны бүтээгдэхүүн | Nudema in Mongolia</title>
-<meta name="description" content="Nudema in Mongolia онлайн дэлгүүрээс арьс арчилгаа, гоо сайхны бүтээгдэхүүний үнэ, найрлага, хэрэглээний мэдээллийг үзэж захиалаарай.">
+<title>Бүтээгдэхүүн | Nudema in Mongolia</title>
+<meta name="description" content="Nudema in Mongolia онлайн дэлгүүрээс гоо сайхан, эрүүл мэнд, гэр ахуйн бүтээгдэхүүний үнэ, найрлага, хэрэглээний мэдээллийг үзэж захиалаарай.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
 <link id="seoCanonical" rel="canonical" href="https://nudema-mongolia.com/product">
 <meta property="og:type" content="product">
 <meta property="og:locale" content="mn_MN">
 <meta property="og:site_name" content="Nudema in Mongolia">
-<meta property="og:title" content="Арьс арчилгааны бүтээгдэхүүн | Nudema in Mongolia">
+<meta property="og:title" content="Бүтээгдэхүүн | Nudema in Mongolia">
 <meta property="og:description" content="Монгол дахь NUDEMA гоо сайхны бүтээгдэхүүний мэдээлэл, үнэ, захиалга.">
 <meta property="og:url" content="https://nudema-mongolia.com/product">
 <meta name="twitter:card" content="summary_large_image">
 <script src="./assets/vendor/react-18.3.1.production.min.js"></script>
 <script src="./assets/vendor/react-dom-18.3.1.production.min.js"></script>
 <script defer src="./support.js?v=20260723-3"></script>
+<link rel="stylesheet" href="./storefront.css?v=20261116">
+<link rel="stylesheet" href="./storefront-addwel.css?v=20261116-addwel2">
+<script defer src="./storefront-ui.js?v=20261116"></script>
 </head>
-<body>
+<body class="nd-storefront">
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,28 +45,15 @@
 <div class="pd-page" style="width:100%;background:#fff;">
 
   <!-- header -->
-  <header style="border-bottom:1px solid #eee;background:#fff;">
-   <div class="rs-header" style="max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:20px 34px;position:relative;">
-    <div class="rs-header-left" style="display:flex;align-items:center;gap:22px;">
-      <x-import component-from-global-scope="nudema-menu" from="./nudema-menu.js" hint-size="24px,24px"></x-import>
-      <a class="rs-logo" href="Nudema%20Mongolia.dc.html" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:26px;font-weight:800;letter-spacing:0.08em;color:#2a54e6;">NUDEMA</a>
-    </div>
-    <div class="rs-header-actions" style="display:flex;align-items:center;gap:18px;">
-      <a class="rs-brand-story" href="Nudema%20Mongolia.dc.html#brand-story" style="background:#2a54e6;color:#fff;font-size:13px;font-weight:700;padding:9px 16px;border-radius:20px;">Брэндийн түүх</a>
-      <a class="rs-header-icon" href="Nudema%20Search.dc.html" aria-label="Хайх"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.2-3.2"></path></svg></a>
-      <a class="rs-header-icon" href="Nudema%20Account.dc.html" aria-label="Профайл"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 4-6 8-6s8 2 8 6"></path></svg></a>
-      <a class="rs-header-icon rs-cart-icon" href="Nudema%20Cart.dc.html" aria-label="Сагс"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.3 10.2a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L20.5 8H6"></path><circle cx="10" cy="20" r="1"></circle><circle cx="18" cy="20" r="1"></circle></svg><span class="rs-cart-count" data-cart-count hidden>0</span></a>
-    </div>
-   </div>
-  </header>
+  <nudema-shop-header></nudema-shop-header>
 
   <!-- бүтээгдэхүүн олдоогүй -->
   <sc-if value="{{ notFound }}" hint-placeholder-val="{{ false }}">
     <div style="max-width:1280px;margin:0 auto;padding:110px 40px 130px;text-align:center;">
       <div style="font-size:44px;margin-bottom:16px;">🔍</div>
-      <h1 style="font-size:24px;font-weight:800;color:#16255f;margin:0 0 10px;">Бүтээгдэхүүн олдсонгүй</h1>
+      <h1 style="font-size:24px;font-weight:800;color:#333333;margin:0 0 10px;">Бүтээгдэхүүн олдсонгүй</h1>
       <p style="font-size:14px;color:#8a938c;margin:0 0 26px;">Энэ бүтээгдэхүүн устсан эсвэл хаяг буруу байна.</p>
-      <a href="Nudema%20Mongolia.dc.html" style="display:inline-block;background:#2a54e6;color:#fff;font-size:14px;font-weight:700;padding:13px 28px;border-radius:24px;">Нүүр хуудас руу ›</a>
+      <a href="Nudema%20Mongolia.dc.html" style="display:inline-block;background:#00b6d4;color:#fff;font-size:14px;font-weight:700;padding:13px 28px;border-radius:24px;">Нүүр хуудас руу ›</a>
     </div>
   </sc-if>
 
@@ -71,7 +61,7 @@
   <div>
   <!-- breadcrumb -->
   <div style="max-width:1280px;margin:0 auto;padding:18px 40px 0;font-size:12.5px;color:#9aa39c;display:flex;gap:8px;">
-    <a href="Nudema%20Mongolia.dc.html">Нүүр</a><span>›</span><a href="Nudema%20Search.dc.html">Арьс арчилгаа</a><span>›</span><span style="color:#5c6660;">{{ category }}</span>
+    <a href="/">Нүүр</a><span>›</span><a href="{{ departmentHref }}">{{ department }}</a><span>›</span><a href="{{ categoryHref }}" style="color:#5c6660;">{{ category }}</a>
   </div>
 
   <!-- product top -->
@@ -83,10 +73,10 @@
           <img src="{{ img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;">
         </sc-if>
         <sc-if value="{{ noImg }}" hint-placeholder-val="{{ true }}">
-          <image-slot id="pd-main-{{ id }}" shape="rect" fit="contain" placeholder="Гол зураг"></image-slot>
+          <img src="{{ productPlaceholder }}" alt="Бүтээгдэхүүний зураг бэлтгэгдэж байна" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;">
         </sc-if>
         <sc-if value="{{ hasBadge }}" hint-placeholder-val="{{ true }}">
-          <span style="position:absolute;top:16px;left:16px;background:#2a54e6;color:#fff;font-size:12px;font-weight:700;padding:6px 12px;border-radius:14px;z-index:3;">{{ badge }}</span>
+          <span style="position:absolute;top:16px;left:16px;background:#00b6d4;color:#fff;font-size:12px;font-weight:700;padding:6px 12px;border-radius:14px;z-index:3;">{{ badge }}</span>
         </sc-if>
       </div>
       <sc-if value="{{ hasThumbs }}" hint-placeholder-val="{{ false }}">
@@ -102,8 +92,8 @@
 
     <!-- info -->
     <div>
-      <div style="font-size:13px;font-weight:700;color:#2a54e6;letter-spacing:0.04em;">NUDEMA</div>
-      <h1 class="pd-title" style="font-size:28px;font-weight:800;line-height:1.32;margin:10px 0 14px;color:#16255f;">{{ title }}</h1>
+      <div style="font-size:13px;font-weight:700;color:#00b6d4;letter-spacing:0.04em;">{{ productBrand }}</div>
+      <h1 class="pd-title" style="font-size:28px;font-weight:800;line-height:1.32;margin:10px 0 14px;color:#333333;">{{ title }}</h1>
       <div style="display:flex;align-items:center;gap:10px;font-size:13px;margin-bottom:22px;">
         <span style="color:#e0a020;font-weight:700;">★★★★★ {{ rating }}</span>
         <span style="color:#9aa39c;">Сэтгэгдэл {{ count }}</span>
@@ -125,7 +115,7 @@
           <div style="display:flex;justify-content:space-between;gap:18px;"><span style="color:#8a938c;">Хүргэлтийн төлбөр</span><span style="font-weight:700;color:#3a423c;text-align:right;">{{ deliveryLabel }}</span></div>
         </sc-if>
         <sc-if value="{{ hasDeliveryHint }}" hint-placeholder-val="{{ true }}">
-          <div style="font-size:12px;line-height:1.55;color:#2a54e6;text-align:right;">{{ deliveryHint }}</div>
+          <div style="font-size:12px;line-height:1.55;color:#00b6d4;text-align:right;">{{ deliveryHint }}</div>
         </sc-if>
         <sc-if value="{{ hasShipping }}" hint-placeholder-val="{{ true }}">
           <div style="display:flex;justify-content:space-between;gap:18px;"><span style="color:#8a938c;">Хүргэлтийн мэдээлэл</span><span style="color:#3a423c;text-align:right;">{{ shippingLine }}</span></div>
@@ -139,7 +129,7 @@
       <!-- options (админд оруулсан үед л) -->
       <sc-if value="{{ hasOptions }}" hint-placeholder-val="{{ true }}">
         <div style="margin-top:22px;">
-          <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:#3a423c;">Багцын хэмжээ</div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:#3a423c;">Сонголт</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
             <sc-for list="{{ options }}" as="o" hint-placeholder-count="3">
               <button onClick="{{ o.onClick }}" style="{{ o.style }}">{{ o.label }}</button>
@@ -161,23 +151,23 @@
         </div>
       </div>
       <sc-if value="{{ qtyCapped }}" hint-placeholder-val="{{ false }}">
-        <p style="font-size:12px;color:#e0730a;font-weight:600;margin:8px 2px 0;">Нөөцөд {{ stock }} ширхэг үлдсэн тул үүнээс олныг сонгох боломжгүй.</p>
+        <p style="font-size:12px;color:#e0730a;font-weight:600;margin:8px 2px 0;">Нөөцөд {{ stock }} {{ productUnit }} үлдсэн тул үүнээс олныг сонгох боломжгүй.</p>
       </sc-if>
 
       <!-- total -->
       <div style="margin-top:22px;border-top:1px solid #eee;padding-top:18px;display:flex;flex-direction:column;gap:9px;">
         <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:#8a938c;">Барааны дүн</span><span style="font-weight:700;">{{ lineTotal }}</span></div>
         <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:#8a938c;">Хүргэлт</span><span style="font-weight:700;">{{ deliveryLabel }}</span></div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px;"><span style="font-size:15px;font-weight:600;color:#3a423c;">Нийт төлбөр</span><span style="font-size:26px;font-weight:800;color:#2a54e6;">{{ payableTotal }}</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px;"><span style="font-size:15px;font-weight:600;color:#3a423c;">Нийт төлбөр</span><span style="font-size:26px;font-weight:800;color:#00b6d4;">{{ payableTotal }}</span></div>
       </div>
 
       <!-- buttons -->
       <div class="pd-actions" style="margin-top:44px;display:flex;gap:12px;">
         <sc-if value="{{ inStock }}" hint-placeholder-val="{{ true }}">
-          <a href="{{ cartHref }}" style="flex:1;height:56px;line-height:56px;text-align:center;border:1px solid #2a54e6;border-radius:12px;background:#fff;color:#2a54e6;font-size:16px;font-weight:800;">Сагсанд нэмэх</a>
+          <a href="{{ cartHref }}" style="flex:1;height:56px;line-height:56px;text-align:center;border:1px solid #00b6d4;border-radius:12px;background:#fff;color:#00b6d4;font-size:16px;font-weight:800;">Сагсанд нэмэх</a>
         </sc-if>
         <sc-if value="{{ inStock }}" hint-placeholder-val="{{ true }}">
-          <a href="{{ checkoutHref }}" style="flex:1;height:56px;line-height:56px;text-align:center;border:none;border-radius:12px;background:#2a54e6;color:#fff;font-size:16px;font-weight:800;">Худалдан авах</a>
+          <a href="{{ checkoutHref }}" style="flex:1;height:56px;line-height:56px;text-align:center;border:none;border-radius:12px;background:#00b6d4;color:#fff;font-size:16px;font-weight:800;">Худалдан авах</a>
         </sc-if>
         <sc-if value="{{ soldOut }}" hint-placeholder-val="{{ false }}">
           <span style="flex:1;height:56px;line-height:56px;text-align:center;border:none;border-radius:12px;background:#eceff6;color:#9aa39c;font-size:16px;font-weight:800;cursor:not-allowed;">Дууссан</span>
@@ -198,9 +188,12 @@
       <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ true }}">
         <div>
           <sc-if value="{{ hasDescription }}" hint-placeholder-val="{{ false }}">
-            <h2 style="font-size:24px;font-weight:800;color:#16255f;margin:0 0 16px;">{{ title }}</h2>
+            <h2 style="font-size:24px;font-weight:800;color:#333333;margin:0 0 16px;">{{ title }}</h2>
             <p style="font-size:15px;line-height:1.9;color:#5c6660;margin:0 0 32px;">{{ description }}</p>
           </sc-if>
+          <dl style="text-align:left;margin:0 0 28px;">
+            <sc-for list="{{ productInfo }}" as="info" hint-placeholder-count="0"><div style="display:grid;grid-template-columns:minmax(110px,1fr) 2fr;gap:16px;padding:13px 0;border-bottom:1px solid #e8ecf2;"><dt style="font-weight:700;color:#5c6660;">{{ info.name }}</dt><dd style="margin:0;white-space:pre-wrap;overflow-wrap:anywhere;">{{ info.value }}</dd></div></sc-for>
+          </dl>
           <sc-if value="{{ hasDetailBlocks }}" hint-placeholder-val="{{ true }}">
             <div style="display:flex;flex-direction:column;gap:18px;">
               <sc-for list="{{ detailBlocks }}" as="d" hint-placeholder-count="2">
@@ -245,7 +238,7 @@
       </sc-if>
       <sc-if value="{{ isReviews }}" hint-placeholder-val="{{ false }}">
         <div style="text-align:left;">
-          <h2 style="font-size:24px;font-weight:800;color:#16255f;margin:0 0 20px;text-align:center;">Сэтгэгдэл</h2>
+          <h2 style="font-size:24px;font-weight:800;color:#333333;margin:0 0 20px;text-align:center;">Сэтгэгдэл</h2>
           <sc-for list="{{ reviews }}" as="r" hint-placeholder-count="3">
             <div style="border:1px solid #f0f2f0;border-radius:12px;padding:20px 22px;margin-bottom:14px;">
               <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
@@ -254,8 +247,8 @@
               </div>
               <p style="margin:0;font-size:14px;line-height:1.7;color:#5c6660;">{{ r.text }}</p>
               <sc-if value="{{ r.hasReply }}" hint-placeholder-val="{{ false }}">
-                <div style="margin-top:12px;background:#f7f8fc;border-left:3px solid #2a54e6;border-radius:0 8px 8px 0;padding:11px 14px;">
-                  <div style="font-size:11px;font-weight:800;color:#2a54e6;margin-bottom:4px;">NUDEMA-гийн хариу</div>
+                <div style="margin-top:12px;background:#f7f8fc;border-left:3px solid #00b6d4;border-radius:0 8px 8px 0;padding:11px 14px;">
+                  <div style="font-size:11px;font-weight:800;color:#00b6d4;margin-bottom:4px;">NUDEMA-гийн хариу</div>
                   <div style="font-size:13px;line-height:1.65;color:#4a5266;">{{ r.reply }}</div>
                 </div>
               </sc-if>
@@ -271,13 +264,13 @@
 
   <!-- related -->
   <section style="max-width:1280px;margin:0 auto;padding:40px 40px 70px;">
-    <h2 style="font-size:20px;font-weight:800;margin:0 0 26px;color:#16255f;">Хамт худалдан авдаг бүтээгдэхүүн</h2>
+    <h2 style="font-size:20px;font-weight:800;margin:0 0 26px;color:#333333;">Хамт худалдан авдаг бүтээгдэхүүн</h2>
     <div class="pd-related" style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">
       <sc-for list="{{ related }}" as="p" hint-placeholder-count="4">
         <div style="display:block;">
           <a href="{{ p.href }}" style="position:relative;display:block;background:#f4f5f3;border-radius:14px;aspect-ratio:1/1;overflow:hidden;">
             <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></sc-if>
-            <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><image-slot id="rel-{{ p.id }}" shape="rect" fit="contain" placeholder="Зураг"></image-slot></sc-if>
+            <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><img src="./assets/storefront/care.svg" alt="Бүтээгдэхүүний зураг бэлтгэгдэж байна" style="width:100%;height:100%;object-fit:contain;"></sc-if>
           </a>
           <a href="{{ p.href }}" style="display:block;margin-top:12px;font-size:14px;font-weight:600;line-height:1.4;color:#2a302b;">{{ p.title }}</a>
           <div style="margin-top:6px;font-size:17px;font-weight:800;color:#111;">{{ p.price }}</div>
@@ -289,7 +282,7 @@
   </sc-if>
 
   <!-- footer -->
-  <footer style="background:#2a54e6;color:#d3ddfb;">
+  <footer style="background:#00b6d4;color:#d3ddfb;">
    <div class="rs-footer" style="max-width:1280px;margin:0 auto;padding:50px 40px 46px;">
     <div style="font-size:22px;font-weight:800;letter-spacing:0.08em;color:#fff;margin-bottom:24px;">NUDEMA</div>
     <div style="display:flex;gap:26px;font-size:13px;font-weight:600;margin-bottom:26px;flex-wrap:wrap;">
@@ -390,7 +383,7 @@ class Component extends DCLogic {
     const title = `${String(product.title || 'NUDEMA бүтээгдэхүүн').trim()} | Nudema in Mongolia`;
     const numericPrice = Number(String(product.price || 0).replace(/[^0-9.]/g, '')) || 0;
     const descriptionSource = String(product.desc || '').trim()
-      || `${String(product.title || 'NUDEMA бүтээгдэхүүн').trim()} — Монгол дахь NUDEMA арьс арчилгаа, гоо сайхны онлайн дэлгүүр. Үнэ ${numericPrice.toLocaleString('en-US')}₮.`;
+      || `${String(product.title || 'NUDEMA бүтээгдэхүүн').trim()} — Монгол дахь NUDEMA гоо сайхан, эрүүл мэнд, гэр ахуйн онлайн дэлгүүр. Үнэ ${numericPrice.toLocaleString('en-US')}₮.`;
     const description = descriptionSource.replace(/\s+/g, ' ').slice(0, 170);
     const images = Array.isArray(product.images) ? product.images : [];
     const imagePath = String(product.img || images[0] || '').trim();
@@ -411,8 +404,8 @@ class Component extends DCLogic {
       name: String(product.title || '').trim(),
       url: canonical.toString(),
       sku: String(product.id),
-      category: String(product.category || 'Арьс арчилгаа'),
-      brand: { '@type': 'Brand', name: 'NUDEMA' },
+      category: String(product.category || 'Бүтээгдэхүүн'),
+      ...(product.brand ? { brand: { '@type': 'Brand', name: String(product.brand) } } : {}),
       description,
       offers: {
         '@type': 'Offer',
@@ -445,7 +438,7 @@ class Component extends DCLogic {
           '@type': 'BreadcrumbList',
           itemListElement: [
             { '@type': 'ListItem', position: 1, name: 'Нүүр', item: `${baseUrl}/` },
-            { '@type': 'ListItem', position: 2, name: String(product.category || 'Арьс арчилгаа'), item: `${baseUrl}/search` },
+            { '@type': 'ListItem', position: 2, name: String(product.category || 'Бүтээгдэхүүн'), item: `${baseUrl}/search` },
             { '@type': 'ListItem', position: 3, name: String(product.title || '').trim(), item: canonical.toString() },
           ],
         },
@@ -543,7 +536,7 @@ class Component extends DCLogic {
       // Нэмэлт төлбөрийг шошгон дээр автоматаар харуулна
       label: Number(o.add) > 0 ? `${o.label} (+${money(o.add)}₮)` : o.label,
       onClick: () => this.setState({ option: i }),
-      style: `border:1px solid ${oi === i ? '#2a54e6' : '#d7ddd7'};background:${oi === i ? '#eaeefe' : '#fff'};color:${oi === i ? '#2a54e6' : '#5c6660'};font-family:inherit;font-size:13px;font-weight:${oi === i ? 700 : 500};padding:11px 16px;border-radius:10px;cursor:pointer;`,
+      style: `border:1px solid ${oi === i ? '#00b6d4' : '#d7ddd7'};background:${oi === i ? '#eaeefe' : '#fff'};color:${oi === i ? '#00b6d4' : '#5c6660'};font-family:inherit;font-size:13px;font-weight:${oi === i ? 700 : 500};padding:11px 16px;border-radius:10px;cursor:pointer;`,
     }));
     const optionAdd = hasOptions ? (Number(optionDefs[oi].add) || 0) : 0;
 
@@ -579,9 +572,11 @@ class Component extends DCLogic {
     const detailTabs = tabDefs.map(t => ({
       label: t.label,
       onClick: () => this.setState({ tab: t.key }),
-      style: `border:none;border-bottom:2px solid ${this.state.tab === t.key ? '#2a54e6' : 'transparent'};background:none;color:${this.state.tab === t.key ? '#2a54e6' : '#8a938c'};font-family:inherit;font-size:15px;font-weight:700;padding:18px 28px;cursor:pointer;`,
+      style: `border:none;border-bottom:2px solid ${this.state.tab === t.key ? '#00b6d4' : 'transparent'};background:none;color:${this.state.tab === t.key ? '#00b6d4' : '#8a938c'};font-family:inherit;font-size:15px;font-weight:700;padding:18px 28px;cursor:pointer;`,
     }));
 
+    const taxonomy = NudemaStore.catalog.normalizeTaxonomy(NudemaStore.read('taxonomy'));
+    const department = taxonomy.categoryDepartments[product.category] || 'Бүх бүтээгдэхүүн';
     const related = products
       .filter(p => Number(p.id) !== Number(product.id))
       .slice(0, 4)
@@ -593,6 +588,13 @@ class Component extends DCLogic {
 
     return {
       found: true, notFound: false,
+      productInfo: NudemaStore.catalog.productInfo(product),
+      productPlaceholder: './assets/storefront/' + (product.productType === 'medical' ? 'medical' : product.productType === 'household' ? 'household' : /Крем|крем/.test(product.category || '') ? 'cream' : /Серум|серум/.test(product.category || '') ? 'serum' : 'care') + '.svg',
+      department,
+      departmentHref: '/search?department=' + encodeURIComponent(department),
+      categoryHref: '/search?category=' + encodeURIComponent(product.category || ''),
+      productBrand: product.brand || '',
+      productUnit: product.unit || 'ширхэг',
       id: product.id,
       title: product.title,
       category: product.category || 'Бүтээгдэхүүн',
@@ -607,7 +609,7 @@ class Component extends DCLogic {
       thumbs: gallery.map((src, i) => ({
         src,
         onClick: () => this.setState({ shot: i }),
-        style: `position:relative;display:block;padding:0;background:#f4f5f3;border-radius:10px;aspect-ratio:1/1;overflow:hidden;cursor:pointer;border:2px solid ${i === shotIdx ? '#2a54e6' : 'transparent'};`,
+        style: `position:relative;display:block;padding:0;background:#f4f5f3;border-radius:10px;aspect-ratio:1/1;overflow:hidden;cursor:pointer;border:2px solid ${i === shotIdx ? '#00b6d4' : 'transparent'};`,
       })),
       price: fmt(product.price),
       original: hasDiscount ? fmt(product.original) : '',
@@ -628,7 +630,7 @@ class Component extends DCLogic {
       stock,
       inStock,
       soldOut: !inStock,
-      stockLabel: inStock ? `${money(stock)} ширхэг` : 'Дууссан',
+      stockLabel: inStock ? `${money(stock)} ${product.unit || 'ширхэг'}` : 'Дууссан',
       stockStyle: `font-weight:700;color:${!inStock ? '#e0392f' : stock < 30 ? '#e0730a' : '#12934f'};`,
       qtyCapped: this.state.qty > maxQty,
 

@@ -39,6 +39,12 @@ export async function onRequestPost(context) {
     const phone = cleanText(customer.phone, 40);
     const email = account ? account.email : cleanText(customer.email, 160);
     const address = cleanText(customer.address, 500);
+    let location = null;
+    if (customer.location) {
+      const lat = Number(customer.location.lat), lng = Number(customer.location.lng);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat < 41.5 || lat > 52.2 || lng < 87.7 || lng > 119.9) return error('Choose a valid delivery location in Mongolia.');
+      location = { lat: Math.round(lat * 1e6) / 1e6, lng: Math.round(lng * 1e6) / 1e6, label: cleanText(customer.location.label, 350) };
+    }
     if (!phone) return error('Phone number is required.');
     if (!name || !address) return error('Name and delivery address are required.');
 
@@ -52,6 +58,7 @@ export async function onRequestPost(context) {
       email,
       phone,
       address,
+      location,
       note: cleanText(customer.note, 500),
       date: now.toISOString().slice(0, 10),
       createdAt: now.toISOString(),

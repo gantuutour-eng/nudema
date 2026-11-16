@@ -8,10 +8,10 @@
 
   function activeTab() {
     var page = pageName();
-    if (/search/.test(page)) return 'search';
+    if (/search/.test(page)) return location.hash === '#departmentFilter' ? 'categories' : 'search';
     if (/cart|checkout/.test(page)) return 'cart';
     if (/account|login|signup/.test(page)) return 'account';
-    if (/mobile|mongolia|^index/.test(page)) return 'home';
+    if (!page || /mobile|mongolia|^index/.test(page)) return 'home';
     return '';
   }
 
@@ -24,10 +24,11 @@
 
   function footerHtml() {
     var settings = storeSettings();
-    var shop = String(settings.shopName || 'Nudema Mongolia');
-    var email = String(settings.email || 'help@nudema.mn');
-    var phone = String(settings.phone || '7011-5007');
-    return '<div class="nudema-footer-inner"><div class="nudema-footer-logo">Nudema in Mongolia</div>' +
+    var escape = function (v) { return String(v).replace(/[&<>"']/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]; }); };
+    var shop = escape(settings.shopName || 'Nudema Mongolia');
+    var email = escape(settings.email || 'help@nudema.mn');
+    var phone = escape(settings.phone || '7011-5007');
+    return '<div class="nudema-footer-inner"><div class="nudema-footer-logo"><img class="nd-footer-logo" src="/assets/brand/nudema-logo.svg" alt="Nudema"></div>' +
       '<nav class="nudema-footer-links" aria-label="Footer">' +
       '<a href="/terms">Үйлчилгээний нөхцөл</a>' +
       '<a class="company-link" href="/#brand-story">Компанийн мэдээлэл</a>' +
@@ -47,6 +48,7 @@
 
   function navHtml() {
     return navLink('home', '/', 'Нүүр', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>') +
+      navLink('categories', '/search#departmentFilter', 'Ангилал', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h16"/></svg>') +
       navLink('search', '/search', 'Хайх', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.2-3.2"/></svg>') +
       navLink('cart', '/cart', 'Сагс', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.3 10.2a2 2 0 0 0 2-1.6L20.5 8H6"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg>', true) +
       navLink('account', '/account', 'Профайл', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>');
@@ -98,9 +100,14 @@
     }
     window.__nudemaUserUiStarted = true;
     apply();
+    if (window.NudemaStore) NudemaStore.subscribe(function (name) {
+      if (name && name !== 'settings') return;
+      var footer = document.querySelector('footer[data-nudema-common="1"]');
+      if (footer) footer.innerHTML = footerHtml();
+    });
     var observer = new MutationObserver(function () {
       var mobile = window.matchMedia && window.matchMedia('(max-width: 820px)').matches;
-      if (!document.querySelector('footer[data-nudema-common="1"]') ||
+      if ((document.querySelector('footer') && !document.querySelector('footer[data-nudema-common="1"]')) ||
           (mobile && !document.querySelector('.nudema-mobile-nav'))) apply();
     });
     observer.observe(target, { childList: true, subtree: true });

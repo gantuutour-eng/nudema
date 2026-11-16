@@ -8,8 +8,15 @@
 <script src="./assets/vendor/react-18.3.1.production.min.js"></script>
 <script src="./assets/vendor/react-dom-18.3.1.production.min.js"></script>
 <script defer src="./support.js?v=20260723-3"></script>
+<link rel="stylesheet" href="./storefront.css?v=20261116">
+<link rel="stylesheet" href="./storefront-addwel.css?v=20261116-addwel2">
+<script defer src="./storefront-ui.js?v=20261116"></script>
+<link rel="stylesheet" href="./assets/vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="./address-picker.css?v=20261116">
+<script defer src="./assets/vendor/leaflet/leaflet.js"></script>
+<script defer src="./address-picker.js?v=20261116"></script>
 </head>
-<body>
+<body class="nd-storefront">
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,17 +40,7 @@
 </helmet>
 <div style="width:100%;background:#fff;">
 
-  <header style="border-bottom:1px solid #eee;background:#fff;">
-   <div class="rs-header" style="max-width:1280px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:20px 34px;position:relative;">
-    <div style="display:flex;align-items:center;gap:22px;">
-      <x-import component-from-global-scope="nudema-menu" from="./nudema-menu.js" hint-size="24px,24px"></x-import>
-      <a href="Nudema%20Mongolia.dc.html" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:26px;font-weight:800;letter-spacing:0.08em;color:#2a54e6;">NUDEMA</a>
-    </div>
-    <div style="display:flex;align-items:center;gap:18px;">
-      <a href="Nudema%20Cart.dc.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1c1a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.3 10.2a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L20.5 8H6"></path><circle cx="10" cy="20" r="1"></circle><circle cx="18" cy="20" r="1"></circle></svg></a>
-    </div>
-   </div>
-  </header>
+  <nudema-shop-header></nudema-shop-header>
 
   <!-- checkout body -->
   <sc-if value="{{ notDone }}" hint-placeholder-val="{{ true }}">
@@ -53,7 +50,7 @@
         <div style="border:1px solid #eee;border-radius:16px;padding:26px 28px;margin-bottom:22px;">
           <sc-if value="{{ true }}" hint-placeholder-val="{{ true }}">
             <div>
-              <h2 style="font-size:17px;font-weight:800;margin:0 0 16px;color:#2a54e6;">Захиалагчийн мэдээлэл</h2>
+              <h2 style="font-size:17px;font-weight:800;margin:0 0 16px;color:#00b6d4;">Захиалагчийн мэдээлэл</h2>
               <div class="co-two" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:26px;">
                 <div>
                   <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Овог нэр <span style="color:#e0392f;">*</span></label>
@@ -65,13 +62,13 @@
                 </div>
               </div>
 
-              <h2 style="font-size:17px;font-weight:800;margin:0 0 14px;color:#2a54e6;">Хүргэлтийн мэдээлэл</h2>
+              <h2 style="font-size:17px;font-weight:800;margin:0 0 14px;color:#00b6d4;">Хүргэлтийн мэдээлэл</h2>
 
               <div style="font-size:12px;font-weight:700;color:#5c6660;margin-bottom:8px;">Хүргэлтийн бүс</div>
               <div style="border:1px solid #f3b6b6;background:#fdf2f2;border-radius:12px;padding:16px 18px;display:flex;gap:12px;align-items:flex-start;margin-bottom:22px;">
                 <span style="width:16px;height:16px;border-radius:50%;border:5px solid #e0392f;flex:0 0 auto;margin-top:2px;"></span>
                 <div style="flex:1;">
-                  <div style="font-size:14px;font-weight:700;color:#16255f;margin-bottom:4px;">Улаанбаатар</div>
+                  <div style="font-size:14px;font-weight:700;color:#333333;margin-bottom:4px;">Улаанбаатар</div>
                   <div style="font-size:12px;line-height:1.6;color:#8a7070;">Зүүн–амгалан. Хойшоо-7 буудал хүртэл. Ураншаа–зайсан хүртэл, буянт ухаа 1,2. Баруун тийшээ–орбитын тойрог, баян хошууны тойрог. {{ deliveryPolicyText }}</div>
                 </div>
                 <span style="font-size:13px;font-weight:800;color:#e0392f;white-space:nowrap;">{{ shippingFee }}</span>
@@ -107,6 +104,8 @@
                 </div>
               </div>
 
+              <nudema-address-picker></nudema-address-picker>
+
               <div style="margin-bottom:16px;">
                 <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Хүргэлтийн хаяг <span style="color:#e0392f;">*</span></label>
                 <textarea value="{{ address }}" onChange="{{ onAddress }}" autocomplete="street-address" placeholder="Байр, орц, давхар, тоот дэлгэрэнгүй бичнэ үү" style="width:100%;height:84px;border:1px solid #d7ddd7;border-radius:10px;padding:12px 14px;font-family:inherit;font-size:14px;resize:none;"></textarea>
@@ -122,12 +121,12 @@
 
         <!-- order items -->
         <div style="border:1px solid #eee;border-radius:16px;padding:26px 28px;margin-bottom:22px;">
-          <h2 style="font-size:18px;font-weight:800;margin:0 0 6px;color:#16255f;">Захиалгын бараа</h2>
+          <h2 style="font-size:18px;font-weight:800;margin:0 0 6px;color:#333333;">Захиалгын бараа</h2>
           <sc-for list="{{ items }}" as="it" hint-placeholder-count="2">
             <div style="display:flex;gap:16px;padding:18px 0;border-bottom:1px solid #f0f2f0;align-items:center;">
               <div style="width:70px;height:70px;background:#f4f5f3;border-radius:10px;overflow:hidden;position:relative;flex:0 0 auto;">
                 <sc-if value="{{ it.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ it.img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></sc-if>
-                <sc-if value="{{ it.noImg }}" hint-placeholder-val="{{ true }}"><image-slot id="co-{{ it.id }}" shape="rect" fit="contain" placeholder=""></image-slot></sc-if>
+                <sc-if value="{{ it.noImg }}" hint-placeholder-val="{{ true }}"><img src="/assets/storefront/package.svg" alt="Бүтээгдэхүүний зураг бэлтгэгдэж байна" style="width:100%;height:100%;object-fit:contain;"></sc-if>
               </div>
               <div style="flex:1;">
                 <div style="font-size:14px;font-weight:600;color:#2a302b;">{{ it.title }}</div>
@@ -140,7 +139,7 @@
 
         <!-- payment method -->
         <div style="border:1px solid #eee;border-radius:16px;padding:26px 28px;">
-          <h2 style="font-size:18px;font-weight:800;margin:0 0 20px;color:#16255f;">Төлбөрийн хэрэгсэл</h2>
+          <h2 style="font-size:18px;font-weight:800;margin:0 0 20px;color:#333333;">Төлбөрийн хэрэгсэл</h2>
           <div class="co-two" style="display:grid;grid-template-columns:1fr;gap:12px;">
             <sc-for list="{{ methods }}" as="m" hint-placeholder-count="2">
               <button onClick="{{ m.onClick }}" style="{{ m.style }}">{{ m.label }}</button>
@@ -154,21 +153,21 @@
           <!-- bank transfer details (админы тохиргооноос) -->
           <sc-if value="{{ isBank }}" hint-placeholder-val="{{ true }}">
             <div style="margin-top:20px;background:#f6f8fe;border:1px solid #dbe2fb;border-radius:14px;padding:22px 24px;">
-              <div style="font-size:14px;font-weight:800;color:#16255f;margin-bottom:14px;">Шилжүүлэх дансны мэдээлэл</div>
+              <div style="font-size:14px;font-weight:800;color:#333333;margin-bottom:14px;">Шилжүүлэх дансны мэдээлэл</div>
 
               <sc-for list="{{ bankAccounts }}" as="b" hint-placeholder-count="1">
                 <div style="{{ b.wrapStyle }}">
                   <div style="display:flex;flex-direction:column;gap:12px;font-size:14px;">
-                    <div style="display:flex;justify-content:space-between;"><span style="color:#8a90a3;">Банк</span><span style="font-weight:700;color:#16255f;">{{ b.bank }}</span></div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#8a90a3;">Дансны дугаар</span><span style="display:flex;align-items:center;gap:8px;"><span style="font-weight:700;color:#16255f;font-variant-numeric:tabular-nums;">{{ b.number }}</span><button onClick="{{ b.onCopy }}" style="{{ copyBtnStyle }}">{{ b.copyLabel }}</button></span></div>
+                    <div style="display:flex;justify-content:space-between;"><span style="color:#8a90a3;">Банк</span><span style="font-weight:700;color:#333333;">{{ b.bank }}</span></div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#8a90a3;">Дансны дугаар</span><span style="display:flex;align-items:center;gap:8px;"><span style="font-weight:700;color:#333333;font-variant-numeric:tabular-nums;">{{ b.number }}</span><button onClick="{{ b.onCopy }}" style="{{ copyBtnStyle }}">{{ b.copyLabel }}</button></span></div>
                     <sc-if value="{{ b.hasHolder }}" hint-placeholder-val="{{ true }}">
-                      <div style="display:flex;justify-content:space-between;"><span style="color:#8a90a3;">Хүлээн авагч</span><span style="font-weight:700;color:#16255f;">{{ b.holder }}</span></div>
+                      <div style="display:flex;justify-content:space-between;"><span style="color:#8a90a3;">Хүлээн авагч</span><span style="font-weight:700;color:#333333;">{{ b.holder }}</span></div>
                     </sc-if>
                   </div>
                 </div>
               </sc-for>
 
-              <div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;padding-top:14px;margin-top:14px;border-top:1px solid #dbe2fb;"><span style="color:#8a90a3;">Шилжүүлэх дүн</span><span style="display:flex;align-items:center;gap:8px;"><span style="font-weight:800;color:#2a54e6;">{{ total }}</span><button onClick="{{ copyAmount }}" style="{{ copyBtnStyle }}">{{ copyAmountLabel }}</button></span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;padding-top:14px;margin-top:14px;border-top:1px solid #dbe2fb;"><span style="color:#8a90a3;">Шилжүүлэх дүн</span><span style="display:flex;align-items:center;gap:8px;"><span style="font-weight:800;color:#00b6d4;">{{ total }}</span><button onClick="{{ copyAmount }}" style="{{ copyBtnStyle }}">{{ copyAmountLabel }}</button></span></div>
 
               <div style="margin-top:16px;">
                 <label style="font-size:12px;font-weight:600;color:#8a90a3;display:block;margin-bottom:6px;">Гүйлгээний утга (нэр)</label>
@@ -184,15 +183,15 @@
 
       <!-- summary -->
       <aside class="co-summary" style="background:#f7f8f6;border-radius:16px;padding:26px 24px;position:sticky;top:20px;">
-        <h3 style="font-size:16px;font-weight:800;margin:0 0 20px;color:#16255f;">Төлбөрийн дүн</h3>
+        <h3 style="font-size:16px;font-weight:800;margin:0 0 20px;color:#333333;">Төлбөрийн дүн</h3>
         <div style="display:flex;flex-direction:column;gap:14px;font-size:14px;">
           <div style="display:flex;justify-content:space-between;"><span style="color:#8a938c;">Барааны үнэ</span><span style="font-weight:600;">{{ subtotal }}</span></div>
           <div style="display:flex;justify-content:space-between;"><span style="color:#8a938c;">Хямдрал</span><span style="font-weight:600;color:#e0392f;">−{{ discount }}</span></div>
-          <div style="display:flex;justify-content:space-between;"><span style="color:#8a938c;">Хүргэлт</span><span style="font-weight:600;color:#2a54e6;">{{ shippingLabel }}</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:#8a938c;">Хүргэлт</span><span style="font-weight:600;color:#00b6d4;">{{ shippingLabel }}</span></div>
         </div>
         <div style="border-top:1px solid #e4e7e3;margin:20px 0;padding-top:18px;display:flex;justify-content:space-between;align-items:baseline;">
           <span style="font-size:15px;font-weight:700;">Нийт төлбөр</span>
-          <span style="font-size:24px;font-weight:800;color:#2a54e6;">{{ total }}</span>
+          <span style="font-size:24px;font-weight:800;color:#00b6d4;">{{ total }}</span>
         </div>
         <sc-if value="{{ hasOrderError }}" hint-placeholder-val="{{ false }}">
           <div style="margin:0 0 12px;padding:10px 12px;border:1px solid #f3b6b6;background:#fff4f4;color:#b42318;border-radius:9px;font-size:12px;line-height:1.5;text-align:left;">{{ orderError }}</div>
@@ -211,29 +210,29 @@
       <sc-if value="{{ isBankDone }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="width:84px;height:84px;border-radius:50%;background:#eaeefe;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2a54e6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#00b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
           </div>
-          <h1 style="font-size:26px;font-weight:800;color:#16255f;margin:0 0 12px;">Төлбөр хүлээгдэж байна</h1>
-          <p style="font-size:15px;color:#5c6660;line-height:1.7;margin:0 0 30px;">Захиалга үүслээ. Доорх данс руу шилжүүлэг хийсний дараа захиалга баталгаажна.<br>Захиалгын дугаар: <b style="color:#16255f;">{{ orderNo }}</b></p>
+          <h1 style="font-size:26px;font-weight:800;color:#333333;margin:0 0 12px;">Төлбөр хүлээгдэж байна</h1>
+          <p style="font-size:15px;color:#5c6660;line-height:1.7;margin:0 0 30px;">Захиалга үүслээ. Доорх данс руу шилжүүлэг хийсний дараа захиалга баталгаажна.<br>Захиалгын дугаар: <b style="color:#333333;">{{ orderNo }}</b></p>
           <div style="background:#f6f8fe;border:1px solid #dbe2fb;border-radius:16px;padding:24px 26px;text-align:left;margin-bottom:22px;">
             <sc-for list="{{ bankAccounts }}" as="b" hint-placeholder-count="1">
               <div style="{{ b.wrapStyle }}">
-                <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:14px;"><span style="color:#8a90a3;">Банк</span><span style="font-weight:700;color:#16255f;">{{ b.bank }}</span></div>
-                <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:14px;align-items:center;"><span style="color:#8a90a3;">Дансны дугаар</span><span style="display:flex;align-items:center;gap:8px;"><span style="font-weight:700;color:#16255f;font-variant-numeric:tabular-nums;">{{ b.number }}</span><button onClick="{{ b.onCopy }}" style="{{ copyBtnStyle }}">{{ b.copyLabel }}</button></span></div>
+                <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:14px;"><span style="color:#8a90a3;">Банк</span><span style="font-weight:700;color:#333333;">{{ b.bank }}</span></div>
+                <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:14px;align-items:center;"><span style="color:#8a90a3;">Дансны дугаар</span><span style="display:flex;align-items:center;gap:8px;"><span style="font-weight:700;color:#333333;font-variant-numeric:tabular-nums;">{{ b.number }}</span><button onClick="{{ b.onCopy }}" style="{{ copyBtnStyle }}">{{ b.copyLabel }}</button></span></div>
                 <sc-if value="{{ b.hasHolder }}" hint-placeholder-val="{{ true }}">
-                  <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:#8a90a3;">Хүлээн авагч</span><span style="font-weight:700;color:#16255f;">{{ b.holder }}</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:#8a90a3;">Хүлээн авагч</span><span style="font-weight:700;color:#333333;">{{ b.holder }}</span></div>
                 </sc-if>
               </div>
             </sc-for>
-            <div style="display:flex;justify-content:space-between;font-size:14px;padding-top:14px;margin-top:4px;border-top:1px solid #dbe2fb;"><span style="color:#8a90a3;">Барааны дүн</span><span style="font-weight:700;color:#16255f;">{{ completedSubtotalLabel }}</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:14px;margin-top:14px;"><span style="color:#8a90a3;">Хүргэлт</span><span style="font-weight:700;color:#16255f;">{{ completedShippingLabel }}</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:14px;padding-top:14px;margin-top:4px;border-top:1px solid #dbe2fb;align-items:center;"><span style="color:#8a90a3;">Шилжүүлэх дүн</span><span style="display:flex;align-items:center;gap:8px;"><span style="font-weight:800;color:#2a54e6;">{{ total }}</span><button onClick="{{ copyAmount }}" style="{{ copyBtnStyle }}">{{ copyAmountLabel }}</button></span></div>
+            <div style="display:flex;justify-content:space-between;font-size:14px;padding-top:14px;margin-top:4px;border-top:1px solid #dbe2fb;"><span style="color:#8a90a3;">Барааны дүн</span><span style="font-weight:700;color:#333333;">{{ completedSubtotalLabel }}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:14px;margin-top:14px;"><span style="color:#8a90a3;">Хүргэлт</span><span style="font-weight:700;color:#333333;">{{ completedShippingLabel }}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:14px;padding-top:14px;margin-top:4px;border-top:1px solid #dbe2fb;align-items:center;"><span style="color:#8a90a3;">Шилжүүлэх дүн</span><span style="display:flex;align-items:center;gap:8px;"><span style="font-weight:800;color:#00b6d4;">{{ total }}</span><button onClick="{{ copyAmount }}" style="{{ copyBtnStyle }}">{{ copyAmountLabel }}</button></span></div>
           </div>
           <sc-if value="{{ hasBankNote }}" hint-placeholder-val="{{ true }}">
             <p style="font-size:13px;color:#8a90a3;line-height:1.7;margin:0 0 26px;">⏱ {{ bankNote }}</p>
           </sc-if>
           <div style="display:flex;gap:12px;justify-content:center;">
-            <a href="Nudema%20Mongolia.dc.html" style="display:inline-block;background:#2a54e6;color:#fff;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Дэлгүүр рүү буцах</a>
+            <a href="Nudema%20Mongolia.dc.html" style="display:inline-block;background:#00b6d4;color:#fff;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Дэлгүүр рүү буцах</a>
             <a href="{{ orderHref }}" style="display:inline-block;border:1px solid #cfd6d0;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Захиалга харах</a>
           </div>
         </div>
@@ -242,16 +241,16 @@
       <sc-if value="{{ isOtherSuccess }}" hint-placeholder-val="{{ false }}">
         <div>
           <div style="width:84px;height:84px;border-radius:50%;background:#eaeefe;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;">
-            <span style="color:#2a54e6;font-size:40px;">✓</span>
+            <span style="color:#00b6d4;font-size:40px;">✓</span>
           </div>
-          <h1 style="font-size:26px;font-weight:800;color:#16255f;margin:0 0 12px;">Захиалга амжилттай!</h1>
-          <p style="font-size:15px;color:#5c6660;line-height:1.7;margin:0 0 30px;">Таны захиалгыг хүлээн авлаа. Хүргэлт 2–3 хоногт хийгдэнэ.<br>Захиалгын дугаар: <b style="color:#16255f;">{{ orderNo }}</b></p>
+          <h1 style="font-size:26px;font-weight:800;color:#333333;margin:0 0 12px;">Захиалга амжилттай!</h1>
+          <p style="font-size:15px;color:#5c6660;line-height:1.7;margin:0 0 30px;">Таны захиалгыг хүлээн авлаа. Хүргэлт 2–3 хоногт хийгдэнэ.<br>Захиалгын дугаар: <b style="color:#333333;">{{ orderNo }}</b></p>
           <div style="background:#f7f8f6;border-radius:16px;padding:24px 26px;text-align:left;margin-bottom:30px;">
-            <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:12px;"><span style="color:#8a938c;">Нийт төлбөр</span><span style="font-weight:800;color:#2a54e6;">{{ total }}</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:12px;"><span style="color:#8a938c;">Нийт төлбөр</span><span style="font-weight:800;color:#00b6d4;">{{ total }}</span></div>
             <div style="display:flex;justify-content:space-between;font-size:14px;"><span style="color:#8a938c;">Хүргэх хаяг</span><span style="font-weight:600;text-align:right;max-width:60%;">УБ, Сүхбаатар дүүрэг, 1-р хороо</span></div>
           </div>
           <div style="display:flex;gap:12px;justify-content:center;">
-            <a href="Nudema%20Mongolia.dc.html" style="display:inline-block;background:#2a54e6;color:#fff;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Дэлгүүр рүү буцах</a>
+            <a href="Nudema%20Mongolia.dc.html" style="display:inline-block;background:#00b6d4;color:#fff;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Дэлгүүр рүү буцах</a>
             <a href="{{ orderHref }}" style="display:inline-block;border:1px solid #cfd6d0;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;">Захиалга харах</a>
           </div>
         </div>
@@ -259,7 +258,7 @@
     </section>
   </sc-if>
 
-  <footer style="background:#2a54e6;color:#d3ddfb;">
+  <footer style="background:#00b6d4;color:#d3ddfb;">
    <div class="rs-footer" style="max-width:1280px;margin:0 auto;padding:50px 40px 46px;">
     <div style="font-size:22px;font-weight:800;letter-spacing:0.08em;color:#fff;margin-bottom:24px;">NUDEMA</div>
     <div style="display:flex;gap:26px;font-size:13px;font-weight:600;margin-bottom:26px;flex-wrap:wrap;">
@@ -313,6 +312,8 @@ class Component extends DCLogic {
     } catch (e) {}
     this.reload();
     this._unsub = NudemaStore.subscribe(() => this.reload());
+    this._onAddressSelected = (event) => this.setState({ deliveryLocation: event.detail || null, orderError: '' });
+    if (typeof document !== 'undefined') document.addEventListener('nudema:address-selected', this._onAddressSelected);
     if (typeof fetch === 'function') {
       fetch('/api/auth/account', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
         .then((response) => response.ok ? response.json() : null)
@@ -327,6 +328,7 @@ class Component extends DCLogic {
   }
   componentWillUnmount() {
     if (this._unsub) this._unsub();
+    if (typeof document !== 'undefined') document.removeEventListener('nudema:address-selected', this._onAddressSelected);
     clearTimeout(this._ct);
   }
   reload() {
@@ -434,7 +436,7 @@ class Component extends DCLogic {
     const methods = methodDefs.map(m => ({
       label: m.label,
       onClick: () => this.setState({ method: m.key }),
-      style: `border:1px solid ${methodKey === m.key ? '#2a54e6' : '#d7ddd7'};background:${methodKey === m.key ? '#eaeefe' : '#fff'};color:${methodKey === m.key ? '#2a54e6' : '#5c6660'};font-family:inherit;font-size:14px;font-weight:${methodKey === m.key ? 700 : 500};padding:15px 12px;border-radius:10px;cursor:pointer;`,
+      style: `border:1px solid ${methodKey === m.key ? '#00b6d4' : '#d7ddd7'};background:${methodKey === m.key ? '#eaeefe' : '#fff'};color:${methodKey === m.key ? '#00b6d4' : '#5c6660'};font-family:inherit;font-size:14px;font-weight:${methodKey === m.key ? 700 : 500};padding:15px 12px;border-radius:10px;cursor:pointer;`,
     }));
 
     const regions = (typeof window !== 'undefined' && window.MN_REGIONS) ? window.MN_REGIONS : { 'Улаанбаатар': [] };
@@ -506,7 +508,7 @@ class Component extends DCLogic {
 
       orderNo: this.state.orderNo || 'NDM-20260720-4417',
       orderHref: 'Nudema%20Account.dc.html?order=' + encodeURIComponent(this.state.orderNo || ''),
-      copyBtnStyle: 'border:1px solid #cdd5ee;background:#fff;color:#2a54e6;font-family:inherit;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;',
+      copyBtnStyle: 'border:1px solid #cdd5ee;background:#fff;color:#00b6d4;font-family:inherit;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;',
       copyAmount: () => this.copy(String(completedGrand), 'amt'),
       copyAmountLabel: this.state.copied === 'amt' ? '✓ Хууллаа' : 'Хуулах',
 
@@ -518,14 +520,15 @@ class Component extends DCLogic {
       payDisabled: !!this.state.submitting || !rawItems.length || !bankAvailable,
       hasOrderError: !!this.state.orderError,
       orderError: this.state.orderError || '',
-      payBtnStyle: `width:100%;height:54px;background:${this.state.submitting || !rawItems.length || !bankAvailable ? '#8fa5ee' : '#2a54e6'};color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:16px;font-weight:800;cursor:${this.state.submitting ? 'wait' : (!rawItems.length || !bankAvailable ? 'not-allowed' : 'pointer')};margin-bottom:12px;`,
+      payBtnStyle: `width:100%;height:54px;background:${this.state.submitting || !rawItems.length || !bankAvailable ? '#8fa5ee' : '#00b6d4'};color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:16px;font-weight:800;cursor:${this.state.submitting ? 'wait' : (!rawItems.length || !bankAvailable ? 'not-allowed' : 'pointer')};margin-bottom:12px;`,
       payLabel: !bankAvailable ? 'Төлбөрийн данс тохируулаагүй байна' : (!rawItems.length ? 'Сагс хоосон байна' : (this.state.submitting ? 'Захиалга үүсгэж байна…' : 'Захиалга баталгаажуулах')),
       pay: () => bankAvailable && this.submitOrder({
         method: 'Данс шилжүүлэг',
         items: rawItems.map((item) => ({ id: item.id, qty: item.qty, optionIndex: item.optionIndex })),
         customer: {
           name: this.state.customerName || '', phone: this.state.phone || '', email: '',
-          address: [city, this.state.district, this.state.khoroo, this.state.address].filter(Boolean).join(', '),
+          address: [city, this.state.district, this.state.khoroo, this.state.deliveryLocation && this.state.deliveryLocation.label, this.state.address].filter(Boolean).join(', '),
+          location: this.state.deliveryLocation || null,
           note: this.state.note || '', payerName: this.state.payerName || '',
         },
       }, delivery),

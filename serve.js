@@ -8,6 +8,32 @@ const path = require('path');
 const ROOT = __dirname;
 const PORT = 4321;
 
+// Match the public page URLs served by Cloudflare Pages Functions.
+// index.html is a deployment fallback that redirects to /?v=pc or /?v=mobile;
+// serving it at / would redirect back to itself forever.
+const PAGES = {
+  '/admin': 'Nudema Admin.dc.html',
+  '/login': 'Nudema Login.dc.html',
+  '/signup': 'Nudema Signup.dc.html',
+  '/account': 'Nudema Account.dc.html',
+  '/search': 'Nudema Search.dc.html',
+  '/product': 'Nudema Product.dc.html',
+  '/cart': 'Nudema Cart.dc.html',
+  '/checkout': 'Nudema Checkout.dc.html',
+  '/privacy': 'Nudema Privacy.dc.html',
+  '/terms': 'Nudema Terms.dc.html',
+  '/oauth-home': 'oauth-home.html',
+};
+
+function isMobileRequest(req, url) {
+  const variant = url.searchParams.get('v');
+  if (variant === 'pc' || variant === 'mobile') return variant === 'mobile';
+  if (req.headers['sec-ch-ua-mobile'] === '?1') return true;
+  const ua = req.headers['user-agent'] || '';
+  return /Android|iPhone|iPod|IEMobile|BlackBerry|Opera Mini|Mobi/i.test(ua) ||
+    (/Macintosh/i.test(ua) && /Mobile/i.test(ua));
+}
+
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
@@ -20,36 +46,38 @@ const TYPES = {
   '.pdf': 'application/pdf',
 };
 
-const server = http.createServer((req, res) => {
+async function handleRequest(req, res) {
   let rel;
+  let url;
   try {
-    rel = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+    url = new URL(req.url, 'http://localhost');
+    rel = decodeURIComponent(url.pathname);
   } catch {
     res.writeHead(400); return res.end('Bad request');
   }
 
-  // index.html байвал түүнийг л үйлчилнэ (production-той ижил байхын тулд)
+  if (rel === '/api/geocode' && (req.method === 'GET' || req.method === 'HEAD')) {
+    const { onRequestGet } = await import('./functions/api/geocode.js');
+    const response = await onRequestGet({ request: new Request(url.toString()) });
+    res.writeHead(response.status, Object.fromEntries(response.headers));
+    return res.end(req.method === 'HEAD' ? undefined : await response.text());
+  }
+
+  // Serve the actual storefront without sending the browser through index.html.
   if (rel === '/' || rel === '/index.html') {
-    const indexPath = path.join(ROOT, 'index.html');
-    if (fs.existsSync(indexPath)) {
-      res.writeHead(200, { 'Content-Type': TYPES['.html'], 'Cache-Control': 'no-store' });
-      return res.end(fs.readFileSync(indexPath));
-    }
-    // Байхгүй бол хуудсуудын жагсаалтыг үүсгэнэ
-    const pages = fs.readdirSync(ROOT).filter(f => f.endsWith('.dc.html')).sort();
-    const links = pages.map(p =>
-      `<li><a href="/${encodeURIComponent(p)}">${p.replace('.dc.html', '')}</a></li>`).join('');
-    res.writeHead(200, { 'Content-Type': TYPES['.html'] });
-    return res.end(`<!doctype html><meta charset="utf-8">
-      <title>Nudema — локал</title>
-      <style>body{font-family:system-ui,sans-serif;max-width:640px;margin:60px auto;padding:0 20px;color:#16255f}
-      h1{font-size:20px}li{margin:10px 0;font-size:16px}a{color:#2a54e6}</style>
-      <h1>Nudema — локал урьдчилан харах</h1><ul>${links}</ul>`);
+    rel = isMobileRequest(req, url) ? '/Nudema Mobile.dc.html' : '/Nudema Mongolia.dc.html';
+  } else if (rel === '/admin' && isMobileRequest(req, url)) {
+    rel = '/Nudema Admin Mobile.dc.html';
+  } else if (Object.hasOwn(PAGES, rel)) {
+    rel = '/' + PAGES[rel];
+  } else if (rel.endsWith('.dc')) {
+    // Existing template links also use the extensionless .dc asset names.
+    rel += '.html';
   }
 
   // Замын халилтаас хамгаална
-  const filePath = path.join(ROOT, rel);
-  if (!filePath.startsWith(ROOT)) {
+  const filePath = path.resolve(ROOT, '.' + rel);
+  if (!filePath.startsWith(ROOT + path.sep)) {
     res.writeHead(403); return res.end('Forbidden');
   }
 
@@ -62,8 +90,12 @@ const server = http.createServer((req, res) => {
       'Content-Type': TYPES[path.extname(filePath).toLowerCase()] || 'application/octet-stream',
       'Cache-Control': 'no-store',
     });
-    res.end(buf);
+    res.end(req.method === 'HEAD' ? undefined : buf);
   });
-});
+}
 
-server.listen(PORT, () => console.log('Nudema local server → http://localhost:' + PORT + '/'));
+if (require.main === module) {
+  http.createServer(handleRequest).listen(PORT, () => console.log('Nudema local server → http://localhost:' + PORT + '/'));
+}
+
+module.exports = { handleRequest };
