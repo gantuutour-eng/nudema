@@ -10,7 +10,7 @@
 <script src="./assets/vendor/react-dom-18.3.1.production.min.js"></script>
 <script defer src="./support.js?v=20260723-3"></script>
 </head>
-<body>
+<body class="nd-admin">
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,69 +19,73 @@
 <style>
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
-  body { font-family: 'Manrope', -apple-system, sans-serif; color: #1a1c1a; background: #f4f6fb; -webkit-font-smoothing: antialiased; }
+  body { font-family: 'Manrope', -apple-system, sans-serif; color: #1a1c1a; background: #f7f8fa; -webkit-font-smoothing: antialiased; }
   a { color: inherit; text-decoration: none; }
-  a:hover { color: #1e46c8; }
+  a:hover { color: #009cb7; }
   input:not([type="checkbox"]):not([type="radio"]):focus,
   textarea:focus,
-  select:focus { outline: none !important; border-color: #2a54e6 !important; box-shadow: 0 0 0 3px rgba(42,84,230,.14) !important; }
+  select:focus { outline: none !important; border-color: #00b6d4 !important; box-shadow: 0 0 0 3px rgba(0,182,212,.14) !important; }
   .aScroll::-webkit-scrollbar { height: 8px; }
 </style>
 <script src="./image-slot.js"></script>
 <script src="./nudema-store.js?v=20260724-2"></script>
+<link rel="stylesheet" href="./catalog-admin.css">
+<link rel="stylesheet" href="./admin-theme.css?v=20261116">
 </helmet>
 <!-- Сайтын өөрийн админ нэвтрэх дэлгэц -->
 <sc-if value="{{ notAuthed }}" hint-placeholder-val="{{ false }}">
-  <div style="min-height:100vh;background:#0f1f4b;display:flex;align-items:center;justify-content:center;padding:40px 20px;">
-    <div style="width:380px;max-width:100%;background:#fff;border-radius:18px;padding:36px 34px;box-shadow:0 24px 70px rgba(8,18,50,.4);">
-      <div style="font-size:24px;font-weight:800;letter-spacing:.08em;color:#2a54e6;margin-bottom:24px;">NUDEMA <span style="font-size:11px;font-weight:600;color:#9aa5c8;letter-spacing:.12em;">ADMIN</span></div>
+  <div class="nd-admin-login" style="min-height:100vh;background:#ffffff;display:flex;align-items:center;justify-content:center;padding:40px 20px;">
+    <div class="nd-admin-login-card" style="width:380px;max-width:100%;background:#fff;border-radius:18px;padding:36px 34px;box-shadow:0 24px 70px rgba(8,18,50,.4);">
+      <div class="nd-admin-login-logo" style="font-size:24px;font-weight:800;letter-spacing:.08em;color:#00b6d4;margin-bottom:24px;"><img src="/assets/brand/nudema-logo.svg" alt="Nudema" style="display:block;width:170px;height:68px;object-fit:contain;"><span style="font-size:11px;font-weight:600;color:#9aa5c8;letter-spacing:.12em;">ADMIN</span></div>
 
       <sc-if value="{{ authLoading }}" hint-placeholder-val="{{ true }}">
-        <div style="background:#eef3ff;border:1px solid #d6e0ff;color:#2447b8;font-size:12.5px;font-weight:700;line-height:1.6;padding:13px 15px;border-radius:10px;">Нэвтрэх эрхийг шалгаж байна…</div>
+        <div style="background:#effbfe;border:1px solid #d6e0ff;color:#008ea6;font-size:12.5px;font-weight:700;line-height:1.6;padding:13px 15px;border-radius:10px;">Нэвтрэх эрхийг шалгаж байна…</div>
       </sc-if>
 
       <sc-if value="{{ authReady }}" hint-placeholder-val="{{ false }}">
         <form onSubmit="{{ submitLogin }}">
           <label style="display:block;font-size:12px;font-weight:700;color:#4f5870;margin-bottom:7px;">И-мэйл</label>
-          <input type="email" name="email" autocomplete="username" value="{{ loginEmail }}" onInput="{{ onLoginEmail }}" placeholder="admin@example.com" style="width:100%;height:48px;border:1px solid #dce1ec;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;color:#16255f;outline:none;margin-bottom:16px;">
+          <input type="email" name="email" autocomplete="username" value="{{ loginEmail }}" onInput="{{ onLoginEmail }}" placeholder="admin@example.com" style="width:100%;height:48px;border:1px solid #dce1ec;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;color:#263238;outline:none;margin-bottom:16px;">
           <label style="display:block;font-size:12px;font-weight:700;color:#4f5870;margin-bottom:7px;">Нууц үг</label>
-          <input type="password" name="password" autocomplete="current-password" value="{{ loginPassword }}" onInput="{{ onLoginPassword }}" placeholder="Нууц үгээ оруулна уу" style="width:100%;height:48px;border:1px solid #dce1ec;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;color:#16255f;outline:none;">
+          <input type="password" name="password" autocomplete="current-password" value="{{ loginPassword }}" onInput="{{ onLoginPassword }}" placeholder="Нууц үгээ оруулна уу" style="width:100%;height:48px;border:1px solid #dce1ec;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;color:#263238;outline:none;">
 
           <sc-if value="{{ authFailed }}" hint-placeholder-val="{{ false }}">
             <div role="alert" style="background:#fef2f2;border:1px solid #f5d5d3;color:#c8322a;font-size:12.5px;font-weight:600;line-height:1.6;padding:11px 13px;border-radius:10px;margin-top:14px;">{{ loginError }}</div>
           </sc-if>
           <button type="submit" disabled="{{ loginBusy }}" style="{{ loginButtonStyle }}">{{ loginButtonLabel }}</button>
         </form>
+<sc-if value="{{ localPreview }}" hint-placeholder-val="{{ false }}"><div class="catalog-help" style="margin-top:16px;">Энэ төхөөрөмжийн демо өгөгдөл. Үйлдвэрлэлийн өгөгдөлтэй холбогдохгүй.</div><button type="button" class="catalog-action" onClick="{{ openLocalPreview }}">Локал демо нээх</button></sc-if>
       </sc-if>
     </div>
   </div>
 </sc-if>
 
 <sc-if value="{{ authed }}" hint-placeholder-val="{{ true }}">
-<div style="display:flex;min-height:100vh;background:#f4f6fb;">
+<sc-if value="{{ localPreview }}" hint-placeholder-val="{{ false }}"><div class="catalog-preview">Локал демо · Өөрчлөлт зөвхөн энэ хөтөч дээр хадгалагдана.</div></sc-if>
+<div class="nd-admin-layout" style="display:flex;min-height:100vh;background:#f7f8fa;">
 
   <!-- sidebar -->
-  <aside style="width:248px;flex:0 0 248px;background:#0f1f4b;color:#c3cbe4;display:flex;flex-direction:column;padding:24px 0;position:sticky;top:0;height:100vh;">
-    <div style="padding:0 24px 24px;font-size:22px;font-weight:800;letter-spacing:.08em;color:#fff;">NUDEMA <span style="font-size:11px;font-weight:600;color:#7a89c0;letter-spacing:.12em;">ADMIN</span></div>
+  <aside class="nd-admin-sidebar" style="width:248px;flex:0 0 248px;background:#ffffff;color:#687782;display:flex;flex-direction:column;padding:24px 0;position:sticky;top:0;height:100vh;">
+    <div class="nd-admin-brand"><img class="nd-admin-brand-logo" src="/assets/brand/nudema-logo.svg" alt="Nudema"><small>ADMIN</small></div>
     <nav style="flex:1;padding:8px 12px;display:flex;flex-direction:column;gap:3px;">
       <sc-for list="{{ nav }}" as="n" hint-placeholder-count="7">
-        <a href="#" onClick="{{ n.onClick }}" style="{{ n.style }}">
+        <a href="#" aria-current="{{ n.current }}" onClick="{{ n.onClick }}" style="{{ n.style }}">
           <span style="width:20px;display:flex;justify-content:center;">{{ n.icon }}</span>{{ n.label }}
           <sc-if value="{{ n.badge }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;background:#e0392f;color:#fff;font-size:11px;font-weight:700;padding:1px 7px;border-radius:10px;">{{ n.badge }}</span></sc-if>
         </a>
       </sc-for>
     </nav>
-    <div style="padding:16px 14px;margin:8px 12px 0;border-top:1px solid #23346b;">
+    <div style="padding:16px 14px;margin:8px 12px 0;border-top:1px solid #e9ecef;">
       <sc-if value="{{ notAskingLogout }}" hint-placeholder-val="{{ true }}">
         <div style="display:flex;align-items:center;gap:10px;">
-          <div style="width:34px;height:34px;border-radius:50%;background:#2a54e6;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex:0 0 auto;">{{ adminInitial }}</div>
+          <div style="width:34px;height:34px;border-radius:50%;background:#00b6d4;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex:0 0 auto;">{{ adminInitial }}</div>
           <div style="flex:1;min-width:0;">
             <div style="font-size:13px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ adminName }}</div>
-            <div style="font-size:11px;color:#7a89c0;">{{ adminRole }}</div>
+            <div style="font-size:11px;color:#8d9aa4;">{{ adminRole }}</div>
           </div>
           <span style="display:flex;align-items:center;gap:7px;flex:0 0 auto;">
-            <a href="Nudema%20Mongolia.dc.html" title="Сайт руу" style="color:#7a89c0;font-size:13px;line-height:1;">↗</a>
-            <button onClick="{{ askLogout }}" title="Гарах" style="border:none;background:none;color:#7a89c0;font-family:inherit;font-size:14px;cursor:pointer;padding:0;line-height:1;">⏻</button>
+            <a href="Nudema%20Mongolia.dc.html" title="Сайт руу" style="color:#8d9aa4;font-size:13px;line-height:1;">↗</a>
+            <button onClick="{{ askLogout }}" title="Гарах" style="border:none;background:none;color:#8d9aa4;font-family:inherit;font-size:14px;cursor:pointer;padding:0;line-height:1;">⏻</button>
           </span>
         </div>
       </sc-if>
@@ -90,7 +94,7 @@
           <div style="font-size:12.5px;font-weight:700;color:#fff;margin-bottom:10px;">Системээс гарах уу?</div>
           <div style="display:flex;gap:8px;">
             <button onClick="{{ doLogout }}" style="flex:1;background:#e0392f;color:#fff;border:none;font-family:inherit;font-size:12.5px;font-weight:700;padding:9px 0;border-radius:8px;cursor:pointer;">Гарах</button>
-            <button onClick="{{ cancelLogout }}" style="flex:1;background:none;border:1px solid #3b4c85;color:#c3cbe4;font-family:inherit;font-size:12.5px;font-weight:700;padding:9px 0;border-radius:8px;cursor:pointer;">Цуцлах</button>
+            <button onClick="{{ cancelLogout }}" style="flex:1;background:none;border:1px solid #dce2e6;color:#687782;font-family:inherit;font-size:12.5px;font-weight:700;padding:9px 0;border-radius:8px;cursor:pointer;">Цуцлах</button>
           </div>
         </div>
       </sc-if>
@@ -98,11 +102,11 @@
   </aside>
 
   <!-- main -->
-  <main style="flex:1;min-width:0;">
+  <main class="nd-admin-main" style="flex:1;min-width:0;">
     <!-- topbar -->
-    <header style="display:flex;align-items:center;justify-content:space-between;background:#fff;padding:18px 32px;border-bottom:1px solid #e8ebf3;position:sticky;top:0;z-index:10;">
+    <header class="nd-admin-topbar" style="display:flex;align-items:center;justify-content:space-between;background:#fff;padding:18px 32px;border-bottom:1px solid #e8ebf3;position:sticky;top:0;z-index:10;">
       <div>
-        <h1 style="font-size:20px;font-weight:800;color:#16255f;margin:0;">{{ pageTitle }}</h1>
+        <h1 style="font-size:20px;font-weight:800;color:#263238;margin:0;">{{ pageTitle }}</h1>
         <div style="font-size:12.5px;color:#8a90a3;margin-top:2px;">{{ today }}</div>
       </div>
       <div style="display:flex;align-items:center;gap:16px;">
@@ -119,32 +123,32 @@
       </div>
     </header>
 
-    <div style="padding:28px 32px 48px;">
+    <div class="nd-admin-workspace" style="padding:28px 32px 48px;">
       <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
       <div>
       <!-- KPI cards -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:24px;">
+      <div class="nd-admin-kpi-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:24px;">
         <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
-          <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:22px 24px;">
+          <div class="nd-admin-kpi-card" style="background:#fff;border:1px solid #e9edf0;border-radius:16px;padding:22px 24px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
               <span style="font-size:13px;color:#8a90a3;font-weight:600;">{{ k.label }}</span>
               <span style="width:36px;height:36px;border-radius:10px;background:{{ k.iconBg }};display:flex;align-items:center;justify-content:center;font-size:17px;">{{ k.icon }}</span>
             </div>
-            <div style="font-size:26px;font-weight:800;color:#16255f;">{{ k.value }}</div>
+            <div style="font-size:26px;font-weight:800;color:#263238;">{{ k.value }}</div>
             <div style="font-size:12px;font-weight:700;color:{{ k.deltaColor }};margin-top:6px;">{{ k.delta }} <span style="color:#a7adba;font-weight:500;">{{ k.note }}</span></div>
           </div>
         </sc-for>
       </div>
 
       <!-- chart + top products -->
-      <div style="display:grid;grid-template-columns:1.7fr 1fr;gap:18px;margin-bottom:24px;">
-        <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:24px 26px;">
+      <div class="nd-admin-chart-grid" style="display:grid;grid-template-columns:1.7fr 1fr;gap:18px;margin-bottom:24px;">
+        <div style="background:#fff;border:1px solid #e9edf0;border-radius:16px;padding:24px 26px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
             <div>
-              <div style="font-size:15px;font-weight:800;color:#16255f;">Борлуулалтын дүн</div>
+              <div style="font-size:15px;font-weight:800;color:#263238;">Борлуулалтын дүн</div>
               <div style="font-size:12px;color:#8a90a3;margin-top:2px;">Сүүлийн 7 хоног</div>
             </div>
-            <div style="font-size:20px;font-weight:800;color:#2a54e6;">{{ weekTotal }}</div>
+            <div style="font-size:20px;font-weight:800;color:#00b6d4;">{{ weekTotal }}</div>
           </div>
           <div style="display:flex;align-items:flex-end;gap:14px;height:180px;">
             <sc-for list="{{ bars }}" as="b" hint-placeholder-count="7">
@@ -156,29 +160,29 @@
           </div>
         </div>
 
-        <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:24px 26px;">
-          <div style="font-size:15px;font-weight:800;color:#16255f;margin-bottom:18px;">Шилдэг бүтээгдэхүүн</div>
+        <div style="background:#fff;border:1px solid #e9edf0;border-radius:16px;padding:24px 26px;">
+          <div style="font-size:15px;font-weight:800;color:#263238;margin-bottom:18px;">Шилдэг бүтээгдэхүүн</div>
           <sc-for list="{{ topProducts }}" as="p" hint-placeholder-count="4">
             <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #f2f4f9;">
               <div style="width:44px;height:44px;border-radius:9px;background:#f0f2f8;overflow:hidden;position:relative;flex:0 0 auto;">
                 <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></sc-if>
-                <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><image-slot id="admin-top-{{ p.id }}" shape="rect" fit="contain" placeholder=""></image-slot></sc-if>
+                <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><img src="./assets/storefront/package.svg" alt="Зураггүй" style="width:100%;height:100%;object-fit:contain;"></sc-if>
               </div>
               <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:600;color:#2a302b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ p.title }}</div>
                 <div style="font-size:11.5px;color:#8a90a3;">{{ p.sold }} ширхэг зарагдсан</div>
               </div>
-              <div style="font-size:13px;font-weight:800;color:#16255f;">{{ p.revenue }}</div>
+              <div style="font-size:13px;font-weight:800;color:#263238;">{{ p.revenue }}</div>
             </div>
           </sc-for>
         </div>
       </div>
 
       <!-- recent orders -->
-      <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:24px 26px;">
+      <div style="background:#fff;border:1px solid #e9edf0;border-radius:16px;padding:24px 26px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-          <div style="font-size:15px;font-weight:800;color:#16255f;">Сүүлийн захиалгууд</div>
-          <a href="#" style="font-size:13px;font-weight:700;color:#2a54e6;">Бүгдийг харах ›</a>
+          <div style="font-size:15px;font-weight:800;color:#263238;">Сүүлийн захиалгууд</div>
+          <a href="#" style="font-size:13px;font-weight:700;color:#00b6d4;">Бүгдийг харах ›</a>
         </div>
         <div style="overflow-x:auto;" class="aScroll">
           <table style="width:100%;border-collapse:collapse;min-width:640px;">
@@ -194,10 +198,10 @@
             <tbody>
               <sc-for list="{{ orders }}" as="o" hint-placeholder-count="6">
                 <tr style="border-top:1px solid #f2f4f9;font-size:13.5px;">
-                  <td style="padding:14px 12px;font-weight:700;color:#2a54e6;">{{ o.no }}</td>
+                  <td style="padding:14px 12px;font-weight:700;color:#00b6d4;">{{ o.no }}</td>
                   <td style="padding:14px 12px;color:#2a302b;">{{ o.customer }}</td>
                   <td style="padding:14px 12px;color:#8a90a3;">{{ o.date }}</td>
-                  <td style="padding:14px 12px;font-weight:700;color:#16255f;">{{ o.amount }}</td>
+                  <td style="padding:14px 12px;font-weight:700;color:#263238;">{{ o.amount }}</td>
                   <td style="padding:14px 12px;"><span style="{{ o.statusStyle }}">{{ o.status }}</span></td>
                 </tr>
               </sc-for>
@@ -216,7 +220,7 @@
             <button onClick="{{ f.onClick }}" style="{{ f.style }}">{{ f.label }}</button>
           </sc-for>
         </div>
-        <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:8px 26px 20px;">
+        <div style="background:#fff;border:1px solid #e9edf0;border-radius:16px;padding:8px 26px 20px;">
           <div style="overflow-x:auto;" class="aScroll">
             <table style="width:100%;border-collapse:collapse;min-width:720px;">
               <thead>
@@ -233,13 +237,13 @@
               <tbody>
                 <sc-for list="{{ ordersFull }}" as="o" hint-placeholder-count="8">
                   <tr style="border-top:1px solid #f2f4f9;font-size:13.5px;">
-                    <td style="padding:14px 12px;font-weight:700;color:#2a54e6;">{{ o.no }}</td>
+                    <td style="padding:14px 12px;font-weight:700;color:#00b6d4;">{{ o.no }}</td>
                     <td style="padding:14px 12px;color:#2a302b;">{{ o.customer }}</td>
                     <td style="padding:14px 12px;color:#8a90a3;">{{ o.date }}</td>
                     <td style="padding:14px 12px;color:#5c6473;">{{ o.method }}</td>
-                    <td style="padding:14px 12px;font-weight:700;color:#16255f;">{{ o.amount }}</td>
+                    <td style="padding:14px 12px;font-weight:700;color:#263238;">{{ o.amount }}</td>
                     <td style="padding:14px 12px;"><span style="{{ o.statusStyle }}">{{ o.status }}</span></td>
-                    <td style="padding:14px 12px;"><button onClick="{{ o.open }}" style="border:none;background:none;font-size:12px;font-weight:700;color:#2a54e6;cursor:pointer;">Дэлгэрэнгүй ›</button></td>
+                    <td style="padding:14px 12px;"><button onClick="{{ o.open }}" style="border:none;background:none;font-size:12px;font-weight:700;color:#00b6d4;cursor:pointer;">Дэлгэрэнгүй ›</button></td>
                   </tr>
                 </sc-for>
               </tbody>
@@ -255,30 +259,31 @@
         <!-- list view -->
         <sc-if value="{{ isProductList }}" hint-placeholder-val="{{ true }}">
         <div>
+        <div class="catalog-panel catalog-grid"><label>Дээд бүлэг<select aria-label="Жагсаалтын дээд бүлэг" onChange="{{ onAdminDepartment }}"><sc-for list="{{ adminDepartmentOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option></sc-for></select></label><label>Ангилал<select aria-label="Жагсаалтын ангилал" onChange="{{ onAdminCategory }}"><sc-for list="{{ adminCategoryOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option></sc-for></select></label></div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
           <div style="font-size:13px;color:#8a90a3;">Нийт {{ productCount }} бүтээгдэхүүн</div>
           <div style="display:flex;gap:10px;">
-            <button onClick="{{ openTaxonomy }}" style="border:1px solid #cdd5ee;background:#fff;color:#2a54e6;font-family:inherit;font-size:13px;font-weight:700;padding:11px 18px;border-radius:10px;cursor:pointer;">Ангилал / Таг удирдах</button>
-            <button onClick="{{ openNewProduct }}" style="background:#2a54e6;color:#fff;border:none;font-family:inherit;font-size:13px;font-weight:700;padding:11px 18px;border-radius:10px;cursor:pointer;">+ Шинэ бүтээгдэхүүн</button>
+            <button onClick="{{ openTaxonomy }}" style="border:1px solid #cee6ed;background:#fff;color:#00b6d4;font-family:inherit;font-size:13px;font-weight:700;padding:11px 18px;border-radius:10px;cursor:pointer;">Ангилал / Таг удирдах</button>
+            <button onClick="{{ openNewProduct }}" style="background:#00b6d4;color:#fff;border:none;font-family:inherit;font-size:13px;font-weight:700;padding:11px 18px;border-radius:10px;cursor:pointer;">+ Шинэ бүтээгдэхүүн</button>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;">
+        <div class="nd-admin-product-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;">
           <sc-for list="{{ productList }}" as="p" hint-placeholder-count="8">
-            <div style="background:#fff;border:1px solid #eceff6;border-radius:14px;overflow:hidden;">
+            <div style="background:#fff;border:1px solid #e9edf0;border-radius:14px;overflow:hidden;">
               <button onClick="{{ p.onEdit }}" title="Засах" style="position:relative;display:block;width:100%;aspect-ratio:1/1;background:#f0f2f8;border:none;padding:0;cursor:pointer;">
                 <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></sc-if>
-                <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><image-slot id="admin-prod-{{ p.id }}" shape="rect" fit="contain" placeholder="Зураг"></image-slot></sc-if>
+                <sc-if value="{{ p.noImg }}" hint-placeholder-val="{{ true }}"><img src="./assets/storefront/package.svg" alt="Зураггүй" style="width:100%;height:100%;object-fit:contain;"></sc-if>
                 <span style="{{ p.stockStyle }}">{{ p.stockLabel }}</span>
               </button>
               <div style="padding:14px 16px;">
                 <div style="font-size:13.5px;font-weight:600;color:#2a302b;line-height:1.35;height:36px;overflow:hidden;">{{ p.title }}</div>
                 <div style="display:flex;align-items:baseline;justify-content:space-between;margin-top:8px;">
-                  <span style="font-size:15px;font-weight:800;color:#16255f;">{{ p.price }}</span>
+                  <span style="font-size:15px;font-weight:800;color:#263238;">{{ p.price }}</span>
                   <button onClick="{{ p.onStock }}" style="border:none;background:none;font-family:inherit;font-size:12px;color:#8a90a3;cursor:pointer;padding:0;">Нөөц: {{ p.stock }} ✎</button>
                 </div>
                 <div style="margin-top:10px;padding-top:10px;border-top:1px solid #f2f4f9;display:flex;align-items:center;justify-content:space-between;gap:8px;">
                   <button onClick="{{ p.onHome }}" style="{{ p.homeStyle }}">{{ p.homeLabel }}</button>
-                  <button onClick="{{ p.onEdit }}" style="border:1px solid #cdd5ee;background:#fff;color:#2a54e6;font-family:inherit;font-size:11.5px;font-weight:700;padding:5px 12px;border-radius:7px;cursor:pointer;">Засах</button>
+                  <button onClick="{{ p.onEdit }}" style="border:1px solid #cee6ed;background:#fff;color:#00b6d4;font-family:inherit;font-size:11.5px;font-weight:700;padding:5px 12px;border-radius:7px;cursor:pointer;">Засах</button>
                 </div>
               </div>
             </div>
@@ -292,19 +297,30 @@
         <div style="max-width:720px;">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
             <button onClick="{{ closeTaxonomy }}" style="border:1px solid #e0e4ee;background:#fff;color:#5c6473;font-family:inherit;font-size:13px;font-weight:700;padding:9px 16px;border-radius:9px;cursor:pointer;">‹ Буцах</button>
-            <h2 style="font-size:18px;font-weight:800;color:#16255f;margin:0;">Ангилал / Таг удирдах</h2>
+            <h2 style="font-size:18px;font-weight:800;color:#263238;margin:0;">Ангилал / Таг удирдах</h2>
           </div>
 
           <sc-if value="{{ hasTaxError }}" hint-placeholder-val="{{ false }}">
             <div style="background:#fef2f2;border:1px solid #f5d5d3;color:#e0392f;font-size:12.5px;font-weight:600;line-height:1.55;padding:11px 14px;border-radius:10px;margin-bottom:16px;">{{ taxError }}</div>
           </sc-if>
 
-          <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:26px 28px;margin-bottom:18px;">
-            <div style="font-size:15px;font-weight:800;color:#16255f;margin-bottom:4px;">Ангилал</div>
+
+<div class="catalog-panel">
+  <h3>Дээд бүлэг → Ангилал → Бүтээгдэхүүн</h3>
+  <p class="catalog-help">Жишээ: Эмнэлгийн хэрэгсэл → Анхны тусламж → Ариун боолт. Эхлээд бүлэг, дараа нь ангилал үүсгэнэ. Ашиглаж буй бүлгийг устгахын өмнө ангиллуудыг шилжүүлнэ.</p>
+  <sc-for list="{{ departmentRows }}" as="g" hint-placeholder-count="0">
+    <div class="catalog-row"><span>{{ g.name }} · {{ g.count }} ангилал</span><button type="button" onClick="{{ g.onEdit }}">Засах</button><button type="button" class="catalog-danger" onClick="{{ g.onRemove }}">Устгах</button></div>
+  </sc-for>
+  <button type="button" onClick="{{ addDepartment }}">+ Дээд бүлэг нэмэх</button>
+  <sc-if value="{{ editingDepartment }}" hint-placeholder-val="{{ false }}"><div class="catalog-row"><input aria-label="Дээд бүлгийн нэр" value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Дээд бүлгийн нэр"><button type="button" onClick="{{ commitTaxEdit }}">Хадгалах</button><button type="button" onClick="{{ cancelTaxEdit }}">Цуцлах</button></div></sc-if>
+
+</div>
+          <div style="background:#fff;border:1px solid #e9edf0;border-radius:16px;padding:26px 28px;margin-bottom:18px;">
+            <div style="font-size:15px;font-weight:800;color:#263238;margin-bottom:4px;">Ангилал</div>
             <p style="font-size:12.5px;color:#8a90a3;margin:0 0 16px;line-height:1.55;">Бүтээгдэхүүний ангилал. Нүүр хуудасны "Хамгийн эрэлттэй" хэсгийн таб мөн эндээс үүснэ. Нэр солиход тухайн ангилалтай бараанууд автоматаар шинэчлэгдэнэ.</p>
             <div style="display:flex;flex-direction:column;gap:9px;">
               <sc-for list="{{ taxCategories }}" as="c" hint-placeholder-count="6">
-                <div style="display:flex;align-items:center;gap:10px;border:1px solid #eef0f5;border-radius:10px;padding:11px 14px;">
+                <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;border:1px solid #eef0f5;border-radius:10px;padding:11px 14px;">
                   <sc-if value="{{ c.isViewing }}" hint-placeholder-val="{{ true }}">
                     <span style="flex:1;font-size:14px;font-weight:600;color:#2a302b;">{{ c.name }}</span>
                   </sc-if>
@@ -312,17 +328,17 @@
                     <span style="font-size:11.5px;color:#8a90a3;white-space:nowrap;">{{ c.used }}</span>
                   </sc-if>
                   <sc-if value="{{ c.isViewing }}" hint-placeholder-val="{{ true }}">
-                    <button onClick="{{ c.onEdit }}" style="border:1px solid #cdd5ee;background:#fff;color:#2a54e6;font-family:inherit;font-size:12px;font-weight:700;padding:7px 13px;border-radius:8px;cursor:pointer;">Засах</button>
+                    <button onClick="{{ c.onEdit }}" style="border:1px solid #cee6ed;background:#fff;color:#00b6d4;font-family:inherit;font-size:12px;font-weight:700;padding:7px 13px;border-radius:8px;cursor:pointer;">Засах</button>
                   </sc-if>
                   <sc-if value="{{ c.isViewing }}" hint-placeholder-val="{{ true }}">
                     <button onClick="{{ c.onAskRemove }}" style="{{ c.removeStyle }}">Устгах</button>
                   </sc-if>
 
                   <sc-if value="{{ c.isEditing }}" hint-placeholder-val="{{ false }}">
-                    <input value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Нэр" style="flex:1;height:38px;border:1px solid #2a54e6;border-radius:8px;padding:0 12px;font-family:inherit;font-size:14px;">
+                    <select aria-label="Ангиллын дээд бүлэг" class="catalog-group-select" style="flex-basis:100%;" onChange="{{ onTaxDepartment }}"><sc-for list="{{ taxDepartmentOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option></sc-for></select><input value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Нэр" style="flex:1;height:38px;border:1px solid #00b6d4;border-radius:8px;padding:0 12px;font-family:inherit;font-size:14px;">
                   </sc-if>
                   <sc-if value="{{ c.isEditing }}" hint-placeholder-val="{{ false }}">
-                    <button onClick="{{ commitTaxEdit }}" style="background:#2a54e6;color:#fff;border:none;font-family:inherit;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;">Хадгалах</button>
+                    <button onClick="{{ commitTaxEdit }}" style="background:#00b6d4;color:#fff;border:none;font-family:inherit;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;">Хадгалах</button>
                   </sc-if>
                   <sc-if value="{{ c.isEditing }}" hint-placeholder-val="{{ false }}">
                     <button onClick="{{ cancelTaxEdit }}" style="border:1px solid #e0e4ee;background:#fff;color:#5c6473;font-family:inherit;font-size:12px;font-weight:700;padding:7px 13px;border-radius:8px;cursor:pointer;">Цуцлах</button>
@@ -341,17 +357,17 @@
               </sc-for>
             </div>
             <sc-if value="{{ addingCategory }}" hint-placeholder-val="{{ false }}">
-              <div style="display:flex;align-items:center;gap:10px;border:1px solid #2a54e6;border-radius:10px;padding:11px 14px;margin-top:9px;">
-                <input value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Шинэ ангиллын нэр" style="flex:1;height:38px;border:1px solid #e0e4ee;border-radius:8px;padding:0 12px;font-family:inherit;font-size:14px;">
-                <button onClick="{{ commitTaxEdit }}" style="background:#2a54e6;color:#fff;border:none;font-family:inherit;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;">Нэмэх</button>
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;border:1px solid #00b6d4;border-radius:10px;padding:11px 14px;margin-top:9px;">
+                <select aria-label="Ангиллын дээд бүлэг" class="catalog-group-select" style="flex-basis:100%;" onChange="{{ onTaxDepartment }}"><sc-for list="{{ taxDepartmentOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option></sc-for></select><input value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Шинэ ангиллын нэр" style="flex:1;height:38px;border:1px solid #e0e4ee;border-radius:8px;padding:0 12px;font-family:inherit;font-size:14px;">
+                <button onClick="{{ commitTaxEdit }}" style="background:#00b6d4;color:#fff;border:none;font-family:inherit;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;">Нэмэх</button>
                 <button onClick="{{ cancelTaxEdit }}" style="border:1px solid #e0e4ee;background:#fff;color:#5c6473;font-family:inherit;font-size:12px;font-weight:700;padding:7px 13px;border-radius:8px;cursor:pointer;">Цуцлах</button>
               </div>
             </sc-if>
-            <button onClick="{{ addCategory }}" style="margin-top:12px;border:1px dashed #cdd5ee;background:#f7f8fc;color:#2a54e6;font-family:inherit;font-size:13px;font-weight:700;padding:10px 16px;border-radius:9px;cursor:pointer;">+ Ангилал нэмэх</button>
+            <button onClick="{{ addCategory }}" style="margin-top:12px;border:1px dashed #cee6ed;background:#f7f8fc;color:#00b6d4;font-family:inherit;font-size:13px;font-weight:700;padding:10px 16px;border-radius:9px;cursor:pointer;">+ Ангилал нэмэх</button>
           </div>
 
-          <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:26px 28px;">
-            <div style="font-size:15px;font-weight:800;color:#16255f;margin-bottom:4px;">Таг (badge)</div>
+          <div style="background:#fff;border:1px solid #e9edf0;border-radius:16px;padding:26px 28px;">
+            <div style="font-size:15px;font-weight:800;color:#263238;margin-bottom:4px;">Таг (badge)</div>
             <p style="font-size:12.5px;color:#8a90a3;margin:0 0 16px;line-height:1.55;">Бүтээгдэхүүний зураг дээр гарах жижиг тэмдэг. "Байхгүй" сонголт нь таг хэрэглэхгүй гэсэн утгатай тул жагсаалтад ордоггүй.</p>
             <div style="display:flex;flex-direction:column;gap:9px;">
               <sc-for list="{{ taxBadges }}" as="c" hint-placeholder-count="4">
@@ -363,17 +379,17 @@
                     <span style="font-size:11.5px;color:#8a90a3;white-space:nowrap;">{{ c.used }}</span>
                   </sc-if>
                   <sc-if value="{{ c.isViewing }}" hint-placeholder-val="{{ true }}">
-                    <button onClick="{{ c.onEdit }}" style="border:1px solid #cdd5ee;background:#fff;color:#2a54e6;font-family:inherit;font-size:12px;font-weight:700;padding:7px 13px;border-radius:8px;cursor:pointer;">Засах</button>
+                    <button onClick="{{ c.onEdit }}" style="border:1px solid #cee6ed;background:#fff;color:#00b6d4;font-family:inherit;font-size:12px;font-weight:700;padding:7px 13px;border-radius:8px;cursor:pointer;">Засах</button>
                   </sc-if>
                   <sc-if value="{{ c.isViewing }}" hint-placeholder-val="{{ true }}">
                     <button onClick="{{ c.onAskRemove }}" style="{{ c.removeStyle }}">Устгах</button>
                   </sc-if>
 
                   <sc-if value="{{ c.isEditing }}" hint-placeholder-val="{{ false }}">
-                    <input value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Нэр" style="flex:1;height:38px;border:1px solid #2a54e6;border-radius:8px;padding:0 12px;font-family:inherit;font-size:14px;">
+                    <input value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Нэр" style="flex:1;height:38px;border:1px solid #00b6d4;border-radius:8px;padding:0 12px;font-family:inherit;font-size:14px;">
                   </sc-if>
                   <sc-if value="{{ c.isEditing }}" hint-placeholder-val="{{ false }}">
-                    <button onClick="{{ commitTaxEdit }}" style="background:#2a54e6;color:#fff;border:none;font-family:inherit;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;">Хадгалах</button>
+                    <button onClick="{{ commitTaxEdit }}" style="background:#00b6d4;color:#fff;border:none;font-family:inherit;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;">Хадгалах</button>
                   </sc-if>
                   <sc-if value="{{ c.isEditing }}" hint-placeholder-val="{{ false }}">
                     <button onClick="{{ cancelTaxEdit }}" style="border:1px solid #e0e4ee;background:#fff;color:#5c6473;font-family:inherit;font-size:12px;font-weight:700;padding:7px 13px;border-radius:8px;cursor:pointer;">Цуцлах</button>
@@ -392,13 +408,13 @@
               </sc-for>
             </div>
             <sc-if value="{{ addingBadge }}" hint-placeholder-val="{{ false }}">
-              <div style="display:flex;align-items:center;gap:10px;border:1px solid #2a54e6;border-radius:10px;padding:11px 14px;margin-top:9px;">
+              <div style="display:flex;align-items:center;gap:10px;border:1px solid #00b6d4;border-radius:10px;padding:11px 14px;margin-top:9px;">
                 <input value="{{ taxDraft }}" onInput="{{ onTaxDraft }}" placeholder="Шинэ тагийн нэр" style="flex:1;height:38px;border:1px solid #e0e4ee;border-radius:8px;padding:0 12px;font-family:inherit;font-size:14px;">
-                <button onClick="{{ commitTaxEdit }}" style="background:#2a54e6;color:#fff;border:none;font-family:inherit;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;">Нэмэх</button>
+                <button onClick="{{ commitTaxEdit }}" style="background:#00b6d4;color:#fff;border:none;font-family:inherit;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;">Нэмэх</button>
                 <button onClick="{{ cancelTaxEdit }}" style="border:1px solid #e0e4ee;background:#fff;color:#5c6473;font-family:inherit;font-size:12px;font-weight:700;padding:7px 13px;border-radius:8px;cursor:pointer;">Цуцлах</button>
               </div>
             </sc-if>
-            <button onClick="{{ addBadge }}" style="margin-top:12px;border:1px dashed #cdd5ee;background:#f7f8fc;color:#2a54e6;font-family:inherit;font-size:13px;font-weight:700;padding:10px 16px;border-radius:9px;cursor:pointer;">+ Таг нэмэх</button>
+            <button onClick="{{ addBadge }}" style="margin-top:12px;border:1px dashed #cee6ed;background:#f7f8fc;color:#00b6d4;font-family:inherit;font-size:13px;font-weight:700;padding:10px 16px;border-radius:9px;cursor:pointer;">+ Таг нэмэх</button>
           </div>
         </div>
         </sc-if>
@@ -408,7 +424,7 @@
         <div style="max-width:920px;">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
             <button onClick="{{ closeNewProduct }}" style="border:1px solid #e0e4ee;background:#fff;color:#5c6473;font-family:inherit;font-size:13px;font-weight:700;padding:9px 16px;border-radius:9px;cursor:pointer;">‹ Буцах</button>
-            <h2 style="font-size:18px;font-weight:800;color:#16255f;margin:0;">{{ formTitle }}</h2>
+            <h2 style="font-size:18px;font-weight:800;color:#263238;margin:0;">{{ formTitle }}</h2>
             <sc-if value="{{ notAskingDelete }}" hint-placeholder-val="{{ true }}">
               <sc-if value="{{ isEditing }}" hint-placeholder-val="{{ false }}">
                 <button onClick="{{ askDeleteProduct }}" style="margin-left:auto;border:1px solid #f0d0d0;background:#fff;color:#e0392f;font-family:inherit;font-size:13px;font-weight:700;padding:9px 16px;border-radius:9px;cursor:pointer;">Устгах</button>
@@ -422,10 +438,10 @@
               </span>
             </sc-if>
           </div>
-          <div style="display:grid;grid-template-columns:300px 1fr;gap:22px;">
+          <div class="nd-admin-product-form" style="display:grid;grid-template-columns:300px 1fr;gap:22px;">
             <!-- images -->
-            <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:20px;">
-              <div style="font-size:13px;font-weight:800;color:#16255f;margin-bottom:4px;">Гол зураг ({{ galleryCount }}/8)</div>
+            <div style="background:#fff;border:1px solid #e9edf0;border-radius:16px;padding:20px;">
+              <div style="font-size:13px;font-weight:800;color:#263238;margin-bottom:4px;">Гол зураг ({{ galleryCount }}/8)</div>
               <p style="font-size:11.5px;color:#8a90a3;margin:0 0 12px;line-height:1.5;">Эхний зураг нь жагсаалт болон нүүр хуудсанд харагдах нүүр зураг. Дарааллыг ↑↓ товчоор солино.</p>
 
               <div style="display:flex;flex-direction:column;gap:8px;">
@@ -443,28 +459,31 @@
               </div>
 
               <sc-if value="{{ canAddGallery }}" hint-placeholder-val="{{ true }}">
-                <div style="position:relative;margin-top:8px;border:1px dashed #cdd5ee;border-radius:10px;background:#f7f8fc;padding:20px 16px;text-align:center;">
-                  <span style="font-size:12.5px;font-weight:700;color:#2a54e6;pointer-events:none;">+ Гол зураг нэмэх</span>
+                <div style="position:relative;margin-top:8px;border:1px dashed #cee6ed;border-radius:10px;background:#f7f8fc;padding:20px 16px;text-align:center;">
+                  <span style="font-size:12.5px;font-weight:700;color:#00b6d4;pointer-events:none;">+ Гол зураг нэмэх</span>
                   <input type="file" accept="image/*" onChange="{{ onProductImage }}" title="Зураг сонгох, эсвэл чирж оруулах" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;">
                 </div>
               </sc-if>
             </div>
             <!-- fields -->
-            <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:24px 26px;">
+            <div style="background:#fff;border:1px solid #e9edf0;border-radius:16px;padding:24px 26px;">
               <div style="display:flex;flex-direction:column;gap:16px;">
                 <div>
                   <label style="font-size:12px;font-weight:700;color:#8a90a3;display:block;margin-bottom:6px;">Бүтээгдэхүүний нэр *</label>
-                  <input value="{{ f.title }}" onInput="{{ onFTitle }}" placeholder="Жишээ: Гүн чийгшлийн арьс арчилгааны багц" style="width:100%;height:46px;border:1px solid #e0e4ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
+                  <input value="{{ f.title }}" onInput="{{ onFTitle }}" placeholder="Жишээ: Ариун боолт, хадгалах сав, чийгшүүлэгч" style="width:100%;height:46px;border:1px solid #e0e4ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
+
+<div class="catalog-panel">
+  <h3>Барааны бүртгэл</h3>
+  <p class="catalog-help">Бүлэг, ангилал нь дэлгүүрийн шүүлтүүрийг, барааны төрөл нь мэдээллийн загварыг тодорхойлно. SKU нь бараа бүрийн давтагдахгүй дотоод код.</p>
+  <label>Дээд бүлэг *</label><select aria-label="Барааны дээд бүлэг" onChange="{{ onFDepartment }}"><sc-for list="{{ departmentOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option></sc-for></select>
+<label>Ангилал *</label><select aria-label="Барааны ангилал" onChange="{{ onFCategory }}"><sc-for list="{{ catalogCategoryOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option></sc-for></select>
+  <label>Барааны төрөл *</label><select aria-label="Барааны төрөл" onChange="{{ onFProductType }}"><sc-for list="{{ productTypeOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option></sc-for></select>
+
+</div>
+
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-                  <div>
-                    <label style="font-size:12px;font-weight:700;color:#8a90a3;display:block;margin-bottom:6px;">Ангилал *</label>
-                    <select onChange="{{ onFCategory }}" style="width:100%;height:46px;border:1px solid #e0e4ee;border-radius:10px;padding:0 12px;font-family:inherit;font-size:14px;background:#fff;color:#2a302b;">
-                      <sc-for list="{{ categoryOptions }}" as="o" hint-placeholder-count="6">
-                        <option value="{{ o.value }}" selected="{{ o.selected }}">{{ o.label }}</option>
-                      </sc-for>
-                    </select>
-                  </div>
+
                   <div>
                     <label style="font-size:12px;font-weight:700;color:#8a90a3;display:block;margin-bottom:6px;">Таг (badge)</label>
                     <select onChange="{{ onFBadge }}" style="width:100%;height:46px;border:1px solid #e0e4ee;border-radius:10px;padding:0 12px;font-family:inherit;font-size:14px;background:#fff;color:#2a302b;">
@@ -484,7 +503,7 @@
                     <input value="{{ f.original }}" onInput="{{ onFOriginal }}" placeholder="135,000" style="width:100%;height:46px;border:1px solid #e0e4ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
                   </div>
                   <div>
-                    <label style="font-size:12px;font-weight:700;color:#8a90a3;display:block;margin-bottom:6px;">Нөөц (ширхэг) *</label>
+                    <label style="font-size:12px;font-weight:700;color:#8a90a3;display:block;margin-bottom:6px;">Нөөц (борлуулах нэгж) *</label>
                     <input value="{{ f.stock }}" onInput="{{ onFStock }}" placeholder="142" style="width:100%;height:46px;border:1px solid #e0e4ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
                   </div>
                 </div>
@@ -492,8 +511,14 @@
                   <label style="font-size:12px;font-weight:700;color:#8a90a3;display:block;margin-bottom:6px;">Тайлбар</label>
                   <textarea value="{{ f.desc }}" onInput="{{ onFDesc }}" placeholder="Бүтээгдэхүүний онцлог, хэрэглэх заавар..." style="width:100%;height:88px;border:1px solid #e0e4ee;border-radius:10px;padding:12px 14px;font-family:inherit;font-size:14px;resize:none;"></textarea>
                 </div>
+<div class="catalog-panel"><h3>Нэмэлт мэдээлэл / үзүүлэлт</h3>  <div class="catalog-grid"><sc-for list="{{ catalogFields }}" as="cf" hint-placeholder-count="0"><label>{{ cf.label }}<input aria-label="{{ cf.label }}" type="{{ cf.type }}" value="{{ cf.value }}" onInput="{{ cf.onInput }}"></label></sc-for></div>
+  <label>Бүтээгдэхүүний үзүүлэлтүүд</label>
+  <p class="catalog-help">Хэрэгтэй үзүүлэлтээ нэр–утгаар нэмнэ. Бөглөсөн мэдээлэл бүтээгдэхүүний дэлгэрэнгүй хуудсанд харагдана.</p>
+  <sc-for list="{{ specificationRows }}" as="sp" hint-placeholder-count="0"><div class="catalog-row"><input aria-label="Үзүүлэлтийн нэр" value="{{ sp.name }}" onInput="{{ sp.onName }}" placeholder="Үзүүлэлтийн нэр"><input aria-label="Үзүүлэлтийн утга" value="{{ sp.value }}" onInput="{{ sp.onValue }}" placeholder="Утга"><button type="button" class="catalog-danger" onClick="{{ sp.onRemove }}">Хасах</button></div></sc-for>
+  <div class="catalog-row"><button type="button" onClick="{{ addSpecificationPreset }}">Төрлийн загвар оруулах</button><button type="button" onClick="{{ addSpecification }}">+ Үзүүлэлт нэмэх</button></div></div>
+
                 <div style="border-top:1px solid #f2f4f9;padding-top:16px;">
-                  <div style="font-size:13px;font-weight:800;color:#16255f;margin-bottom:3px;">Дэлгэрэнгүй хуудсанд гарах мэдээлэл</div>
+                  <div style="font-size:13px;font-weight:800;color:#263238;margin-bottom:3px;">Дэлгэрэнгүй хуудсанд гарах мэдээлэл</div>
                   <p style="font-size:12px;color:#8a90a3;margin:0 0 14px;line-height:1.55;">Доорхыг бөглөвөл л бүтээгдэхүүний хуудсанд харагдана. Хоосон орхивол тэр мөр огт гарахгүй.</p>
                   <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;">
                     <div>
@@ -508,12 +533,12 @@
                 </div>
 
                 <div>
-                  <label style="font-size:12px;font-weight:700;color:#8a90a3;display:block;margin-bottom:6px;">Багцын хэмжээ сонголт</label>
-                  <p style="font-size:12px;color:#8a90a3;margin:0 0 10px;">Сонголт нэмбэл дэлгэрэнгүй хуудсанд "Багцын хэмжээ" хэсэг гарна. Нэмэлт үнэ нь үндсэн үнэн дээр нэмэгдэнэ.</p>
+                  <label style="font-size:12px;font-weight:700;color:#8a90a3;display:block;margin-bottom:6px;">Барааны сонголт (хэмжээ, өнгө, багц)</label>
+                  <p style="font-size:12px;color:#8a90a3;margin:0 0 10px;">Сонголт нэмбэл дэлгэрэнгүй хуудсанд "Сонголт" хэсэг гарна. Нэмэлт үнэ нь үндсэн үнэн дээр нэмэгдэнэ.</p>
                   <div style="display:flex;flex-direction:column;gap:9px;">
                     <sc-for list="{{ fOptions }}" as="o" hint-placeholder-count="0">
                       <div style="display:flex;gap:9px;align-items:center;">
-                        <span style="font-size:12px;font-weight:800;color:#2a54e6;width:16px;flex:0 0 auto;">{{ o.n }}</span>
+                        <span style="font-size:12px;font-weight:800;color:#00b6d4;width:16px;flex:0 0 auto;">{{ o.n }}</span>
                         <input value="{{ o.label }}" onInput="{{ o.onLabel }}" placeholder="Сонголтын нэр (Жишээ: Их хэмжээ)" style="flex:2;height:42px;border:1px solid #e0e4ee;border-radius:9px;padding:0 12px;font-family:inherit;font-size:13px;">
                         <input value="{{ o.add }}" onInput="{{ o.onAdd }}" placeholder="Нэмэлт үнэ (0)" style="flex:1;height:42px;border:1px solid #e0e4ee;border-radius:9px;padding:0 12px;font-family:inherit;font-size:13px;">
                         <button onClick="{{ o.onRemove }}" title="Устгах" style="border:1px solid #f0d0d0;background:#fff;color:#e0392f;font-family:inherit;font-size:16px;line-height:1;width:42px;height:42px;border-radius:9px;cursor:pointer;flex:0 0 auto;padding:0;">&times;</button>
@@ -521,11 +546,11 @@
                     </sc-for>
                   </div>
                   <sc-if value="{{ canAddOption }}" hint-placeholder-val="{{ true }}">
-                    <button onClick="{{ addFormOption }}" style="margin-top:10px;border:1px dashed #cdd5ee;background:#f7f8fc;color:#2a54e6;font-family:inherit;font-size:13px;font-weight:700;padding:10px 16px;border-radius:9px;cursor:pointer;">+ Сонголт нэмэх</button>
+                    <button onClick="{{ addFormOption }}" style="margin-top:10px;border:1px dashed #cee6ed;background:#f7f8fc;color:#00b6d4;font-family:inherit;font-size:13px;font-weight:700;padding:10px 16px;border-radius:9px;cursor:pointer;">+ Сонголт нэмэх</button>
                   </sc-if>
                 </div>
                 <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#f7f8fc;border-radius:10px;">
-                  <div><div style="font-size:13.5px;font-weight:700;color:#16255f;">Нүүр хуудсанд харуулах</div><div style="font-size:12px;color:#8a90a3;">"Албан ёсны дэлгүүр" хэсэгт байршуулах</div></div>
+                  <div><div style="font-size:13.5px;font-weight:700;color:#263238;">Нүүр хуудсанд харуулах</div><div style="font-size:12px;color:#8a90a3;">"Албан ёсны дэлгүүр" хэсэгт байршуулах</div></div>
                   <button onClick="{{ onFHome }}" style="{{ fHomeTrack }}"><span style="{{ fHomeKnob }}"></span></button>
                 </div>
                 <sc-if value="{{ hasFormError }}" hint-placeholder-val="{{ false }}">
@@ -533,14 +558,14 @@
                 </sc-if>
                 <!-- дэлгэрэнгүй блок эдитор -->
                 <div style="border-top:1px solid #f2f4f9;padding-top:18px;">
-                  <div style="font-size:13px;font-weight:800;color:#16255f;margin-bottom:3px;">Дэлгэрэнгүй тайлбар ({{ blockCount }} блок)</div>
+                  <div style="font-size:13px;font-weight:800;color:#263238;margin-bottom:3px;">Дэлгэрэнгүй тайлбар ({{ blockCount }} блок)</div>
                   <p style="font-size:12px;color:#8a90a3;margin:0 0 14px;line-height:1.55;">Бүтээгдэхүүний хуудасны "Дэлгэрэнгүй" таб. Блок нэмж, дарааллыг ↑↓-ээр өөрчилнө.</p>
 
                   <div style="display:flex;flex-direction:column;gap:12px;">
                     <sc-for list="{{ blocks }}" as="b" hint-placeholder-count="0">
                       <div style="border:1px solid #eef0f5;border-radius:12px;padding:14px 16px;background:#fcfdff;">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;">
-                          <span style="font-size:11.5px;font-weight:800;color:#2a54e6;">{{ b.n }}. {{ b.typeLabel }}</span>
+                          <span style="font-size:11.5px;font-weight:800;color:#00b6d4;">{{ b.n }}. {{ b.typeLabel }}</span>
                           <span style="display:flex;gap:5px;">
                             <button onClick="{{ b.onUp }}" title="Дээш" style="border:1px solid #e0e4ee;background:#fff;color:#5c6473;font-family:inherit;font-size:12px;width:28px;height:28px;border-radius:7px;cursor:pointer;padding:0;">↑</button>
                             <button onClick="{{ b.onDown }}" title="Доош" style="border:1px solid #e0e4ee;background:#fff;color:#5c6473;font-family:inherit;font-size:12px;width:28px;height:28px;border-radius:7px;cursor:pointer;padding:0;">↓</button>
@@ -568,11 +593,11 @@
                         </sc-if>
 
                         <sc-if value="{{ b.needsImage }}" hint-placeholder-val="{{ false }}">
-                          <div style="position:relative;border:1px dashed #cdd5ee;border-radius:9px;background:#f7f8fc;overflow:hidden;min-height:76px;">
+                          <div style="position:relative;border:1px dashed #cee6ed;border-radius:9px;background:#f7f8fc;overflow:hidden;min-height:76px;">
                             <sc-if value="{{ b.hasImg }}" hint-placeholder-val="{{ false }}">
                               <span style="{{ b.previewWrap }}"><img src="{{ b.img }}" style="display:block;width:100%;"></span>
                             </sc-if>
-                            <sc-if value="{{ b.noImg }}" hint-placeholder-val="{{ true }}"><span style="display:flex;align-items:center;justify-content:center;height:76px;font-size:12.5px;font-weight:700;color:#2a54e6;pointer-events:none;">+ Зураг оруулах</span></sc-if>
+                            <sc-if value="{{ b.noImg }}" hint-placeholder-val="{{ true }}"><span style="display:flex;align-items:center;justify-content:center;height:76px;font-size:12.5px;font-weight:700;color:#00b6d4;pointer-events:none;">+ Зураг оруулах</span></sc-if>
                             <input type="file" accept="image/*" onChange="{{ b.onImg }}" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;">
                             <sc-if value="{{ b.isCollapsed }}" hint-placeholder-val="{{ true }}">
                               <sc-if value="{{ b.hasImg }}" hint-placeholder-val="{{ false }}">
@@ -583,11 +608,11 @@
                         </sc-if>
 
                         <sc-if value="{{ b.isTwoImages }}" hint-placeholder-val="{{ false }}">
-                          <div style="position:relative;border:1px dashed #cdd5ee;border-radius:9px;background:#f7f8fc;overflow:hidden;min-height:76px;margin-top:8px;">
+                          <div style="position:relative;border:1px dashed #cee6ed;border-radius:9px;background:#f7f8fc;overflow:hidden;min-height:76px;margin-top:8px;">
                             <sc-if value="{{ b.hasImg2 }}" hint-placeholder-val="{{ false }}">
                               <span style="{{ b.previewWrap }}"><img src="{{ b.img2 }}" style="display:block;width:100%;"></span>
                             </sc-if>
-                            <sc-if value="{{ b.noImg2 }}" hint-placeholder-val="{{ true }}"><span style="display:flex;align-items:center;justify-content:center;height:76px;font-size:12.5px;font-weight:700;color:#2a54e6;pointer-events:none;">+ 2 дахь зураг</span></sc-if>
+                            <sc-if value="{{ b.noImg2 }}" hint-placeholder-val="{{ true }}"><span style="display:flex;align-items:center;justify-content:center;height:76px;font-size:12.5px;font-weight:700;color:#00b6d4;pointer-events:none;">+ 2 дахь зураг</span></sc-if>
                             <input type="file" accept="image/*" onChange="{{ b.onImg2 }}" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;">
                           </div>
                         </sc-if>
@@ -604,18 +629,18 @@
                   </sc-if>
 
                   <sc-if value="{{ blockPickerClosed }}" hint-placeholder-val="{{ true }}">
-                    <button onClick="{{ openBlockPicker }}" style="margin-top:12px;width:100%;border:1px dashed #cdd5ee;background:#f7f8fc;color:#2a54e6;font-family:inherit;font-size:13px;font-weight:700;padding:12px 16px;border-radius:10px;cursor:pointer;">+ Блок нэмэх</button>
+                    <button onClick="{{ openBlockPicker }}" style="margin-top:12px;width:100%;border:1px dashed #cee6ed;background:#f7f8fc;color:#00b6d4;font-family:inherit;font-size:13px;font-weight:700;padding:12px 16px;border-radius:10px;cursor:pointer;">+ Блок нэмэх</button>
                   </sc-if>
                   <sc-if value="{{ blockPickerOpen }}" hint-placeholder-val="{{ false }}">
-                    <div style="margin-top:12px;border:1px solid #cdd5ee;border-radius:12px;padding:16px;background:#fff;">
+                    <div style="margin-top:12px;border:1px solid #cee6ed;border-radius:12px;padding:16px;background:#fff;">
                       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                        <span style="font-size:12.5px;font-weight:800;color:#16255f;">Оруулах блокоо сонгоно уу</span>
+                        <span style="font-size:12.5px;font-weight:800;color:#263238;">Оруулах блокоо сонгоно уу</span>
                         <button onClick="{{ closeBlockPicker }}" style="border:none;background:none;font-size:18px;color:#8a90a3;cursor:pointer;padding:0;line-height:1;">&times;</button>
                       </div>
                       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
                         <sc-for list="{{ blockTypes }}" as="t" hint-placeholder-count="7">
                           <button onClick="{{ t.onClick }}" style="display:flex;flex-direction:column;align-items:center;gap:6px;border:1px solid #e0e4ee;background:#fff;color:#3a4a6b;font-family:inherit;font-size:11px;font-weight:700;padding:12px 6px;border-radius:10px;cursor:pointer;">
-                            <span style="font-size:17px;color:#2a54e6;">{{ t.icon }}</span>{{ t.label }}
+                            <span style="font-size:17px;color:#00b6d4;">{{ t.icon }}</span>{{ t.label }}
                           </button>
                         </sc-for>
                       </div>
@@ -624,8 +649,8 @@
                 </div>
 
                 <!-- урт маягтад ч гар хүрэхэд ойрхон байхаар доод талд наалдана -->
-                <div style="position:sticky;bottom:0;background:#fff;border-top:1px solid #eceff6;margin:0 -26px -24px;padding:16px 26px;display:flex;gap:12px;z-index:5;">
-                  <button onClick="{{ saveProduct }}" style="background:#2a54e6;color:#fff;border:none;font-family:inherit;font-size:14px;font-weight:700;padding:13px 28px;border-radius:10px;cursor:pointer;">{{ saveLabel }}</button>
+                <div style="position:sticky;bottom:0;background:#fff;border-top:1px solid #e9edf0;margin:0 -26px -24px;padding:16px 26px;display:flex;gap:12px;z-index:5;">
+                  <button onClick="{{ saveProduct }}" style="background:#00b6d4;color:#fff;border:none;font-family:inherit;font-size:14px;font-weight:700;padding:13px 28px;border-radius:10px;cursor:pointer;">{{ saveLabel }}</button>
                   <button onClick="{{ closeNewProduct }}" style="border:1px solid #e0e4ee;background:#fff;color:#5c6473;font-family:inherit;font-size:14px;font-weight:700;padding:13px 24px;border-radius:10px;cursor:pointer;">Цуцлах</button>
                   <sc-if value="{{ productSaved }}" hint-placeholder-val="{{ false }}"><span style="align-self:center;font-size:13px;font-weight:700;color:#12934f;">{{ savedLabel }}</span></sc-if>
                 </div>
@@ -639,7 +664,7 @@
 
       <!-- CUSTOMERS -->
       <sc-if value="{{ isCustomers }}" hint-placeholder-val="{{ false }}">
-      <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:8px 26px 20px;">
+      <div style="background:#fff;border:1px solid #e9edf0;border-radius:16px;padding:8px 26px 20px;">
         <div style="overflow-x:auto;" class="aScroll">
           <table style="width:100%;border-collapse:collapse;min-width:680px;">
             <thead>
@@ -657,7 +682,7 @@
                   <td style="padding:13px 12px;"><span style="display:flex;align-items:center;gap:10px;"><span style="width:34px;height:34px;border-radius:50%;background:{{ c.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;">{{ c.initial }}</span><span style="font-weight:600;color:#2a302b;">{{ c.name }}</span></span></td>
                   <td style="padding:13px 12px;color:#8a90a3;">{{ c.email }}</td>
                   <td style="padding:13px 12px;color:#2a302b;">{{ c.orders }}</td>
-                  <td style="padding:13px 12px;font-weight:700;color:#16255f;">{{ c.spent }}</td>
+                  <td style="padding:13px 12px;font-weight:700;color:#263238;">{{ c.spent }}</td>
                   <td style="padding:13px 12px;"><span style="{{ c.tierStyle }}">{{ c.tier }}</span></td>
                 </tr>
               </sc-for>
@@ -683,7 +708,7 @@
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
               <span style="width:38px;height:38px;border-radius:50%;background:{{ r.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;">{{ r.initial }}</span>
               <div style="flex:1;">
-                <div style="font-size:14px;font-weight:700;color:#16255f;">{{ r.name }}</div>
+                <div style="font-size:14px;font-weight:700;color:#263238;">{{ r.name }}</div>
                 <div style="font-size:12px;color:#8a90a3;">{{ r.product }}</div>
               </div>
               <sc-if value="{{ r.isHidden }}" hint-placeholder-val="{{ false }}">
@@ -693,23 +718,23 @@
             </div>
             <p style="margin:0 0 12px;font-size:13.5px;line-height:1.7;color:#4a5266;">{{ r.text }}</p>
             <sc-if value="{{ r.hasReply }}" hint-placeholder-val="{{ false }}">
-              <div style="background:#f7f8fc;border-left:3px solid #2a54e6;border-radius:0 8px 8px 0;padding:11px 14px;margin-bottom:12px;">
-                <div style="font-size:11px;font-weight:800;color:#2a54e6;margin-bottom:4px;">NUDEMA-гийн хариу</div>
+              <div style="background:#f7f8fc;border-left:3px solid #00b6d4;border-radius:0 8px 8px 0;padding:11px 14px;margin-bottom:12px;">
+                <div style="font-size:11px;font-weight:800;color:#00b6d4;margin-bottom:4px;">NUDEMA-гийн хариу</div>
                 <div style="font-size:13px;line-height:1.65;color:#4a5266;">{{ r.reply }}</div>
               </div>
             </sc-if>
             <sc-if value="{{ r.isReplying }}" hint-placeholder-val="{{ false }}">
               <div style="margin-bottom:12px;">
-                <textarea value="{{ replyDraft }}" onInput="{{ onReplyDraft }}" placeholder="Хэрэглэгчид хариу бичих..." style="width:100%;height:76px;border:1px solid #2a54e6;border-radius:10px;padding:11px 13px;font-family:inherit;font-size:13.5px;resize:none;"></textarea>
+                <textarea value="{{ replyDraft }}" onInput="{{ onReplyDraft }}" placeholder="Хэрэглэгчид хариу бичих..." style="width:100%;height:76px;border:1px solid #00b6d4;border-radius:10px;padding:11px 13px;font-family:inherit;font-size:13.5px;resize:none;"></textarea>
                 <div style="display:flex;gap:9px;margin-top:8px;">
-                  <button onClick="{{ commitReply }}" style="background:#2a54e6;color:#fff;border:none;font-family:inherit;font-size:12px;font-weight:700;padding:8px 16px;border-radius:8px;cursor:pointer;">Хадгалах</button>
+                  <button onClick="{{ commitReply }}" style="background:#00b6d4;color:#fff;border:none;font-family:inherit;font-size:12px;font-weight:700;padding:8px 16px;border-radius:8px;cursor:pointer;">Хадгалах</button>
                   <button onClick="{{ cancelReply }}" style="border:1px solid #e0e4ee;background:#fff;color:#5c6473;font-family:inherit;font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;cursor:pointer;">Цуцлах</button>
                 </div>
               </div>
             </sc-if>
             <sc-if value="{{ r.notReplying }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;gap:10px;align-items:center;">
-                <button onClick="{{ r.onReply }}" style="border:1px solid #cdd5ee;background:#fff;color:#2a54e6;font-family:inherit;font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;cursor:pointer;">Хариу бичих</button>
+                <button onClick="{{ r.onReply }}" style="border:1px solid #cee6ed;background:#fff;color:#00b6d4;font-family:inherit;font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;cursor:pointer;">Хариу бичих</button>
                 <button onClick="{{ r.onHide }}" style="{{ r.hideStyle }}">{{ r.hideLabel }}</button>
                 <button onClick="{{ r.onAskDelete }}" style="border:1px solid #f0d0d0;background:#fff;color:#e0392f;font-family:inherit;font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;cursor:pointer;">Устгах</button>
                 <span style="margin-left:auto;font-size:11.5px;color:#b0b7c3;">{{ r.dateLabel }}</span>
@@ -730,20 +755,20 @@
       <!-- ANALYTICS -->
       <sc-if value="{{ isAnalytics }}" hint-placeholder-val="{{ false }}">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
-        <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:24px 26px;">
-          <div style="font-size:15px;font-weight:800;color:#16255f;margin-bottom:20px;">Сарын орлого</div>
+        <div style="background:#fff;border:1px solid #e9edf0;border-radius:16px;padding:24px 26px;">
+          <div style="font-size:15px;font-weight:800;color:#263238;margin-bottom:20px;">Сарын орлого</div>
           <div style="display:flex;align-items:flex-end;gap:10px;height:180px;">
             <sc-for list="{{ monthBars }}" as="b" hint-placeholder-count="6">
               <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end;" title="{{ b.amount }}">
                 <span style="font-size:10.5px;font-weight:700;color:#8a90a3;white-space:nowrap;">{{ b.amount }}</span>
-                <div style="width:100%;border-radius:8px 8px 0 0;background:#2a54e6;height:{{ b.h }};"></div>
+                <div style="width:100%;border-radius:8px 8px 0 0;background:#00b6d4;height:{{ b.h }};"></div>
                 <span style="font-size:11px;color:#9aa39c;font-weight:600;">{{ b.m }}</span>
               </div>
             </sc-for>
           </div>
         </div>
-        <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:24px 26px;">
-          <div style="font-size:15px;font-weight:800;color:#16255f;margin-bottom:20px;">Ангиллаар</div>
+        <div style="background:#fff;border:1px solid #e9edf0;border-radius:16px;padding:24px 26px;">
+          <div style="font-size:15px;font-weight:800;color:#263238;margin-bottom:20px;">Ангиллаар</div>
           <sc-for list="{{ categories }}" as="c" hint-placeholder-count="4">
             <div style="margin-bottom:16px;">
               <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span style="color:#3a423c;font-weight:600;">{{ c.name }}</span><span style="color:#8a90a3;">{{ c.amount }} · {{ c.pct }}</span></div>
@@ -757,30 +782,30 @@
       <!-- CONTENT -->
       <sc-if value="{{ isContent }}" hint-placeholder-val="{{ false }}">
       <div style="max-width:720px;">
-        <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:26px 28px;margin-bottom:18px;">
-          <div style="font-size:15px;font-weight:800;color:#16255f;margin-bottom:4px;">Дээд гүйдэг мөр</div>
+        <div style="background:#fff;border:1px solid #e9edf0;border-radius:16px;padding:26px 28px;margin-bottom:18px;">
+          <div style="font-size:15px;font-weight:800;color:#263238;margin-bottom:4px;">Дээд гүйдэг мөр</div>
           <p style="font-size:12.5px;color:#8a90a3;margin:0 0 16px;">Хуудасны дээд талд хөндлөн гүйх цэнхэр мөрний бичвэрүүд. Ээлжлэн давтагдана.</p>
           <div style="display:flex;flex-direction:column;gap:10px;">
             <sc-for list="{{ cMarquee }}" as="m" hint-placeholder-count="2">
               <div style="display:flex;gap:10px;align-items:center;">
-                <span style="font-size:12px;font-weight:800;color:#2a54e6;width:18px;flex:0 0 auto;">{{ m.n }}</span>
+                <span style="font-size:12px;font-weight:800;color:#00b6d4;width:18px;flex:0 0 auto;">{{ m.n }}</span>
                 <input value="{{ m.text }}" onInput="{{ m.onText }}" placeholder="Жишээ: Арьсанд итгэлтэй · Nudema сайн арчилдаг" style="flex:1;height:40px;border:1px solid #e0e4ee;border-radius:9px;padding:0 12px;font-family:inherit;font-size:13px;">
                 <button onClick="{{ m.onRemove }}" title="Устгах" style="{{ m.removeStyle }}">&times;</button>
               </div>
             </sc-for>
           </div>
-          <button onClick="{{ addMarquee }}" style="margin-top:12px;border:1px dashed #cdd5ee;background:#f7f8fc;color:#2a54e6;font-family:inherit;font-size:13px;font-weight:700;padding:10px 16px;border-radius:9px;cursor:pointer;">+ Мөр нэмэх</button>
+          <button onClick="{{ addMarquee }}" style="margin-top:12px;border:1px dashed #cee6ed;background:#f7f8fc;color:#00b6d4;font-family:inherit;font-size:13px;font-weight:700;padding:10px 16px;border-radius:9px;cursor:pointer;">+ Мөр нэмэх</button>
         </div>
 
-        <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:26px 28px;margin-bottom:18px;">
-          <div style="font-size:15px;font-weight:800;color:#16255f;margin-bottom:4px;">Брэндийн видео</div>
+        <div style="background:#fff;border:1px solid #e9edf0;border-radius:16px;padding:26px 28px;margin-bottom:18px;">
+          <div style="font-size:15px;font-weight:800;color:#263238;margin-bottom:4px;">Брэндийн видео</div>
           <p style="font-size:12.5px;color:#8a90a3;margin:0 0 16px;">Нүүр хуудасны "Брэндийн түүх" хэсэгт гарах YouTube видеоны холбоос.</p>
           <input value="{{ cVideo }}" onInput="{{ onVideo }}" placeholder="https://www.youtube.com/watch?v=..." style="width:100%;height:46px;border:1px solid #e0e4ee;border-radius:10px;padding:0 14px;font-family:inherit;font-size:14px;">
         </div>
 
-        <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:26px 28px;margin-bottom:18px;">
+        <div style="background:#fff;border:1px solid #e9edf0;border-radius:16px;padding:26px 28px;margin-bottom:18px;">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:4px;">
-            <div style="font-size:15px;font-weight:800;color:#16255f;">Гишүүнчлэлийн баннер</div>
+            <div style="font-size:15px;font-weight:800;color:#263238;">Гишүүнчлэлийн баннер</div>
             <sc-if value="{{ hasMembershipBanner }}" hint-placeholder-val="{{ true }}">
               <button onClick="{{ removeMembershipBanner }}" style="border:1px solid #f0d0d0;background:#fff;color:#e0392f;font-family:inherit;font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px;cursor:pointer;">Устгах</button>
             </sc-if>
@@ -788,7 +813,7 @@
           <p style="font-size:12.5px;color:#8a90a3;margin:0 0 18px;">Нүүр хуудасны гишүүний урамшууллын зураг, бичвэр, товчийг нэмэх, засах эсвэл устгана. Өөрчлөлт PC болон мобайл хуудсанд зэрэг орно.</p>
 
           <sc-if value="{{ noMembershipBanner }}" hint-placeholder-val="{{ false }}">
-            <button onClick="{{ addMembershipBanner }}" style="border:1px dashed #cdd5ee;background:#f7f8fc;color:#2a54e6;font-family:inherit;font-size:13px;font-weight:700;padding:13px 18px;border-radius:10px;cursor:pointer;width:100%;">+ Гишүүнчлэлийн баннер нэмэх</button>
+            <button onClick="{{ addMembershipBanner }}" style="border:1px dashed #cee6ed;background:#f7f8fc;color:#00b6d4;font-family:inherit;font-size:13px;font-weight:700;padding:13px 18px;border-radius:10px;cursor:pointer;width:100%;">+ Гишүүнчлэлийн баннер нэмэх</button>
           </sc-if>
 
           <sc-if value="{{ hasMembershipBanner }}" hint-placeholder-val="{{ true }}">
@@ -796,7 +821,7 @@
               <div style="background:#fef2f2;border:1px solid #f5d5d3;color:#e0392f;font-size:12.5px;font-weight:600;line-height:1.5;padding:11px 14px;border-radius:10px;margin-bottom:14px;">{{ contentError }}</div>
             </sc-if>
             <div style="display:grid;grid-template-columns:160px 1fr;gap:14px;margin-bottom:14px;">
-              <div style="height:110px;border-radius:10px;background:#16255f;overflow:hidden;position:relative;border:1px dashed #cdd5ee;">
+              <div style="height:110px;border-radius:10px;background:#263238;overflow:hidden;position:relative;border:1px dashed #cee6ed;">
                 <sc-if value="{{ cMembershipBanner.hasImg }}" hint-placeholder-val="{{ false }}">
                   <img src="{{ cMembershipBanner.previewSrc }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
                 </sc-if>
@@ -824,8 +849,8 @@
           </sc-if>
         </div>
 
-        <div style="background:#fff;border:1px solid #eceff6;border-radius:16px;padding:26px 28px;margin-bottom:18px;">
-          <div style="font-size:15px;font-weight:800;color:#16255f;margin-bottom:4px;">Хиро баннер (слайд)</div>
+        <div style="background:#fff;border:1px solid #e9edf0;border-radius:16px;padding:26px 28px;margin-bottom:18px;">
+          <div style="font-size:15px;font-weight:800;color:#263238;margin-bottom:4px;">Хиро баннер (слайд)</div>
           <p style="font-size:12.5px;color:#8a90a3;margin:0 0 18px;">Нүүр хуудасны дээд баннерын зураг ба текст. Зургийн нүд дээр дарж файл сонгох, эсвэл зургаа чирж оруулна уу. URL-ээр ч болно. Өөрчлөлт шууд нийтлэгдэнэ.</p>
           <sc-if value="{{ hasContentError }}" hint-placeholder-val="{{ false }}">
             <div style="background:#fef2f2;border:1px solid #f5d5d3;color:#e0392f;font-size:12.5px;font-weight:600;line-height:1.5;padding:11px 14px;border-radius:10px;margin-bottom:16px;">{{ contentError }}</div>
@@ -833,11 +858,11 @@
           <sc-for list="{{ cSlides }}" as="s" hint-placeholder-count="3">
             <div style="border:1px solid #eef0f5;border-radius:12px;padding:16px 18px;margin-bottom:14px;">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                <span style="font-size:12px;font-weight:800;color:#2a54e6;">Слайд {{ s.n }}</span>
+                <span style="font-size:12px;font-weight:800;color:#00b6d4;">Слайд {{ s.n }}</span>
                 <button onClick="{{ s.onRemoveSlide }}" title="Слайдыг устгах" style="{{ s.removeSlideStyle }}">Устгах</button>
               </div>
               <div style="display:flex;gap:14px;">
-                <div style="width:90px;height:64px;border-radius:8px;background:#f0f2f8;overflow:hidden;position:relative;flex:0 0 auto;border:1px dashed #cdd5ee;">
+                <div style="width:90px;height:64px;border-radius:8px;background:#f0f2f8;overflow:hidden;position:relative;flex:0 0 auto;border:1px dashed #cee6ed;">
                   <sc-if value="{{ s.hasImg }}" hint-placeholder-val="{{ false }}">
                     <img src="{{ s.previewSrc }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
                   </sc-if>
@@ -859,22 +884,22 @@
               </div>
             </div>
           </sc-for>
-          <button onClick="{{ addSlide }}" style="border:1px dashed #cdd5ee;background:#f7f8fc;color:#2a54e6;font-family:inherit;font-size:13px;font-weight:700;padding:12px 16px;border-radius:10px;cursor:pointer;width:100%;">+ Слайд нэмэх <span style="color:#8a90a3;font-weight:600;">({{ slideCountLabel }})</span></button>
+          <button onClick="{{ addSlide }}" style="border:1px dashed #cee6ed;background:#f7f8fc;color:#00b6d4;font-family:inherit;font-size:13px;font-weight:700;padding:12px 16px;border-radius:10px;cursor:pointer;width:100%;">+ Слайд нэмэх <span style="color:#8a90a3;font-weight:600;">({{ slideCountLabel }})</span></button>
         </div>
 
         <div style="display:flex;align-items:center;gap:14px;">
-          <button onClick="{{ saveContent }}" style="background:#2a54e6;color:#fff;border:none;font-family:inherit;font-size:14px;font-weight:700;padding:13px 28px;border-radius:10px;cursor:pointer;">Хадгалах ба нийтлэх</button>
+          <button onClick="{{ saveContent }}" style="background:#00b6d4;color:#fff;border:none;font-family:inherit;font-size:14px;font-weight:700;padding:13px 28px;border-radius:10px;cursor:pointer;">Хадгалах ба нийтлэх</button>
           <sc-if value="{{ contentSaved }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;font-weight:700;color:#12934f;">✓ Хадгалагдлаа</span></sc-if>
           <span style="font-size:12px;color:#8a90a3;">Өөрчлөлт бичих үед шууд нийтлэгдэнэ</span>
-          <a href="Nudema%20Mongolia.dc.html" target="_blank" style="font-size:13px;font-weight:700;color:#2a54e6;margin-left:auto;">Нүүр хуудсыг үзэх ↗</a>
+          <a href="Nudema%20Mongolia.dc.html" target="_blank" style="font-size:13px;font-weight:700;color:#00b6d4;margin-left:auto;">Нүүр хуудсыг үзэх ↗</a>
         </div>
       </div>
       </sc-if>
 
       <!-- SETTINGS -->
       <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
-      <div style="max-width:640px;background:#fff;border:1px solid #eceff6;border-radius:16px;padding:28px 30px;">
-        <div style="font-size:15px;font-weight:800;color:#16255f;margin-bottom:20px;">Дэлгүүрийн тохиргоо</div>
+      <div style="max-width:640px;background:#fff;border:1px solid #e9edf0;border-radius:16px;padding:28px 30px;">
+        <div style="font-size:15px;font-weight:800;color:#263238;margin-bottom:20px;">Дэлгүүрийн тохиргоо</div>
         <div style="display:flex;flex-direction:column;gap:18px;">
           <div>
             <label style="font-size:12px;font-weight:600;color:#8a90a3;display:block;margin-bottom:6px;">Дэлгүүрийн нэр</label>
@@ -902,11 +927,11 @@
           </div>
           <p style="font-size:11.5px;color:#8a90a3;line-height:1.6;margin:-8px 0 0;">Хүргэлтийн төлбөр 0 бол бүх захиалга үнэгүй. Үнэгүй хүргэлтийн босго 0 бол хүргэлтийн төлбөр бүх захиалгад нэмэгдэнэ.</p>
           <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#f7f8fc;border-radius:10px;">
-            <div><div style="font-size:13.5px;font-weight:700;color:#16255f;">Захиалгын мэдэгдэл</div><div style="font-size:12px;color:#8a90a3;">Шинэ захиалга орж ирэхэд имэйл авах</div></div>
+            <div><div style="font-size:13.5px;font-weight:700;color:#263238;">Захиалгын мэдэгдэл</div><div style="font-size:12px;color:#8a90a3;">Шинэ захиалга орж ирэхэд имэйл авах</div></div>
             <button onClick="{{ onSNotify }}" style="{{ sNotifyTrack }}"><span style="{{ sNotifyKnob }}"></span></button>
           </div>
           <div style="border-top:1px solid #f2f4f9;padding-top:20px;">
-            <div style="font-size:14px;font-weight:800;color:#16255f;margin-bottom:3px;">Дансны мэдээлэл (Данс шилжүүлэг)</div>
+            <div style="font-size:14px;font-weight:800;color:#263238;margin-bottom:3px;">Дансны мэдээлэл (Данс шилжүүлэг)</div>
             <p style="font-size:12px;color:#8a90a3;margin:0 0 14px;line-height:1.55;">Худалдан авагч зөвхөн данс шилжүүлгээр төлнө. Тиймээс хамгийн багадаа нэг төлбөр хүлээн авах данс заавал бүртгэнэ.</p>
 
             <sc-if value="{{ noBankAccounts }}" hint-placeholder-val="{{ false }}">
@@ -917,7 +942,7 @@
               <sc-for list="{{ bankAccounts }}" as="b" hint-placeholder-count="1">
                 <div style="border:1px solid #eef0f5;border-radius:12px;padding:14px 16px;">
                   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                    <span style="font-size:12px;font-weight:800;color:#2a54e6;">Данс {{ b.n }}</span>
+                    <span style="font-size:12px;font-weight:800;color:#00b6d4;">Данс {{ b.n }}</span>
                     <button onClick="{{ b.onRemove }}" title="Устгах" style="border:1px solid #f0d0d0;background:#fff;color:#e0392f;font-family:inherit;font-size:11.5px;font-weight:700;padding:5px 12px;border-radius:7px;cursor:pointer;">Устгах</button>
                   </div>
                   <div style="display:grid;grid-template-columns:1fr 1.3fr;gap:10px;margin-bottom:10px;">
@@ -930,7 +955,7 @@
             </div>
 
             <sc-if value="{{ canAddBank }}" hint-placeholder-val="{{ true }}">
-              <button onClick="{{ addBankAccount }}" style="margin-top:12px;border:1px dashed #cdd5ee;background:#f7f8fc;color:#2a54e6;font-family:inherit;font-size:13px;font-weight:700;padding:10px 16px;border-radius:9px;cursor:pointer;">+ Данс нэмэх</button>
+              <button onClick="{{ addBankAccount }}" style="margin-top:12px;border:1px dashed #cee6ed;background:#f7f8fc;color:#00b6d4;font-family:inherit;font-size:13px;font-weight:700;padding:10px 16px;border-radius:9px;cursor:pointer;">+ Данс нэмэх</button>
             </sc-if>
 
             <div style="margin-top:16px;">
@@ -941,14 +966,14 @@
 
           <div style="border-top:1px solid #f2f4f9;padding-top:20px;">
             <div style="font-size:12px;color:#8a90a3;margin-bottom:5px;">Одоо нэвтэрсэн и-мэйл</div>
-            <div style="font-size:14px;font-weight:800;color:#16255f;">{{ adminEmail }}</div>
+            <div style="font-size:14px;font-weight:800;color:#263238;">{{ adminEmail }}</div>
           </div>
 
           <sc-if value="{{ hasSettingsError }}" hint-placeholder-val="{{ false }}">
             <div style="background:#fef2f2;border:1px solid #f5d5d3;color:#e0392f;font-size:12.5px;font-weight:600;padding:11px 14px;border-radius:10px;">{{ settingsError }}</div>
           </sc-if>
           <div style="display:flex;align-items:center;gap:14px;">
-            <button onClick="{{ saveSettings }}" style="background:#2a54e6;color:#fff;border:none;font-family:inherit;font-size:14px;font-weight:700;padding:12px 26px;border-radius:10px;cursor:pointer;">Хадгалах</button>
+            <button onClick="{{ saveSettings }}" style="background:#00b6d4;color:#fff;border:none;font-family:inherit;font-size:14px;font-weight:700;padding:12px 26px;border-radius:10px;cursor:pointer;">Хадгалах</button>
             <sc-if value="{{ settingsSaved }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;font-weight:700;color:#12934f;">✓ Хадгалагдлаа</span></sc-if>
           </div>
         </div>
@@ -963,21 +988,21 @@
       <div onClick="{{ stopOrder }}" style="width:920px;max-width:100%;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(16,37,95,.28);padding:28px 30px 24px;">
 
         <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;">
-          <h2 style="font-size:19px;font-weight:800;color:#16255f;margin:0;">Захиалгын дэлгэрэнгүй</h2>
+          <h2 style="font-size:19px;font-weight:800;color:#263238;margin:0;">Захиалгын дэлгэрэнгүй</h2>
           <button onClick="{{ closeOrder }}" title="Хаах" style="border:none;background:none;font-size:22px;line-height:1;color:#8a90a3;cursor:pointer;padding:0;">&times;</button>
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:26px;">
           <!-- захиалгын мэдээлэл -->
           <div>
-            <div style="font-size:15px;font-weight:800;color:#16255f;margin-bottom:12px;">Захиалгын мэдээлэл</div>
+            <div style="font-size:15px;font-weight:800;color:#263238;margin-bottom:12px;">Захиалгын мэдээлэл</div>
             <div style="background:#f7f8fc;border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:14px;font-size:13.5px;">
-              <div style="display:flex;align-items:center;"><span style="color:#8a90a3;width:120px;flex:0 0 auto;">Захиалгын ID:</span><span style="font-weight:700;color:#16255f;">{{ od.no }}</span></div>
+              <div style="display:flex;align-items:center;"><span style="color:#8a90a3;width:120px;flex:0 0 auto;">Захиалгын ID:</span><span style="font-weight:700;color:#263238;">{{ od.no }}</span></div>
               <div style="display:flex;align-items:center;"><span style="color:#8a90a3;width:120px;flex:0 0 auto;">Огноо:</span><span style="font-weight:600;color:#2a302b;">{{ od.date }}</span></div>
               <div style="display:flex;align-items:center;"><span style="color:#8a90a3;width:120px;flex:0 0 auto;">Төлбөр:</span><span style="font-weight:600;color:#2a302b;">{{ od.method }}</span></div>
               <div style="display:flex;align-items:center;">
                 <span style="color:#8a90a3;width:120px;flex:0 0 auto;">Төлөв:</span>
-                <select onChange="{{ odOnStatus }}" style="flex:1;height:42px;border:1px solid #16255f;border-radius:22px;padding:0 14px;font-family:inherit;font-size:13px;font-weight:700;background:#fff;color:#16255f;cursor:pointer;">
+                <select onChange="{{ odOnStatus }}" style="flex:1;height:42px;border:1px solid #263238;border-radius:22px;padding:0 14px;font-family:inherit;font-size:13px;font-weight:700;background:#fff;color:#263238;cursor:pointer;">
                   <sc-for list="{{ odStatusOptions }}" as="s" hint-placeholder-count="5">
                     <option value="{{ s.value }}" selected="{{ s.selected }}">{{ s.label }}</option>
                   </sc-for>
@@ -985,25 +1010,26 @@
               </div>
               <div style="display:flex;align-items:center;"><span style="color:#8a90a3;width:120px;flex:0 0 auto;">Барааны дүн:</span><span style="font-weight:600;color:#2a302b;">{{ od.subtotalLabel }}</span></div>
               <div style="display:flex;align-items:center;"><span style="color:#8a90a3;width:120px;flex:0 0 auto;">Хүргэлт:</span><span style="font-weight:600;color:#2a302b;">{{ od.shippingLabel }}</span></div>
-              <div style="display:flex;align-items:center;"><span style="color:#8a90a3;width:120px;flex:0 0 auto;">Нийт дүн:</span><span style="font-weight:800;color:#16255f;">{{ od.amount }}</span></div>
+              <div style="display:flex;align-items:center;"><span style="color:#8a90a3;width:120px;flex:0 0 auto;">Нийт дүн:</span><span style="font-weight:800;color:#263238;">{{ od.amount }}</span></div>
             </div>
           </div>
 
           <!-- харилцагчийн мэдээлэл -->
           <div>
-            <div style="font-size:15px;font-weight:800;color:#16255f;margin-bottom:12px;">Харилцагчийн мэдээлэл</div>
+            <div style="font-size:15px;font-weight:800;color:#263238;margin-bottom:12px;">Харилцагчийн мэдээлэл</div>
             <div style="background:#f7f8fc;border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:14px;font-size:13.5px;">
-              <div style="display:flex;"><span style="color:#8a90a3;width:80px;flex:0 0 auto;">Нэр:</span><span style="font-weight:700;color:#16255f;">{{ od.customer }}</span></div>
+              <div style="display:flex;"><span style="color:#8a90a3;width:80px;flex:0 0 auto;">Нэр:</span><span style="font-weight:700;color:#263238;">{{ od.customer }}</span></div>
               <div style="display:flex;"><span style="color:#8a90a3;width:80px;flex:0 0 auto;">И-мэйл:</span><span style="font-weight:600;color:#2a302b;word-break:break-all;">{{ od.email }}</span></div>
               <div style="display:flex;"><span style="color:#8a90a3;width:80px;flex:0 0 auto;">Утас:</span><span style="font-weight:600;color:#2a302b;">{{ od.phone }}</span></div>
               <div style="display:flex;"><span style="color:#8a90a3;width:80px;flex:0 0 auto;">Хаяг:</span><span style="font-weight:600;color:#2a302b;line-height:1.6;">{{ od.address }}</span></div>
+              <sc-if value="{{ od.hasLocation }}" hint-placeholder-val="{{ false }}"><a href="{{ od.locationHref }}" target="_blank" rel="noopener" style="display:block;margin-top:12px;color:#00b6d4;font-weight:700;">⌖ Хүргэлтийн байршлыг газрын зурагт харах ↗</a></sc-if>
             </div>
           </div>
         </div>
 
         <!-- захиалсан бүтээгдэхүүн -->
-        <div style="font-size:15px;font-weight:800;color:#16255f;margin-bottom:12px;">Захиалсан бүтээгдэхүүн</div>
-        <div style="border:1px solid #eceff6;border-radius:12px;overflow:hidden;">
+        <div style="font-size:15px;font-weight:800;color:#263238;margin-bottom:12px;">Захиалсан бүтээгдэхүүн</div>
+        <div style="border:1px solid #e9edf0;border-radius:12px;overflow:hidden;">
           <table style="width:100%;border-collapse:collapse;">
             <thead>
               <tr style="background:#f7f8fc;text-align:left;font-size:11px;font-weight:700;color:#8a90a3;letter-spacing:.04em;">
@@ -1020,29 +1046,29 @@
                     <span style="display:flex;align-items:center;gap:12px;">
                       <span style="width:44px;height:44px;border-radius:8px;background:#f0f2f8;overflow:hidden;position:relative;flex:0 0 auto;display:block;">
                         <sc-if value="{{ it.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ it.img }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;"></sc-if>
-                        <sc-if value="{{ it.noImg }}" hint-placeholder-val="{{ true }}"><image-slot id="adm-oi-{{ it.id }}" shape="rect" fit="contain" placeholder=""></image-slot></sc-if>
+                        <sc-if value="{{ it.noImg }}" hint-placeholder-val="{{ true }}"><img src="./assets/storefront/package.svg" alt="Зураггүй" style="width:100%;height:100%;object-fit:contain;"></sc-if>
                       </span>
                       <span style="display:block;">
-                        <span style="display:block;font-weight:700;color:#16255f;">{{ it.title }}</span>
+                        <span style="display:block;font-weight:700;color:#263238;">{{ it.title }}</span>
                         <span style="display:block;font-size:11.5px;color:#8a90a3;margin-top:2px;">{{ it.category }}</span>
                       </span>
                     </span>
                   </td>
                   <td style="padding:14px 16px;color:#2a302b;">{{ it.unitLabel }}</td>
                   <td style="padding:14px 16px;color:#2a302b;">{{ it.qtyLabel }}</td>
-                  <td style="padding:14px 16px;font-weight:700;color:#16255f;">{{ it.lineLabel }}</td>
+                  <td style="padding:14px 16px;font-weight:700;color:#263238;">{{ it.lineLabel }}</td>
                 </tr>
               </sc-for>
-              <tr style="background:#f7f8fc;border-top:1px solid #eceff6;">
-                <td colspan="3" style="padding:16px;text-align:right;font-size:14px;font-weight:700;color:#16255f;">Нийт дүн:</td>
-                <td style="padding:16px;font-size:16px;font-weight:800;color:#2a54e6;">{{ od.amount }}</td>
+              <tr style="background:#f7f8fc;border-top:1px solid #e9edf0;">
+                <td colspan="3" style="padding:16px;text-align:right;font-size:14px;font-weight:700;color:#263238;">Нийт дүн:</td>
+                <td style="padding:16px;font-size:16px;font-weight:800;color:#00b6d4;">{{ od.amount }}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
         <div style="display:flex;justify-content:flex-end;margin-top:22px;">
-          <button onClick="{{ closeOrder }}" style="background:#2a54e6;color:#fff;border:none;font-family:inherit;font-size:14px;font-weight:700;padding:12px 30px;border-radius:10px;cursor:pointer;">Хаах</button>
+          <button onClick="{{ closeOrder }}" style="background:#00b6d4;color:#fff;border:none;font-family:inherit;font-size:14px;font-weight:700;padding:12px 30px;border-radius:10px;cursor:pointer;">Хаах</button>
         </div>
       </div>
     </div>
@@ -1095,6 +1121,11 @@ class Component extends DCLogic {
   }
 
   /* ---- Сайтын өөрийн админ нэвтрэлт ---- */
+  openLocalPreview() {
+    if (!NudemaStore.localPreview) return;
+    this.setState({ authed: true, authLoading: false, loginError: '', adminEmail: 'Локал демо' });
+  }
+
   authRequest(url, options) {
     return fetch(url, Object.assign({
       credentials: 'same-origin',
@@ -1577,7 +1608,8 @@ class Component extends DCLogic {
 
   blankForm() {
     return {
-      title: '', category: 'Арьс арчилгааны багц', badge: 'Байхгүй',
+      ...NudemaStore.catalog.formFields({ category: this.taxonomy().categories[0] || '' }, this.taxonomy()),
+      title: '', category: (this.taxonomy().categories || [])[0] || '', badge: 'Байхгүй',
       price: '', original: '', stock: '', desc: '', showOnHome: true,
       // Дэлгэрэнгүй хуудсанд зөвхөн бөглөсөн үед л гарна
       shipping: '', pointsRate: '', options: [],
@@ -1599,8 +1631,9 @@ class Component extends DCLogic {
   // Байгаа бараанаас засварын маягт үүсгэнэ
   formFromProduct(p) {
     return {
+      ...NudemaStore.catalog.formFields(p, this.taxonomy()),
       title: p.title || '',
-      category: p.category || 'Арьс арчилгааны багц',
+      category: p.category || (this.taxonomy().categories || [])[0] || '',
       badge: p.badge ? p.badge : 'Байхгүй',
       price: NudemaStore.money(p.price),
       original: p.original ? NudemaStore.money(p.original) : '',
@@ -1630,7 +1663,7 @@ class Component extends DCLogic {
   }
 
   /* ---- Ангилал / Таг удирдах ---- */
-  taxonomy() { return this.data('taxonomy'); }
+  taxonomy() { return NudemaStore.catalog.normalizeTaxonomy(this.data('taxonomy')); }
 
   // Тухайн ангилал/тагийг хэдэн бараа ашиглаж байгааг тоолно
   usageCount(kind, name) {
@@ -1642,40 +1675,17 @@ class Component extends DCLogic {
    * блоклогддог тул ашиглахгүй. */
   startTaxEdit(kind, index) {
     const name = index === -1 ? '' : this.taxonomy()[kind][index];
-    this.setState({ taxEdit: kind + ':' + index, taxDraft: name, taxError: '', taxConfirm: '' });
+    this.setState({ taxEdit: kind + ':' + index, taxDraft: name, taxDepartment: this.taxonomy().categoryDepartments[name] || this.taxonomy().departments[0], taxError: '', taxConfirm: '' });
   }
   cancelTaxEdit() { this.setState({ taxEdit: '', taxDraft: '', taxError: '' }); }
 
   commitTaxEdit() {
-    const token = this.state.taxEdit || '';
-    const [kind, idxRaw] = token.split(':');
-    const index = Number(idxRaw);
+    const [kind, raw] = (this.state.taxEdit || '').split(':');
     if (!kind) return;
-    const name = String(this.state.taxDraft || '').trim();
-    if (!name) return this.setState({ taxError: 'Нэрийг оруулна уу.' });
-
-    const tax = this.taxonomy();
-    const old = index === -1 ? null : tax[kind][index];
-    if (name === old) return this.cancelTaxEdit();
-    if (tax[kind].some((v, i) => v === name && i !== index)) {
-      return this.setState({ taxError: `"${name}" аль хэдийн байна.` });
-    }
-
-    const list = index === -1
-      ? [...tax[kind], name]
-      : tax[kind].map((v, i) => i === index ? name : v);
-    const next = { ...tax, [kind]: list };
-
-    // Нэр солиход түүнийг ашиглаж буй бараануудыг мөн шинэчилнэ
-    let products = this.products();
-    if (old !== null) {
-      const field = kind === 'categories' ? 'category' : 'badge';
-      products = products.map(p => p[field] === old ? { ...p, [field]: name } : p);
-      NudemaStore.write('products', products);
-    }
-
-    this.setState({ taxonomy: next, products, taxEdit: '', taxDraft: '', taxError: '' });
-    NudemaStore.write('taxonomy', next);
+    const result = NudemaStore.catalog.editTaxonomy(this.taxonomy(), this.products(), kind, Number(raw), this.state.taxDraft, this.state.taxDepartment || this.taxonomy().departments[0]);
+    if (result.error) return this.setState({ taxError: result.error });
+    if (!NudemaStore.catalog.save(result.taxonomy, result.products)) return this.setState({ taxError: QUOTA_MSG });
+    this.setState({ taxonomy: result.taxonomy, products: result.products, taxEdit: '', taxDraft: '', taxError: '', taxConfirm: '' });
   }
 
   // Жагсаалтын нэг мөрийг дэлгэцэнд бэлтгэнэ (харах / засах / устгахыг батлах)
@@ -1686,7 +1696,7 @@ class Component extends DCLogic {
       const editing = this.state.taxEdit === token;
       const confirming = this.state.taxConfirm === token;
       return {
-        name,
+        name: kind === 'categories' ? this.taxonomy().categoryDepartments[name] + ' › ' + name : name,
         used: used ? `${used} бараа` : 'Ашиглагдаагүй',
         isEditing: editing,
         isViewing: !editing && !confirming,
@@ -1695,27 +1705,16 @@ class Component extends DCLogic {
         onAskRemove: () => this.setState({ taxConfirm: token, taxEdit: '', taxError: '' }),
         onCancelRemove: () => this.setState({ taxConfirm: '' }),
         onRemove: () => this.removeTaxonomy(kind, i),
-        removeStyle: `border:1px solid ${used ? '#eceff6' : '#f0d0d0'};background:#fff;color:${used ? '#cdd2e0' : '#e0392f'};font-family:inherit;font-size:12px;font-weight:700;padding:7px 13px;border-radius:8px;cursor:${used ? 'not-allowed' : 'pointer'};`,
+        removeStyle: `border:1px solid ${used ? '#e9edf0' : '#f0d0d0'};background:#fff;color:${used ? '#cdd2e0' : '#e0392f'};font-family:inherit;font-size:12px;font-weight:700;padding:7px 13px;border-radius:8px;cursor:${used ? 'not-allowed' : 'pointer'};`,
       };
     });
   }
 
   removeTaxonomy(kind, index) {
-    const tax = this.taxonomy();
-    const name = tax[kind][index];
-    const used = this.usageCount(kind, name);
-    if (used > 0) {
-      return this.setState({
-        taxConfirm: '',
-        taxError: `"${name}"-ыг ${used} бараа ашиглаж байгаа тул устгах боломжгүй. Эхлээд тэдгээрийг өөр ангилал/таг руу шилжүүлнэ үү.`,
-      });
-    }
-    if (kind === 'categories' && tax.categories.length <= 1) {
-      return this.setState({ taxConfirm: '', taxError: 'Дор хаяж нэг ангилал үлдэх ёстой.' });
-    }
-    const next = { ...tax, [kind]: tax[kind].filter((_, i) => i !== index) };
-    this.setState({ taxonomy: next, taxError: '', taxConfirm: '' });
-    NudemaStore.write('taxonomy', next);
+    const result = NudemaStore.catalog.removeTaxonomy(this.taxonomy(), this.products(), kind, index);
+    if (result.error) return this.setState({ taxError: result.error, taxConfirm: '' });
+    if (!NudemaStore.write('taxonomy', result.taxonomy)) return this.setState({ taxError: QUOTA_MSG });
+    this.setState({ taxonomy: result.taxonomy, taxEdit: '', taxError: '', taxConfirm: '' });
   }
 
   /* ---- Гол зургийн галерей ---- */
@@ -1783,7 +1782,7 @@ class Component extends DCLogic {
   form() { return this.state.form || this.blankForm(); }
   updForm(patch) { this.setState({ form: { ...this.form(), ...patch }, productSaved: false, formError: '' }); }
 
-  /* ---- Багцын хэмжээ сонголт ---- */
+  /* ---- Барааны сонголт (хэмжээ, өнгө, багц) ---- */
   formOptions() { return this.form().options || []; }
   addFormOption() {
     if (this.formOptions().length >= 5) return;
@@ -1798,6 +1797,8 @@ class Component extends DCLogic {
 
   saveProduct() {
     const f = this.form();
+    const catalogError = NudemaStore.catalog.validateProduct(f, this.products(), this.state.editId, this.taxonomy());
+    if (catalogError) return this.setState({ formError: catalogError });
     const num = (v) => this.num(v);
     if (!f.title.trim()) return this.setState({ formError: 'Бүтээгдэхүүний нэрийг оруулна уу.' });
     if (!num(f.price)) return this.setState({ formError: 'Зарах үнийг оруулна уу.' });
@@ -1809,6 +1810,7 @@ class Component extends DCLogic {
 
     // Засварлаж байгаа үед статистик талбаруудыг (үнэлгээ, зарагдсан тоо) хэвээр үлдээнэ
     const fields = {
+      ...NudemaStore.catalog.productFields(f),
       title: f.title.trim(),
       category: f.category,
       cat: f.category, // нүүр хуудасны таб ангиллын нэрээр шүүдэг
@@ -1868,7 +1870,7 @@ class Component extends DCLogic {
     const navDefs = [
       { key: 'dashboard', label: 'Хяналтын самбар', icon: '▦' },
       { key: 'orders', label: 'Захиалга', icon: '🧾', badge: '12' },
-      { key: 'products', label: 'Бүтээгдэхүүн', icon: '🧴' },
+      { key: 'products', label: 'Бүтээгдэхүүн', icon: '📦' },
       { key: 'customers', label: 'Хэрэглэгчид', icon: '👥' },
       { key: 'reviews', label: 'Сэтгэгдэл', icon: '★' },
       { key: 'content', label: 'Контент', icon: '🖼' },
@@ -1886,13 +1888,13 @@ class Component extends DCLogic {
     const orderFilters = filterDefs.map((f, i) => ({
       label: f.label,
       onClick: () => this.setState({ ofilter: f.key }),
-      style: `border:1px solid ${(this.state.ofilter || 'all') === f.key ? '#2a54e6' : '#e0e4ee'};background:${(this.state.ofilter || 'all') === f.key ? '#2a54e6' : '#fff'};color:${(this.state.ofilter || 'all') === f.key ? '#fff' : '#5c6473'};font-family:inherit;font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;`,
+      style: `border:1px solid ${(this.state.ofilter || 'all') === f.key ? '#00b6d4' : '#e0e4ee'};background:${(this.state.ofilter || 'all') === f.key ? '#00b6d4' : '#fff'};color:${(this.state.ofilter || 'all') === f.key ? '#fff' : '#5c6473'};font-family:inherit;font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;`,
     }));
 
     const statusCatalog = [
       { key: 'pending', label: 'Төлбөр хүлээгдэж буй', style: st('#fef2f2', '#e0392f') },
-      { key: 'paid', label: 'Төлбөр төлөгдсөн', style: st('#eef3ff', '#2a54e6') },
-      { key: 'shipping', label: 'Хүргэлтэд гарсан', style: st('#eef3ff', '#2a54e6') },
+      { key: 'paid', label: 'Төлбөр төлөгдсөн', style: st('#effbfe', '#00b6d4') },
+      { key: 'shipping', label: 'Хүргэлтэд гарсан', style: st('#effbfe', '#00b6d4') },
       { key: 'done', label: 'Хүлээлгэн өгсөн', style: st('#eafbf1', '#12934f') },
       { key: 'cancel', label: 'Цуцлагдсан', style: st('#f3f4f6', '#8a90a3') },
     ];
@@ -1941,6 +1943,8 @@ class Component extends DCLogic {
       const sum = Number.isFinite(savedTotal) ? Math.max(0, savedTotal) : subtotal + shipping;
       return {
         no: o.no, customer: o.customer, email: o.email, phone: o.phone, address: o.address,
+        hasLocation: !!(o.location && Number.isFinite(Number(o.location.lat)) && Number.isFinite(Number(o.location.lng))),
+        locationHref: o.location ? 'https://www.openstreetmap.org/?mlat=' + Number(o.location.lat) + '&mlon=' + Number(o.location.lng) + '#map=17/' + Number(o.location.lat) + '/' + Number(o.location.lng) : '',
         method: o.method, date: dateLabel(o), rawDate: o.date, items,
         key: cur, total: sum, subtotal, shipping,
         amount: '₮ ' + NudemaStore.money(sum),
@@ -2006,7 +2010,7 @@ class Component extends DCLogic {
     const bars = week.map((v, i) => ({
       day: dayNames[new Date(last7[i] + 'T00:00:00Z').getUTCDay()],
       h: Math.max(2, Math.round((v / maxWeek) * 100)) + '%',
-      color: i === week.length - 1 ? '#2a54e6' : '#c5d2f7',
+      color: i === week.length - 1 ? '#00b6d4' : '#c5d2f7',
     }));
 
     // Бодит борлуулалтаар шилдэг бүтээгдэхүүн
@@ -2036,7 +2040,7 @@ class Component extends DCLogic {
       if (o.key !== 'cancel') c.spent += o.total;
       byCustomer[o.customer] = c;
     });
-    const tierColors = ['#2a54e6', '#e0730a', '#7360f2', '#12934f', '#d63384', '#0a7cff', '#16a34a', '#b8860b'];
+    const tierColors = ['#00b6d4', '#e0730a', '#7360f2', '#12934f', '#d63384', '#0a7cff', '#16a34a', '#b8860b'];
     const customers = Object.keys(byCustomer)
       .map(k => byCustomer[k])
       .sort((a, b) => b.spent - a.spent)
@@ -2068,7 +2072,7 @@ class Component extends DCLogic {
       byCategory[it.category] = (byCategory[it.category] || 0) + it.line;
     }));
     const catTotal = Object.keys(byCategory).reduce((a, k) => a + byCategory[k], 0) || 1;
-    const catColors = ['#2a54e6', '#6d8cf5', '#9bb2f7', '#c5d2f7', '#a5b4fc', '#dbe4ff'];
+    const catColors = ['#00b6d4', '#6d8cf5', '#9bb2f7', '#c5d2f7', '#a5b4fc', '#dbe4ff'];
     const categories = Object.keys(byCategory)
       .map(k => ({ name: k, value: byCategory[k] }))
       .sort((a, b) => b.value - a.value)
@@ -2096,16 +2100,15 @@ class Component extends DCLogic {
       const active = this.state.section === n.key;
       const badge = n.key === 'orders' ? (pendingCount ? String(pendingCount) : '') : '';
       return {
-        label: n.label, icon: n.icon, badge,
+        label: n.label, icon: n.icon, badge, current: active ? 'page' : 'false',
         onClick: (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ section: n.key }); },
-        style: `display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;font-size:14px;font-weight:${active ? 700 : 500};color:${active ? '#fff' : '#c3cbe4'};background:${active ? '#2a54e6' : 'transparent'};`,
+        style: `display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;font-size:14px;font-weight:${active ? 700 : 500};color:${active ? '#009bb6' : '#687782'};background:${active ? '#e8f9fc' : 'transparent'};`,
       };
     });
 
     const stock = (n) => n === 0 ? st('#fef2f2', '#e0392f') : n < 30 ? st('#fff4e6', '#e0730a') : st('#eafbf1', '#12934f');
     const stockPos = 'position:absolute;top:10px;left:10px;';
-    const productList = allProducts
-      .filter(p => !q || p.title.toLowerCase().includes(q))
+    const productList = NudemaStore.catalog.filterProducts(allProducts, this.taxonomy(), { q, department: this.state.pDepartment, category: this.state.pCategory })
       .map(p => ({
         ...p,
         price: NudemaStore.money(p.price) + '₮',
@@ -2131,7 +2134,7 @@ class Component extends DCLogic {
     const reviewFilters = reviewFilterDefs.map(f => ({
       label: f.label,
       onClick: () => this.setState({ rfilter: f.key }),
-      style: `border:1px solid ${rFilter === f.key ? '#2a54e6' : '#e0e4ee'};background:${rFilter === f.key ? '#2a54e6' : '#fff'};color:${rFilter === f.key ? '#fff' : '#5c6473'};font-family:inherit;font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;`,
+      style: `border:1px solid ${rFilter === f.key ? '#00b6d4' : '#e0e4ee'};background:${rFilter === f.key ? '#00b6d4' : '#fff'};color:${rFilter === f.key ? '#fff' : '#5c6473'};font-family:inherit;font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;`,
     }));
     const reviewMatch = (r) => rFilter === 'all'
       || (rFilter === 'visible' && !r.hidden)
@@ -2142,7 +2145,7 @@ class Component extends DCLogic {
       ...r,
       initial: cInit(r.name),
       stars: '★ ' + Number(r.rating || 5).toFixed(1),
-      cardStyle: `background:#fff;border:1px solid ${r.hidden ? '#f0d0d0' : '#eceff6'};border-radius:14px;padding:20px 24px;opacity:${r.hidden ? 0.6 : 1};`,
+      cardStyle: `background:#fff;border:1px solid ${r.hidden ? '#f0d0d0' : '#e9edf0'};border-radius:14px;padding:20px 24px;opacity:${r.hidden ? 0.6 : 1};`,
       hideLabel: r.hidden ? 'Дахин харуулах' : 'Нуух',
       hideStyle: `border:1px solid ${r.hidden ? '#cde0d2' : '#f0d0d0'};background:#fff;color:${r.hidden ? '#12934f' : '#e0392f'};font-family:inherit;font-size:12px;font-weight:700;padding:7px 14px;border-radius:8px;cursor:pointer;`,
       onHide: () => this.updReview(r.id, { hidden: !r.hidden }),
@@ -2261,8 +2264,8 @@ class Component extends DCLogic {
           isCenter: b.align === 'center',
           onAlignLeft: () => this.updBlock(i, { align: 'left' }),
           onAlignCenter: () => this.updBlock(i, { align: 'center' }),
-          leftStyle: `border:1px solid ${(b.align || 'left') === 'left' ? '#2a54e6' : '#e0e4ee'};background:${(b.align || 'left') === 'left' ? '#eaeefe' : '#fff'};color:${(b.align || 'left') === 'left' ? '#2a54e6' : '#8a90a3'};font-family:inherit;font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:7px;cursor:pointer;`,
-          centerStyle: `border:1px solid ${b.align === 'center' ? '#2a54e6' : '#e0e4ee'};background:${b.align === 'center' ? '#eaeefe' : '#fff'};color:${b.align === 'center' ? '#2a54e6' : '#8a90a3'};font-family:inherit;font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:7px;cursor:pointer;`,
+          leftStyle: `border:1px solid ${(b.align || 'left') === 'left' ? '#00b6d4' : '#e0e4ee'};background:${(b.align || 'left') === 'left' ? '#eaeefe' : '#fff'};color:${(b.align || 'left') === 'left' ? '#00b6d4' : '#8a90a3'};font-family:inherit;font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:7px;cursor:pointer;`,
+          centerStyle: `border:1px solid ${b.align === 'center' ? '#00b6d4' : '#e0e4ee'};background:${b.align === 'center' ? '#eaeefe' : '#fff'};color:${b.align === 'center' ? '#00b6d4' : '#8a90a3'};font-family:inherit;font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:7px;cursor:pointer;`,
         };
       }),
       blockCount: this.blocks().length,
@@ -2302,6 +2305,8 @@ class Component extends DCLogic {
 
       // Сайтын өөрийн админ нэвтрэлт
       authed: !!this.state.authed,
+      localPreview: !!NudemaStore.localPreview,
+      openLocalPreview: () => this.openLocalPreview(),
       notAuthed: !this.state.authed,
       authLoading: !!this.state.authLoading,
       authReady: !this.state.authLoading,
@@ -2311,7 +2316,7 @@ class Component extends DCLogic {
       loginError: this.state.loginError || '',
       loginBusy: !!this.state.loginBusy,
       loginButtonLabel: this.state.loginBusy ? 'Нэвтэрч байна…' : 'Нэвтрэх',
-      loginButtonStyle: `width:100%;height:48px;margin-top:18px;background:${this.state.loginBusy ? '#9bace8' : '#2a54e6'};color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:${this.state.loginBusy ? 'wait' : 'pointer'};`,
+      loginButtonStyle: `width:100%;height:48px;margin-top:18px;background:${this.state.loginBusy ? '#9bace8' : '#00b6d4'};color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:800;cursor:${this.state.loginBusy ? 'wait' : 'pointer'};`,
       onLoginEmail: (e) => this.setState({ loginEmail: e.target.value, loginError: '' }),
       onLoginPassword: (e) => this.setState({ loginPassword: e.target.value, loginError: '' }),
       submitLogin: (e) => this.login(e),
@@ -2388,7 +2393,7 @@ class Component extends DCLogic {
         n: i + 1, text: t,
         onText: (e) => this.updMarquee(i, e.target.value),
         onRemove: () => this.removeMarquee(i),
-        removeStyle: `border:1px solid ${this.marquee().length > 1 ? '#f0d0d0' : '#eceff6'};background:#fff;color:${this.marquee().length > 1 ? '#e0392f' : '#cdd2e0'};font-family:inherit;font-size:16px;line-height:1;width:40px;height:40px;border-radius:9px;cursor:${this.marquee().length > 1 ? 'pointer' : 'not-allowed'};flex:0 0 auto;padding:0;`,
+        removeStyle: `border:1px solid ${this.marquee().length > 1 ? '#f0d0d0' : '#e9edf0'};background:#fff;color:${this.marquee().length > 1 ? '#e0392f' : '#cdd2e0'};font-family:inherit;font-size:16px;line-height:1;width:40px;height:40px;border-radius:9px;cursor:${this.marquee().length > 1 ? 'pointer' : 'not-allowed'};flex:0 0 auto;padding:0;`,
       })),
       addMarquee: () => this.addMarquee(),
       saveContent: () => this.saveContent(),
@@ -2419,7 +2424,7 @@ class Component extends DCLogic {
       })),
       addFormOption: () => this.addFormOption(),
       canAddOption: this.formOptions().length < 5,
-      fHomeTrack: `width:44px;height:26px;background:${this.form().showOnHome ? '#2a54e6' : '#cdd2e0'};border-radius:14px;position:relative;border:none;cursor:pointer;padding:0;flex:0 0 auto;`,
+      fHomeTrack: `width:44px;height:26px;background:${this.form().showOnHome ? '#00b6d4' : '#cdd2e0'};border-radius:14px;position:relative;border:none;cursor:pointer;padding:0;flex:0 0 auto;`,
       fHomeKnob: `position:absolute;top:3px;${this.form().showOnHome ? 'right:3px;' : 'left:3px;'}width:20px;height:20px;background:#fff;border-radius:50%;transition:all .15s;`,
       categoryOptions: this.taxonomy().categories
         .map(v => ({ value: v, label: v, selected: this.form().category === v ? 'selected' : '' })),
@@ -2437,7 +2442,7 @@ class Component extends DCLogic {
       onSShipping: (e) => this.updSettings({ shippingFee: e.target.value }),
       onSThreshold: (e) => this.updSettings({ freeThreshold: e.target.value }),
       onSNotify: () => this.updSettings({ orderNotify: !this.settings().orderNotify }),
-      sNotifyTrack: `width:44px;height:26px;background:${this.settings().orderNotify ? '#2a54e6' : '#cdd2e0'};border-radius:14px;position:relative;border:none;cursor:pointer;padding:0;flex:0 0 auto;`,
+      sNotifyTrack: `width:44px;height:26px;background:${this.settings().orderNotify ? '#00b6d4' : '#cdd2e0'};border-radius:14px;position:relative;border:none;cursor:pointer;padding:0;flex:0 0 auto;`,
       sNotifyKnob: `position:absolute;top:3px;${this.settings().orderNotify ? 'right:3px;' : 'left:3px;'}width:20px;height:20px;background:#fff;border-radius:50%;transition:all .15s;`,
       saveSettings: () => this.saveSettings(),
       settingsSaved: this.state.settingsSaved,
@@ -2456,6 +2461,7 @@ class Component extends DCLogic {
       canAddBank: this.bankAccounts().length < 5,
       noBankAccounts: this.bankAccounts().length === 0,
       onBankNote: (e) => this.updSettings({ bankNote: e.target.value }),
+      ...NudemaStore.catalog.adminValues(this),
     };
   }
 }

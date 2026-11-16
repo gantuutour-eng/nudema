@@ -7,6 +7,7 @@ import {
   writeState,
   replaceOrders,
 } from '../../../_lib.js';
+import { validateProducts, validateTaxonomy } from '../../../_catalog.js';
 
 export async function onRequestPut(context) {
   try {
@@ -17,6 +18,9 @@ export async function onRequestPut(context) {
     if (!body || !Object.prototype.hasOwnProperty.call(body, 'value')) {
       return error('A value is required.');
     }
+
+    const issue = name === 'products' ? validateProducts(body.value) : name === 'taxonomy' ? validateTaxonomy(body.value) : '';
+    if (issue) return error(issue);
 
     const db = dbFrom(context);
     await ensureSchema(db);
