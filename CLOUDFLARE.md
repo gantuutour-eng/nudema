@@ -41,11 +41,19 @@ For a Git-connected Pages project:
 - R2 binding name: `IMAGES`
 
 New gallery and banner uploads are resized to a maximum edge of 1600px and encoded
-as WebP at 82% quality. Long product-detail images preserve up to 1600px of width,
-20,000px of height, and 24 megapixels, and use WebP at 92% quality so embedded text
+as WebP at 82% quality. Long product-detail images preserve up to 2000px of width,
+30,000px of height, and 32 megapixels, and use WebP at 96% quality so embedded text
 stays readable. Images are uploaded to R2 as binary multipart data. Product records
 store only the `/api/images/<key>.webp` URL; Base64 image data is not stored in D1.
 - R2 bucket: `nudema-images`
+
+Set the domain's Caching → Configuration → Browser Cache TTL to **Respect Existing Headers**.
+Application scripts use the same release query string across customer/admin pages;
+bump that release when changing their shared API to prevent old browser copies
+from being combined with new templates. Public immutable product images reuse
+the Cloudflare edge cache; customer/account/order APIs are not cached.
+Serve `/manifest.webmanifest` as `application/manifest+json` and `/sw.js` with
+revalidation enabled. The worker caches only the public offline notice and icon.
 
 Add these production variables:
 

@@ -822,7 +822,11 @@ admin.updBlock(4, { img: 'data:image/jpeg;base64,L', text: 'Зүүн зураг'
 admin.updBlock(6, { img: 'data:image/jpeg;base64,X', img2: 'data:image/jpeg;base64,Y' });
 admin.saveProduct();
 
-const pv3 = openProduct('?id=1').renderVals();
+const detailProduct = openProduct('?id=1');
+const firstDetails = detailProduct.renderVals();
+check('эхлээд 3 дэлгэрэнгүй блок ачаална', firstDetails.detailBlocks.length === 3 && firstDetails.hasMoreDetailBlocks);
+firstDetails.moreDetails();
+const pv3 = detailProduct.renderVals();
 check('дэлгэрэнгүй блок харагдана', pv3.hasDetailBlocks === true);
 // Хоосон блокууд (5-р textImage) шүүгдэнэ
 check('хоосон блок шүүгдсэн', pv3.detailBlocks.length === 6, pv3.detailBlocks.length + ' блок');

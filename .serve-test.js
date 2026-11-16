@@ -33,6 +33,11 @@ test('local page routing serves real templates without a redirect loop', async (
     ['/Nudema%20Mongolia.dc', 'Nudema Mongolia.dc.html'],
     ['/Nudema%20Mongolia.dc.html', 'Nudema Mongolia.dc.html'],
     ['/assets/vendor/react-18.3.1.production.min.js', 'assets/vendor/react-18.3.1.production.min.js'],
+    ['/manifest.webmanifest', 'manifest.webmanifest'],
+    ['/sw.js', 'sw.js'],
+    ['/offline.html', 'offline.html'],
+    ['/pwa-install.js', 'pwa-install.js'],
+    ['/pwa-install.css', 'pwa-install.css'],
   ];
 
   for (const [route, file, headers] of cases) {
@@ -43,6 +48,7 @@ test('local page routing serves real templates without a redirect loop', async (
     assert.equal(await response.text(), fs.readFileSync(path.join(__dirname, file), 'utf8'), route);
   }
   const head = await fetch(origin + '/?v=pc', { method: 'HEAD' });
+  assert.match((await fetch(origin + '/manifest.webmanifest')).headers.get('content-type'), /application\/manifest\+json/);
   assert.equal(head.status, 200);
   assert.match(head.headers.get('content-type'), /text\/html/);
   assert.equal(await head.text(), '');
