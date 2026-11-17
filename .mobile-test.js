@@ -10,7 +10,7 @@ test('customer pages use one release of the store before rendering and expose in
     assert.match(head, /rel="manifest" href="\/manifest.webmanifest"/, file);
     assert.match(head, /src="\/pwa-install\.js\?v=20261116-r3"/, file);
     assert.match(head, /href="\/pwa-install\.css\?v=20261116-r3"/, file);
-    for (const match of html.matchAll(/(?:src|href)="[^"?]*\/(nudema-store|storefront-ui|user-ui)\.js(?:\?([^"#]*))?"/g)) assert.equal(match[2], match[1] === 'nudema-store' ? 'v=20261117-r3' : 'v=20261117-r7', file);
+    for (const match of html.matchAll(/(?:src|href)="[^"?]*\/(nudema-store|storefront-ui|user-ui)\.js(?:\?([^"#]*))?"/g)) assert.equal(match[2], match[1] === 'nudema-store' ? 'v=20261117-r3' : match[1] === 'storefront-ui' ? 'v=20261117-r8' : 'v=20261117-r7', file);
   }
 });
 test('manifest includes valid PNG icons, home scope and standalone launch', () => {
