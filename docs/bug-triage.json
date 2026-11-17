@@ -603,6 +603,18 @@
       "basis": "고객 하위 페이지의 상단 검색창만 숨기고 빈 검색 행을 제거한다. 홈 검색·본문 검색·로고·계정·장바구니 동작은 유지한다.",
       "codeAction": "implemented",
       "release": "20261117-r5"
+    },
+    {
+      "id": "F38",
+      "title": "모바일 검색 필터가 두 줄로 줄바꿈됨",
+      "frequency": 8,
+      "severity": 1,
+      "score": 8,
+      "decision": "두 필터를 같은 줄에 배치",
+      "evidence": "사용자 첨부 화면에서 대분류·카테고리 필터가 두 줄로 표시됨. 수정 후 360px 모바일 너비에서 두 선택란의 상단 위치 일치 및 가로 넘침 없음 확인.",
+      "files": ["Nudema Search.dc.html"],
+      "basis": "검색 페이지의 필터 레이아웃만 조정한다. 몽골어 라벨, 기존 필터 연결과 선택 동작은 유지한다.",
+      "codeAction": "implemented"
     }
   ],
   "notBugs": [
