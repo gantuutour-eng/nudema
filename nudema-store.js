@@ -6,7 +6,7 @@
  */
 (function () {
   // The store is loaded in the document head and by the DC helmet. Initialize once.
-  if (window.NudemaStore && window.NudemaStore.version === '20261116-r5') return;
+  if (window.NudemaStore && window.NudemaStore.version === '20261117-r3') return;
   var KEYS = {
     products: 'nudema_products',
     settings: 'nudema_settings',
@@ -139,12 +139,12 @@
       email: 'help@nudema.mn',
       shippingFee: '7,000₮',
       freeThreshold: '300,000₮',
-      orderNotify: true,
+      orderNotify: false,
       // Данс шилжүүлэг — данс байхгүй бол тухайн төлбөрийн хэрэгсэл санал болгохгүй
       bankAccounts: [
         { bank: 'Хаан банк', number: '5041 2288 7700', holder: 'Nudema Mongolia ХХК' },
       ],
-      bankNote: 'Гүйлгээний утгад захиалагчийн нэрийг заавал бичнэ үү. Төлбөр 24 цагийн дотор баталгаажаагүй бол захиалга автоматаар цуцлагдана.',
+      bankNote: 'Гүйлгээний утгад захиалгын дугаараа бичнэ үү. Төлбөрийг шалгасны дараа захиалга баталгаажна.',
     },
     reviews: [
       { id: 1, name: 'Отгонцэцэг Б.', color: '#2a54e6', tag: 'Хуурай арьс', rating: 5, text: 'Хэрэглээд 2 долоо хоног болж байна. Арьс минь өдөржин чийгшилтэй, огт татахаа больсон. Дахин авна!', product: 'Гүн чийгшлийн багц', date: '2 хоногийн өмнө', hidden: false, reply: '' },
@@ -161,8 +161,8 @@
       membershipBanner: {
         img: '',
         label: 'ГИШҮҮНЧЛЭЛ',
-        title: 'Гишүүн болоод\nбүх захиалгад 15% хямдрал',
-        description: 'Бүртгэл үнэгүй · Төрсөн өдрийн купон · Үнэгүй хүргэлт',
+        title: 'Нэг бүртгэлээр\nзахиалгаа хянаарай',
+        description: 'Бүртгэл үнэгүй · Захиалгын мэдээллээ нэг дор',
         buttonText: 'Гишүүн болох ›',
         href: '/account',
       },
@@ -401,6 +401,7 @@
   // алдааг залгичгүй мэдээлнэ.
   var write = function (name, value) {
     var key = KEYS[name];
+    var before = name === 'products' ? stockBefore(read('products')) : null;
     var ok = true;
     try {
       localStorage.setItem(key, JSON.stringify(value));
@@ -410,7 +411,7 @@
     try {
       window.dispatchEvent(new CustomEvent('nudema:change', { detail: { name: name, key: key, ok: ok } }));
     } catch (e) {}
-    if (ok) pushRemote(name, value);
+    if (ok) pushRemote(name, value, before);
     return ok;
   };
 
@@ -429,8 +430,31 @@
   };
 
   var mutationEpoch = 0;
+  var saveQueue = Promise.resolve(true);
+  var saveRecords = {};
+  var cacheVersions = {};
+  var failedWrites = {};
+  var activeWrite = false;
   remoteStatus.pendingWrites = 0;
   remoteStatus.errorStatus = 0;
+  remoteStatus.saveState = 'idle';
+  var refreshSaveState = function () {
+    var records = Object.keys(saveRecords).map(function (key) { return saveRecords[key]; });
+    remoteStatus.saveState = remoteStatus.pendingWrites ? (activeWrite ? 'saving' : 'queued')
+      : records.some(function (r) { return r.state === 'failed'; }) ? 'failed'
+      : records.some(function (r) { return r.state === 'saved'; }) ? 'saved' : 'idle';
+    remoteStatus.retryableWrites = Object.keys(failedWrites).length;
+    try { window.dispatchEvent(new CustomEvent('nudema:save-state', { detail: { state: remoteStatus.saveState, pending: remoteStatus.pendingWrites } })); } catch (ignore) {}
+  };
+  var transitionSave = function (name, state, revision) {
+    if (saveRecords[name] && saveRecords[name].revision === revision) saveRecords[name].state = state;
+    refreshSaveState();
+  };
+  var saveErrors = function () {
+    var failure = Object.keys(saveRecords).map(function (name) { return saveRecords[name]; }).find(function (r) { return r.error; });
+    remoteStatus.error = failure ? failure.error : '';
+    remoteStatus.errorStatus = failure ? failure.status : 0;
+  };
   var emitRemote = function (name, ok, message, cause, operation) {
     try {
       window.dispatchEvent(new CustomEvent(ok ? 'nudema:remote' : 'nudema:remote-error', {
@@ -470,9 +494,13 @@
   };
 
   var remoteRequest = function (url, options) {
+    var timed = url === '/api/admin/state' || url === '/api/storefront' || url === '/api/admin/catalog' || url.indexOf('/api/admin/store/') === 0 || url.indexOf('/api/admin/orders/') === 0;
+    var controller = timed && typeof AbortController === 'function' ? new AbortController() : null;
+    var timeout = controller ? setTimeout(function () { controller.abort(); }, 16000) : null;
     return fetch(url, Object.assign({
       credentials: 'same-origin',
       headers: { 'Accept': 'application/json' },
+      signal: controller ? controller.signal : undefined,
     }, options || {})).then(function (response) {
       return response.json().catch(function () { return {}; }).then(function (body) {
         if (!response.ok) {
@@ -482,14 +510,62 @@
         }
         return body;
       });
+    }).finally(function () { if (timeout !== null) clearTimeout(timeout); });
+  };
+
+  // Serialize the existing admin save paths; write() still reports local cache success.
+  var queueSave = function (task) {
+    var name = task.name, revision = ++mutationEpoch;
+    var resources = task.resources || [name];
+    resources.forEach(function (resource) { cacheVersions[resource] = revision; });
+    var previous = saveRecords[name];
+    saveRecords[name] = { state: 'queued', revision: revision, error: previous && previous.error || '', status: previous && previous.status || 0 };
+    remoteStatus.pendingWrites++; transitionSave(name, 'queued', revision);
+    var operation = saveQueue.then(function () {
+      activeWrite = true; transitionSave(name, 'saving', revision);
+      return remoteRequest(task.url, { method: task.method || 'PUT', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }, body: task.body })
+        .then(function (body) {
+          if (task.commit && !task.commit(revision, body)) throw new Error('Серверт хадгалагдсан боловч хөтчийн хадгалах сан дүүрсэн. Хуудсыг шинэчилнэ үү.');
+          resources.forEach(function (resource) {
+            if (saveRecords[resource] && saveRecords[resource].revision < revision && saveRecords[resource].state === 'failed') {
+              saveRecords[resource].error = ''; saveRecords[resource].status = 0;
+              delete failedWrites[resource]; transitionSave(resource, 'saved', saveRecords[resource].revision);
+            }
+          });
+          if (saveRecords[name].revision === revision) {
+            saveRecords[name].error = ''; saveRecords[name].status = 0;
+            delete failedWrites[name]; transitionSave(name, 'saved', revision);
+          }
+          if (task.retain) remoteStatus.ready = true;
+          saveErrors(); remoteStatus.updatedAt = new Date().toISOString();
+          emitRemote(name, true, '', null, 'save');
+          return true;
+        }).catch(function (cause) {
+          if (saveRecords[name].revision === revision) {
+            saveRecords[name].error = cause.message; saveRecords[name].status = cause.status || 0;
+            if (task.retain) failedWrites[name] = task;
+            transitionSave(name, 'failed', revision);
+          }
+          // A superseded validation error must not replace the latest result.
+          if (cause.status === 401 || saveRecords[name].revision === revision) remoteFailure(name, cause, 'save');
+          return false;
+        });
+    }).then(function (ok) {
+      activeWrite = false; remoteStatus.pendingWrites--; refreshSaveState(); return ok;
     });
+    saveQueue = operation;
+    return operation;
+  };
+  var retryWrites = function () {
+    return Promise.all(Object.keys(failedWrites).map(function (name) { return queueSave(failedWrites[name]); }))
+      .then(function (results) { return results.every(Boolean); });
   };
 
   // Rename category links and products together. D1 uses one atomic batch;
   // local preview rolls back both cache entries if storage is full.
-  var cacheCatalog = function (taxonomy, products) {
-    var names = ['taxonomy', 'products'];
-    var values = [taxonomy, products];
+  var cacheValues = function (valuesByName, revision) {
+    var names = Object.keys(valuesByName).filter(function (name) { return !revision || !(cacheVersions[name] > revision); });
+    var values = names.map(function (name) { return valuesByName[name]; });
     var previous;
     try {
       previous = names.map(function (name) { return localStorage.getItem(KEYS[name]); });
@@ -505,20 +581,16 @@
     });
     return true;
   };
+  var cacheCatalog = function (taxonomy, products, revision) { return cacheValues({ taxonomy: taxonomy, products: products }, revision); };
+  var stockBefore = function (products) {
+    var result = {}; products.forEach(function (p) { result[String(p.id)] = Number(p.stock); }); return result;
+  };
 
   var saveCatalogAsync = function (taxonomy, products) {
     if (!canFetchRemote || !isAdminPage) return Promise.resolve(cacheCatalog(taxonomy, products));
-    mutationEpoch++; remoteStatus.pendingWrites++;
-    return remoteRequest('/api/admin/catalog', {
-      method: 'PUT', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-      body: JSON.stringify({ taxonomy: taxonomy, products: products }),
-    }).then(function () {
-      if (!cacheCatalog(taxonomy, products)) throw new Error('Серверт хадгалагдсан боловч хөтчийн хадгалах сан дүүрсэн. Хуудсыг шинэчилнэ үү.');
-      remoteStatus.error = ''; remoteStatus.errorStatus = 0;
-      emitRemote('taxonomy', true, '', null, 'save');
-      return true;
-    }).catch(function (cause) { remoteFailure('taxonomy', cause, 'save'); return false; })
-      .then(function (ok) { remoteStatus.pendingWrites--; return ok; });
+    var snapshot = clone({ taxonomy: taxonomy, products: products, stockBefore: stockBefore(read('products')) });
+    return queueSave({ name: 'taxonomy', resources: ['taxonomy', 'products'], url: '/api/admin/catalog', body: JSON.stringify(snapshot),
+      commit: function (revision, body) { return cacheCatalog(snapshot.taxonomy, body.products || snapshot.products, revision); } });
   };
   var saveCatalog = function (taxonomy, products) {
     if (!canFetchRemote || !isAdminPage) return cacheCatalog(taxonomy, products);
@@ -529,6 +601,8 @@
   var syncRemote = function () {
     if (!canFetchRemote) return Promise.resolve(false);
     if (remoteStatus.pendingWrites) return Promise.resolve(remoteStatus.ready);
+    // Retain optimistic edits on a failed save until an explicit retry/new save.
+    if (Object.keys(failedWrites).length) return Promise.resolve(false);
     if (remoteStatus.syncing) return remotePromise || Promise.resolve(false);
     var epoch = mutationEpoch;
     remoteStatus.syncing = true;
@@ -538,8 +612,7 @@
       remoteStatus.identity = body.identity || null;
       applyRemote(body.data || {});
       remoteStatus.ready = true;
-      remoteStatus.error = '';
-      remoteStatus.errorStatus = 0;
+      saveErrors();
       remoteStatus.updatedAt = new Date().toISOString();
       emitRemote(null, true, '');
       return true;
@@ -554,22 +627,19 @@
     return remotePromise;
   };
 
-  var pushRemote = function (name, value) {
-    if (!canFetchRemote || !isAdminPage || ADMIN_NAMES.indexOf(name) < 0) return;
-    mutationEpoch++; remoteStatus.pendingWrites++;
-    remoteRequest('/api/admin/store/' + encodeURIComponent(name), {
-      method: 'PUT',
-      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-      body: JSON.stringify({ value: value }),
-    }).then(function () {
-      remoteStatus.ready = true;
-      remoteStatus.error = '';
-      remoteStatus.errorStatus = 0;
-      remoteStatus.updatedAt = new Date().toISOString();
-      emitRemote(name, true, '', null, 'save');
-    }).catch(function (cause) {
-      remoteFailure(name, cause, 'save');
-    }).then(function () { remoteStatus.pendingWrites--; });
+  var pushRemote = function (name, value, before) {
+    if (!canFetchRemote || !isAdminPage || ADMIN_NAMES.indexOf(name) < 0) return Promise.resolve(true);
+    return queueSave({ name: name, url: '/api/admin/store/' + encodeURIComponent(name), body: JSON.stringify({ value: value, stockBefore: before }), retain: true,
+      commit: name === 'products' ? function (revision, body) { return !body.products || cacheValues({ products: body.products }, revision); } : null });
+  };
+  var updateOrderStatus = function (no, status) {
+    return queueSave({ name: 'orders', url: '/api/admin/orders/' + encodeURIComponent(no), method: 'PATCH', body: JSON.stringify({ status: status }),
+      commit: function (revision, body) {
+        var orders = read('orders').map(function (o) { return o.no === no ? body.order : o; });
+        var statuses = Object.assign({}, read('statuses')); statuses[no] = body.order.status;
+        var values = { orders: orders, statuses: statuses }; if (body.products) values.products = body.products;
+        return cacheValues(values, revision);
+      } });
   };
 
   var createLocalOrder = function (payload) {
@@ -664,12 +734,14 @@
   }
 
   window.NudemaStore = {
-    version: '20261116-r5',
+    version: '20261117-r3',
     KEYS: KEYS,
     DEFAULTS: DEFAULTS,
     EMPTY_DEFAULTS: EMPTY_DEFAULTS,
     read: read,
     write: write,
+    retryWrites: retryWrites,
+    updateOrderStatus: updateOrderStatus,
     subscribe: subscribe,
     sync: syncRemote,
     createOrder: createOrder,

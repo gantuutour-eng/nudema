@@ -258,7 +258,7 @@ admin.addMembershipBanner();
 admin.saveContent();
 mb = admin.renderVals();
 check('баннерыг дахин нэмсэн', mb.hasMembershipBanner === true);
-check('дахин нэмэхэд үндсэн гарчиг сэргэсэн', home.renderVals().membershipBanner.title.includes('15%'));
+check('дахин нэмэхэд үндсэн гарчиг сэргэсэн', home.renderVals().membershipBanner.title === ctx.window.NudemaStore.DEFAULTS.content.membershipBanner.title);
 
 console.log('\n[15] Гүйдэг мөр (marquee)');
 admin.setState({ section: 'content' });

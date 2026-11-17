@@ -33,9 +33,35 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startupFallback, { once: true });
   else startupFallback();
   window.NudemaAdminAccess = access;
+  // Independent of DC's editing forms: server acknowledgement stays visible even
+  // when a legacy optimistic editor closes.
+  class SaveStatus extends HTMLElement {
+    connectedCallback() {
+      if (this.closest('x-dc')) return;
+      this.update = () => {
+        const store = window.NudemaStore, state = store?.remoteStatus;
+        this.hidden = !state?.enabled || state.saveState === 'idle';
+        if (this.hidden) return;
+        this.dataset.state = state.saveState;
+        this.setAttribute('aria-busy', String(state.pendingWrites > 0));
+        const text = state.pendingWrites ? 'Серверт хадгалж байна… (' + state.pendingWrites + ')'
+          : state.saveState === 'failed' ? 'Зарим өөрчлөлт хадгалагдсангүй. Дахин хадгална уу.' : 'Серверт хадгалагдлаа ✓';
+        this.innerHTML = '<div role="status" aria-live="polite" style="margin-bottom:14px;padding:12px 16px;border:1px solid #d8e7eb;border-radius:10px;background:#fff;font-size:13px;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span>' + text + '</span>' + (state.retryableWrites && !state.pendingWrites ? '<button type="button" style="font:inherit;color:#007f95;background:#e9faff;border:1px solid #c7eaf0;border-radius:7px;padding:6px 12px">Дахин хадгалах</button>' : '') + '</div>';
+        this.querySelector('button')?.addEventListener('click', () => store.retryWrites());
+      };
+      this.warn = event => { const s = window.NudemaStore?.remoteStatus; if (s && (s.pendingWrites || s.retryableWrites)) { event.preventDefault(); event.returnValue = ''; } };
+      ['nudema:save-state', 'nudema:remote', 'nudema:remote-error'].forEach(type => window.addEventListener(type, this.update));
+      window.addEventListener('beforeunload', this.warn); this.update();
+    }
+    disconnectedCallback() {
+      ['nudema:save-state', 'nudema:remote', 'nudema:remote-error'].forEach(type => window.removeEventListener(type, this.update));
+      window.removeEventListener('beforeunload', this.warn);
+    }
+  }
+  customElements.define('nudema-save-status', SaveStatus);
   const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const statuses = { invited: 'Урилга илгээсэн', active: 'Идэвхтэй', suspended: 'Түр зогсоосон', revoked: 'Эрх цуцалсан' };
-  const actions = { 'team.invite': 'Администратор урьсан', 'team.update': 'Администраторын эрх өөрчилсөн', 'team.accept': 'Урилга хүлээн авсан', 'auth.google': 'Google-ээр нэвтэрсэн', 'put.products': 'Бүтээгдэхүүн хадгалсан', 'put.orders': 'Захиалга хадгалсан', 'put.content': 'Контент хадгалсан', 'put.settings': 'Тохиргоо хадгалсан', 'put.reviews': 'Сэтгэгдэл хадгалсан', 'post.images': 'Зураг байршуулсан', 'delete.images': 'Зураг устгасан' };
+  const actions = { 'team.invite': 'Администратор урьсан', 'team.update': 'Администраторын эрх өөрчилсөн', 'team.accept': 'Урилга хүлээн авсан', 'auth.google': 'Google-ээр нэвтэрсэн', 'put.products': 'Бүтээгдэхүүн хадгалсан', 'patch.orders': 'Захиалгын төлөв өөрчилсөн', 'put.orders': 'Захиалга хадгалсан', 'put.content': 'Контент хадгалсан', 'put.settings': 'Тохиргоо хадгалсан', 'put.reviews': 'Сэтгэгдэл хадгалсан', 'post.images': 'Зураг байршуулсан', 'delete.images': 'Зураг устгасан' };
   const date = value => value ? new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Ulaanbaatar', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(value.includes('T') ? value : value.replace(' ', 'T') + 'Z')) : '—';
   function describe(details) {
     let value; try { value = JSON.parse(details); } catch { return ''; }
@@ -60,11 +86,18 @@
     }
     async load() {
       if (window.NudemaStore?.localPreview) { this.local = true; this.render(); return; }
+      const revision = this.loadRevision = (this.loadRevision || 0) + 1, tab = this.tab;
+      this.dataset.state = 'loading'; this.setAttribute('aria-busy', 'true');
       this.loading = true; this.render();
       try {
-        const body = await this.request('team'); this.members = body.members; this.identity = body.identity;
-        if (this.tab === 'audit') this.entries = (await this.request('audit')).entries;
-      } catch (error) { this.error = error.message; }
+        const body = await this.request('team');
+        if (revision !== this.loadRevision) return;
+        const entries = tab === 'audit' ? (await this.request('audit')).entries : this.entries;
+        if (revision !== this.loadRevision) return;
+        this.members = body.members; this.identity = body.identity; this.entries = entries;
+        this.dataset.state = 'ready';
+      } catch (error) { if (revision !== this.loadRevision) return; this.error = error.message; this.dataset.state = 'error'; }
+      this.setAttribute('aria-busy', 'false');
       this.loading = false; this.render();
     }
     async click(event) {

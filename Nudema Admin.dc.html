@@ -15,8 +15,8 @@ body.nd-admin-booting #dc-root{visibility:hidden!important}
 <script src="./assets/vendor/react-18.3.1.production.min.js"></script>
 <script src="./assets/vendor/react-dom-18.3.1.production.min.js"></script>
 <script defer src="/support.js?v=20261116-r2"></script>
-<script src="/admin-team.js?v=20261116-admin2"></script>
-<script src="/nudema-store.js?v=20261116-r5"></script>
+<script src="/admin-team.js?v=20261117-r3"></script>
+<script src="/nudema-store.js?v=20261117-r3"></script>
 </head>
 <body class="nd-admin nd-admin-booting">
 <div id="nd-admin-startup" role="status" aria-live="polite"><div class="nd-startup-content"><img src="/assets/brand/nudema-logo.svg" alt="Nudema"><span id="nd-admin-startup-message">Түр хүлээнэ үү…</span><br><button id="nd-admin-startup-retry" type="button" hidden>Дахин ачаалах</button></div></div>
@@ -37,7 +37,7 @@ body.nd-admin-booting #dc-root{visibility:hidden!important}
   .aScroll::-webkit-scrollbar { height: 8px; }
 </style>
 <script src="/image-slot.js?v=20261116-r2"></script>
-<script src="/nudema-store.js?v=20261116-r5"></script>
+<script src="/nudema-store.js?v=20261117-r3"></script>
 <link rel="stylesheet" href="/catalog-admin.css?v=20261116-r2">
 <link rel="stylesheet" href="/admin-theme.css?v=20261116-r2">
 </helmet>
@@ -134,6 +134,7 @@ body.nd-admin-booting #dc-root{visibility:hidden!important}
     </header>
 
     <div class="nd-admin-workspace" style="padding:28px 32px 48px;">
+    <nudema-save-status></nudema-save-status>
     <sc-if value="{{ hasRemoteError }}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding:12px 16px;border:1px solid #f3d6ba;background:#fff9f1;color:#a45523;border-radius:10px;margin-bottom:18px;">{{ remoteError }}</div></sc-if>
     <sc-if value="{{ isTeam }}" hint-placeholder-val="{{ false }}"><nudema-admin-team></nudema-admin-team></sc-if>
       <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
@@ -226,6 +227,7 @@ body.nd-admin-booting #dc-root{visibility:hidden!important}
 
       <!-- ORDERS -->
       <sc-if value="{{ isOrders }}" hint-placeholder-val="{{ false }}">
+      <p style="font-size:12px;line-height:1.6;color:#687782;margin:0 0 14px;">Шинэ захиалга үүсэхэд үлдэгдэл хасагдаж, цуцлахад нэг удаа буцаагдана. Өмнөх захиалгын үлдэгдлийг гараар шалгана уу.</p>
       <div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:18px;">
           <sc-for list="{{ orderFilters }}" as="f" hint-placeholder-count="5">
@@ -940,8 +942,7 @@ body.nd-admin-booting #dc-root{visibility:hidden!important}
           </div>
           <p style="font-size:11.5px;color:#8a90a3;line-height:1.6;margin:-8px 0 0;">Хүргэлтийн төлбөр 0 бол бүх захиалга үнэгүй. Үнэгүй хүргэлтийн босго 0 бол хүргэлтийн төлбөр бүх захиалгад нэмэгдэнэ.</p>
           <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#f7f8fc;border-radius:10px;">
-            <div><div style="font-size:13.5px;font-weight:700;color:#263238;">Захиалгын мэдэгдэл</div><div style="font-size:12px;color:#8a90a3;">Шинэ захиалга орж ирэхэд имэйл авах</div></div>
-            <button onClick="{{ onSNotify }}" style="{{ sNotifyTrack }}"><span style="{{ sNotifyKnob }}"></span></button>
+            <div><div style="font-size:13.5px;font-weight:700;color:#263238;">Захиалгын мэдээлэл</div><div style="font-size:12px;color:#8a90a3;">И-мэйл мэдэгдэл одоогоор ажиллахгүй. Шинэ захиалгыг хяналтын самбараас шалгана уу.</div></div>
           </div>
           <div style="border-top:1px solid #f2f4f9;padding-top:20px;">
             <div style="font-size:14px;font-weight:800;color:#263238;margin-bottom:3px;">Дансны мэдээлэл (Данс шилжүүлэг)</div>
@@ -1124,7 +1125,7 @@ class Component extends DCLogic {
     this._onRemoteReady = () => {
       const identity = NudemaStore.remoteStatus.identity;
       if (identity && identity.status === 'active') {
-        this.setState({ authed: true, sessionVerified: true, authLoading: false, dataError: '', remoteNotice: '', adminIdentity: identity, section: this.adminSection(identity, false) }); this.reload();
+        this.setState({ authed: true, sessionVerified: true, authLoading: false, dataError: '', remoteNotice: NudemaStore.remoteStatus.error || '', adminIdentity: identity, section: this.adminSection(identity, false) }); this.reload();
       }
     };
     window.addEventListener('nudema:remote', this._onRemoteReady);
@@ -1615,6 +1616,11 @@ class Component extends DCLogic {
 
   /* ---- Захиалгын төлөв ---- */
   setStatus(no, value) {
+    if (NudemaStore.remoteStatus.enabled) {
+      if (this.state.orderSaving) return;
+      this.setState({ orderSaving: true });
+      return NudemaStore.updateOrderStatus(no, value).then(() => { this.reload(); this.setState({ orderSaving: false }); });
+    }
     const orders = this.orders().map(o => o.no === no ? { ...o, status: value } : o);
     // nudema_order_statuses-ыг мөн бичнэ — хэрэглэгчийн "Захиалга харах" хуудас үүнийг уншдаг
     const statuses = { ...this.statuses(), [no]: value };
@@ -1837,7 +1843,7 @@ class Component extends DCLogic {
     }, { mode: 'detail' });
   }
   form() { return this.state.form || this.blankForm(); }
-  updForm(patch) { this.setState({ form: { ...this.form(), ...patch }, productSaved: false, formError: '' }); }
+  updForm(patch) { this.setState({ form: { ...this.form(), ...patch, ...(Object.prototype.hasOwnProperty.call(patch, 'stock') ? { stockEdited: true } : {}) }, productSaved: false, formError: '' }); }
 
   /* ---- Барааны сонголт (хэмжээ, өнгө, багц) ---- */
   formOptions() { return this.form().options || []; }
@@ -1874,7 +1880,7 @@ class Component extends DCLogic {
       badge: f.badge === 'Байхгүй' ? '' : f.badge,
       price: num(f.price),
       original: num(f.original) || 0,
-      stock: num(f.stock),
+      stock: editing && current && !f.stockEdited ? current.stock : num(f.stock),
       desc: f.desc.trim(),
       showOnHome: !!f.showOnHome,
       // Хоосон орхивол дэлгэрэнгүй хуудсанд тэр мөр огт гарахгүй
@@ -1991,7 +1997,8 @@ class Component extends DCLogic {
     const savedStatuses = this.statuses();
     const allOrders = this.orders().map(o => {
       // Хуучин nudema_order_statuses-д хийсэн өөрчлөлт байвал түүнийг эрхэмлэнэ
-      const cur = savedStatuses[o.no] || o.status || 'pending';
+      const rawStatus = savedStatuses[o.no] || o.status || 'pending';
+      const cur = rawStatus === 'cancelled' ? 'cancel' : rawStatus;
       const cat = catOf(cur);
       const items = resolveItems(o);
       const itemSubtotal = items.reduce((a, it) => a + it.line, 0);
@@ -2464,7 +2471,7 @@ class Component extends DCLogic {
       })),
       addMarquee: () => this.addMarquee(),
       saveContent: () => this.saveContent(),
-      contentSaved: this.state.contentSaved,
+      contentSaved: this.state.contentSaved && !NudemaStore.remoteStatus.enabled,
 
       // Толгойн хайлт
       q: this.state.q || '',
@@ -2497,7 +2504,7 @@ class Component extends DCLogic {
         .map(v => ({ value: v, label: v, selected: this.form().category === v ? 'selected' : '' })),
       badgeOptions: ['Байхгүй', ...this.taxonomy().badges]
         .map(v => ({ value: v, label: v, selected: this.form().badge === v ? 'selected' : '' })),
-      productSaved: this.state.productSaved,
+      productSaved: this.state.productSaved && !NudemaStore.remoteStatus.enabled,
       formError: this.state.formError || '',
       hasFormError: !!this.state.formError,
 
@@ -2508,11 +2515,8 @@ class Component extends DCLogic {
       onSEmail: (e) => this.updSettings({ email: e.target.value }),
       onSShipping: (e) => this.updSettings({ shippingFee: e.target.value }),
       onSThreshold: (e) => this.updSettings({ freeThreshold: e.target.value }),
-      onSNotify: () => this.updSettings({ orderNotify: !this.settings().orderNotify }),
-      sNotifyTrack: `width:44px;height:26px;background:${this.settings().orderNotify ? '#00b6d4' : '#cdd2e0'};border-radius:14px;position:relative;border:none;cursor:pointer;padding:0;flex:0 0 auto;`,
-      sNotifyKnob: `position:absolute;top:3px;${this.settings().orderNotify ? 'right:3px;' : 'left:3px;'}width:20px;height:20px;background:#fff;border-radius:50%;transition:all .15s;`,
       saveSettings: () => this.saveSettings(),
-      settingsSaved: this.state.settingsSaved,
+      settingsSaved: this.state.settingsSaved && !NudemaStore.remoteStatus.enabled,
       settingsError: this.state.settingsError || '',
       hasSettingsError: !!this.state.settingsError,
 

@@ -16,7 +16,7 @@ export async function onRequestGet(context) {
     const orders = (result.results || []).flatMap((row) => {
       try { return [JSON.parse(row.payload)]; } catch { return []; }
     });
-    const active = orders.filter((order) => order.status !== 'cancelled');
+    const active = orders.filter((order) => !['cancel', 'cancelled'].includes(order.status));
     const spent = active.reduce((sum, order) => sum + (Number(order.total) || 0), 0);
     return json({
       ok: true,

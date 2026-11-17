@@ -14,8 +14,11 @@
       this.status = this.querySelector('[role="status"]');
       this.results = this.querySelector('.nd-address-results');
       this.selection = this.querySelector('.nd-address-selection');
+      this.setSearchState('idle');
       this.input.addEventListener('input', event => {
-        clearTimeout(this.searchTimer);
+        this.cancelSearch();
+        this.results.replaceChildren(); this.setSearchState('idle');
+        this.status.textContent = 'Хаягаа хайх эсвэл газрын зураг дээр дарж байршлаа сонгоно уу.';
         if (!event.isComposing && this.input.value.trim().length >= 3) this.searchTimer = setTimeout(() => this.search(), 1000);
       });
       this.searchButton.addEventListener('click', () => this.search());
@@ -30,20 +33,30 @@
       this.resizeObserver = new ResizeObserver(() => this.map && this.map.invalidateSize());
       this.resizeObserver.observe(this);
     }
-    disconnectedCallback() {
+    setSearchState(state) {
+      this.searchState = state;
+      this.dataset.searchState = state;
+      this.dataset.selectionState = this.place ? 'selected' : 'empty';
+      this.setAttribute('aria-busy', String(state === 'searching'));
+      this.searchButton.disabled = state === 'searching';
+    }
+    cancelSearch() {
       clearTimeout(this.searchTimer);
       if (this.controller) this.controller.abort();
+      this.controller = null;
+    }
+    disconnectedCallback() {
+      this.cancelSearch();
       if (this.resizeObserver) this.resizeObserver.disconnect();
       if (this.map) this.map.remove();
       this.initialized = false;
     }
     async search() {
-      clearTimeout(this.searchTimer);
+      this.cancelSearch();
       const q = this.input.value.trim();
-      if (q.length < 3) { this.status.textContent = 'Хайх хаягаа 3-аас дээш тэмдэгтээр оруулна уу.'; this.input.focus(); return; }
-      if (this.controller) this.controller.abort();
+      if (q.length < 3) { this.setSearchState('idle'); this.results.replaceChildren(); this.status.textContent = 'Хайх хаягаа 3-аас дээш тэмдэгтээр оруулна уу.'; this.input.focus(); return; }
       const controller = this.controller = new AbortController();
-      this.searchButton.disabled = true;
+      this.setSearchState('searching');
       this.status.textContent = 'Хаяг хайж байна…'; this.results.replaceChildren();
       try {
         const response = await fetch('/api/geocode?q=' + encodeURIComponent(q), { signal: controller.signal, headers: { 'Accept': 'application/json' } });
@@ -51,16 +64,22 @@
         if (!response.ok) throw new Error(data.error || 'Хаяг хайх боломжгүй байна.');
         if (this.controller !== controller) return;
         const places = data.places || [];
+        this.setSearchState(places.length ? 'results' : 'empty');
         this.status.textContent = places.length ? places.length + ' хаяг олдлоо. Хүргэлтийн байршлаа сонгоно уу.' : 'Хаяг олдсонгүй. Өөр нэрээр хайх эсвэл газрын зураг дээр сонгоно уу.';
         this.results.innerHTML = places.map((p, i) => '<button type="button" data-place="' + i + '"><span class="nd-address-result-pin">⌖</span><span><strong>' + esc(p.name) + '</strong><small>' + esc(p.label) + '</small></span><span>›</span></button>').join('');
         this.results.querySelectorAll('button').forEach((button, i) => button.addEventListener('click', () => { this.pick(places[i], true); this.results.replaceChildren(); }));
       } catch (error) {
-        if (error.name !== 'AbortError') this.status.textContent = error.message || 'Хаяг хайж чадсангүй. Дахин оролдоно уу.';
-      } finally { if (this.controller === controller) this.searchButton.disabled = false; }
+        if (this.controller === controller && error.name !== 'AbortError') {
+          this.setSearchState('error');
+          this.status.textContent = error.message || 'Хаяг хайж чадсангүй. Дахин оролдоно уу.';
+        }
+      } finally { if (this.controller === controller) { this.controller = null; this.searchButton.disabled = false; } }
     }
     pick(place, center) {
       if (place.lat < bounds[0][0] || place.lat > bounds[1][0] || place.lng < bounds[0][1] || place.lng > bounds[1][1]) return;
+      this.cancelSearch(); this.results.replaceChildren();
       this.place = { lat: Number(place.lat.toFixed(6)), lng: Number(place.lng.toFixed(6)), label: place.label };
+      this.setSearchState('idle');
       if (this.map) {
         if (!this.marker) {
           const icon = L.divIcon({ className: 'nd-map-marker', html: '<span></span>', iconSize: [30, 38], iconAnchor: [15, 37] });
@@ -75,7 +94,9 @@
       this.dispatchEvent(new CustomEvent('nudema:address-selected', { bubbles: true, detail: { ...this.place } }));
     }
     clear() {
+      this.cancelSearch();
       this.place = null; if (this.marker) { this.marker.remove(); this.marker = null; }
+      this.setSearchState('idle');
       this.selection.hidden = true; this.results.replaceChildren();
       this.status.textContent = 'Хаягаа хайх эсвэл газрын зураг дээр дарж байршлаа сонгоно уу.';
       this.dispatchEvent(new CustomEvent('nudema:address-selected', { bubbles: true, detail: null }));

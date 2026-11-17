@@ -1,5 +1,6 @@
 import { dbFrom, ensureSchema, json, error, makeOrderNo, readState } from '../_lib.js';
 import { sessionUser } from '../_auth.js';
+import { readCatalog, createStockOrder } from '../_inventory.js';
 
 function cleanText(value, max = 300) {
   return String(value == null ? '' : value).trim().slice(0, max);
@@ -14,18 +15,22 @@ export async function onRequestPost(context) {
     const db = dbFrom(context);
     await ensureSchema(db);
     const account = await sessionUser(db, context.request);
-    const state = await readState(db, ['products', 'settings']);
-    const products = Array.isArray(state.data.products) ? state.data.products : [];
+    const state = await readState(db, ['settings']);
+    const snapshot = await readCatalog(db);
+    const products = snapshot.products;
     const settings = state.data.settings || {};
     if (!products.length) return error('The product catalog has not been initialized.', 503);
 
     const normalizedItems = [];
+    const quantities = new Map();
     let subtotal = 0;
     for (const requested of items) {
       const product = products.find((item) => Number(item.id) === Number(requested.id));
       const qty = Math.max(1, Math.min(99, Number(requested.qty) || 1));
       if (!product) return error(`Unknown product: ${requested.id}`);
-      if (Number(product.stock) < qty) return error(`Not enough stock: ${product.title}`);
+      const combinedQty = (quantities.get(Number(product.id)) || 0) + qty;
+      if (Number(product.stock) < combinedQty) return error(`Not enough stock: ${product.title}`);
+      quantities.set(Number(product.id), combinedQty);
       const options = Array.isArray(product.options) ? product.options.filter((option) => option && option.label) : [];
       const optionIndex = Math.min(Math.max(0, Number(requested.optionIndex) || 0), Math.max(0, options.length - 1));
       const option = options[optionIndex] || null;
@@ -70,19 +75,17 @@ export async function onRequestPost(context) {
       shipping,
       total: subtotal + shipping,
       status: 'pending',
+      inventoryDeducted: true,
     };
 
-    await db.prepare(
-      `INSERT INTO orders
-       (order_no, status, customer_email, customer_phone, payload, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
-    ).bind(order.no, order.status, order.email, order.phone, JSON.stringify(order), order.createdAt).run();
+    await createStockOrder(db, snapshot, order);
     if (account) {
       await db.prepare('INSERT INTO user_orders (order_no, user_id) VALUES (?, ?)').bind(order.no, account.id).run();
     }
 
     return json({ ok: true, order }, 201);
   } catch (cause) {
+    if (cause.status) return error(cause.message, cause.status);
     if (cause && cause.message && cause.message.includes('UNIQUE')) {
       return error('Please retry the order.', 409);
     }

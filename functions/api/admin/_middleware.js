@@ -6,6 +6,7 @@ function permissionFor(path, method) {
   if (path === 'team') return ['GET', 'POST', 'PUT'].includes(method) ? 'team' : null;
   if (path === 'audit') return method === 'GET' ? 'audit' : null;
   if (path === 'catalog') return method === 'PUT' ? 'products' : null;
+  if (path.startsWith('orders/')) return method === 'PATCH' ? 'orders' : null;
   if (path === 'images' || path.startsWith('images/')) return ['POST', 'DELETE'].includes(method) ? 'images' : null;
   if (method === 'PUT' && path.startsWith('store/')) return ({ products: 'products', taxonomy: 'products', settings: 'settings', content: 'content', reviews: 'reviews', orders: 'orders', statuses: 'orders' })[path.slice(6)] || null;
   return null;

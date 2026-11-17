@@ -2,6 +2,12 @@
 
 The repository now contains Cloudflare Pages Functions and a D1 migration. The storefront keeps a local cache, while D1 is the shared source of truth across browsers and devices.
 
+Release `20261117-r3` changes live order status writes to `PATCH /api/admin/orders/:no`.
+New orders deduct available stock atomically with creation; cancellation restores it once,
+and reactivation checks availability again. Legacy orders are not adjusted retroactively.
+Old bulk order/status saves return 409 and require a page refresh. Product/category edits
+preserve stock sold since the admin loaded the catalog. No new D1 columns, bindings or secrets are required.
+
 ## 1. Create D1
 
 ```bash
