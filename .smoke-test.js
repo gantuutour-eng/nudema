@@ -727,14 +727,13 @@ admin.saveSettings();
 const backAgain = openCheckout().renderVals();
 check('данс буцаж ирсэн', backAgain.methods.some((m) => m.label === 'Данс шилжүүлэг'));
 check('дүн хуулах товч ажиллана', typeof backAgain.copyAmount === 'function');
-const mappedCheckout = openCheckout();
-const selectedLocation = { lat: 47.918813, lng: 106.916897, label: 'Сүхбаатарын талбай' };
-mappedCheckout.setState({ customerName: 'QA', phone: '00000000', district: 'Сүхбаатар', khoroo: '1-р хороо', address: 'Test details', deliveryLocation: selectedLocation });
-let mappedPayload;
-mappedCheckout.submitOrder = (payload) => { mappedPayload = payload; };
-mappedCheckout.renderVals().pay();
-check('сонгосон газрын координат захиалгад дамжсан', mappedPayload.customer.location.lat === selectedLocation.lat && mappedPayload.customer.location.lng === selectedLocation.lng);
-check('газрын нэр ба дэлгэрэнгүй хаяг хамт дамжсан', mappedPayload.customer.address.includes(selectedLocation.label) && mappedPayload.customer.address.includes('Test details'));
+const manualCheckout = openCheckout();
+manualCheckout.setState({ customerName: 'QA', phone: '00000000', district: 'Сүхбаатар', khoroo: '1-р хороо', address: 'Test details' });
+let manualPayload;
+manualCheckout.submitOrder = (payload) => { manualPayload = payload; };
+manualCheckout.renderVals().pay();
+check('гараар оруулсан хаяг газрын зураг шаардахгүй', manualPayload.customer.location === null);
+check('хот, дүүрэг, хороо, дэлгэрэнгүй хаяг хамт дамжсан', manualPayload.customer.address === 'Улаанбаатар, Сүхбаатар, 1-р хороо, Test details');
 
 // Хүргэлтийн төлбөр ч тохиргооноос
 admin.updSettings({ shippingFee: '9,500₮', freeThreshold: '100,000₮' });

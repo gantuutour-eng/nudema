@@ -12,10 +12,6 @@
 <link rel="stylesheet" href="/storefront-addwel.css?v=20261116-r2">
 <link rel="stylesheet" href="/storefront-musinsa.css?v=20261117-r6">
 <script defer src="/storefront-ui.js?v=20261116-r2"></script>
-<link rel="stylesheet" href="./assets/vendor/leaflet/leaflet.css">
-<link rel="stylesheet" href="/address-picker.css?v=20261116-r2">
-<script defer src="./assets/vendor/leaflet/leaflet.js"></script>
-<script defer src="/address-picker.js?v=20261117-r2"></script>
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#111111">
 <meta name="mobile-web-app-capable" content="yes">
@@ -113,8 +109,6 @@
                   </select>
                 </div>
               </div>
-
-              <nudema-address-picker></nudema-address-picker>
 
               <div style="margin-bottom:16px;">
                 <label style="font-size:12px;font-weight:600;color:#5c6660;display:block;margin-bottom:6px;">Хүргэлтийн хаяг <span style="color:#e0392f;">*</span></label>
@@ -322,8 +316,6 @@ class Component extends DCLogic {
     } catch (e) {}
     this.reload();
     this._unsub = NudemaStore.subscribe(() => this.reload());
-    this._onAddressSelected = (event) => this.setState({ deliveryLocation: event.detail || null, orderError: '' });
-    if (typeof document !== 'undefined') document.addEventListener('nudema:address-selected', this._onAddressSelected);
     if (typeof fetch === 'function') {
       fetch('/api/auth/account', { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
         .then((response) => response.ok ? response.json() : null)
@@ -338,7 +330,6 @@ class Component extends DCLogic {
   }
   componentWillUnmount() {
     if (this._unsub) this._unsub();
-    if (typeof document !== 'undefined') document.removeEventListener('nudema:address-selected', this._onAddressSelected);
     clearTimeout(this._ct);
   }
   reload() {
@@ -537,8 +528,8 @@ class Component extends DCLogic {
         items: rawItems.map((item) => ({ id: item.id, qty: item.qty, optionIndex: item.optionIndex })),
         customer: {
           name: this.state.customerName || '', phone: this.state.phone || '', email: '',
-          address: [city, this.state.district, this.state.khoroo, this.state.deliveryLocation && this.state.deliveryLocation.label, this.state.address].filter(Boolean).join(', '),
-          location: this.state.deliveryLocation || null,
+          address: [city, this.state.district, this.state.khoroo, this.state.address].filter(Boolean).join(', '),
+          location: null,
           note: this.state.note || '', payerName: this.state.payerName || '',
         },
       }, delivery),

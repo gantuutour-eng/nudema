@@ -50,3 +50,16 @@ test('order API rejects delivery coordinates outside Mongolia', async () => {
   assert.equal((await onRequestPost({ request, env: { DB: db } })).status, 400);
   assert.equal(db.saved, undefined);
 });
+
+test('manual delivery address persists without map coordinates', async () => {
+  const { onRequestPost } = await import('./functions/api/orders.js');
+  const db = await database();
+  const address = 'Улаанбаатар, Сүхбаатар, 1-р хороо, Test details';
+  const response = await onRequestPost({ env: { DB: db }, request: new Request('https://example.invalid/api/orders', {
+    method: 'POST', body: JSON.stringify({ items: [{ id: 1, qty: 1 }], customer: { name: 'QA', phone: '00000000', address, location: null } }),
+  }) });
+  assert.equal(response.status, 201);
+  assert.equal(db.saved.address, address);
+  assert.equal(db.saved.location, null);
+  assert.equal((await response.json()).order.address, address);
+});
