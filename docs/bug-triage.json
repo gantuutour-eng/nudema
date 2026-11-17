@@ -574,6 +574,22 @@
       "basis": "사진 업로드 후 폼 저장을 취소하면 사용하지 않은 객체가 남을 수 있다. 소량 저장 비용 이슈이며 실제 비용 피해는 확인하지 않았다. 참조 계산·정리 작업은 만들지 않는다.",
       "issue": "https://github.com/gantuutour-eng/nudema/issues/20",
       "codeAction": "issue_only"
+    },
+    {
+      "id": "F36",
+      "title": "검색창 내부 사각 테두리와 입력란 포커스 중복",
+      "frequency": 8,
+      "severity": 2,
+      "score": 16,
+      "decision": "고객 화면 CSS 수정·검증",
+      "evidence": "사용자 첨부 화면 및 실제 주문서 전화번호 입력란의 파란 3px box-shadow 재현. 수정 후 검색 입력의 border 0 / shadow none, 바깥 틀의 청록색 포커스 및 일반 입력·선택란의 한 겹 테두리 확인.",
+      "files": [
+        "storefront.css",
+        "responsive.css"
+      ],
+      "basis": "일상적인 검색·입력에서 일관되게 재현되는 시각 오류다. 고객 화면에만 포커스 CSS를 정리하고 검색·주문·관리자 로직은 변경하지 않는다.",
+      "codeAction": "implemented",
+      "release": "20261117-r4"
     }
   ],
   "notBugs": [
