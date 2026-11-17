@@ -335,7 +335,7 @@ h4 = home.renderVals();
 m4 = mob.renderVals();
 check('слайд устсан (3)', h4.heroSlides.length === 3, h4.heroSlides.length);
 check('PC индекс хүрээнд хязгаарлагдсан', h4.heroCounter === '03 / 03', h4.heroCounter);
-check('PC track хүчинтэй', h4.heroTrackStyle.includes('-2 *'), h4.heroTrackStyle.slice(-40));
+check('PC track хүчинтэй', h4.heroTrackStyle.includes('translateX(-200%)'), h4.heroTrackStyle.slice(-40));
 check('мобайл индекс эвдрээгүй', m4.heroDots.filter((d) => d.style.includes('width:18px')).length === 1);
 
 // Хамгийн доод хязгаар

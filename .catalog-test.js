@@ -6,7 +6,7 @@ const { test } = require('node:test');
 function environment(location = { hostname: 'localhost', port: '4321', protocol: 'http:' }) {
   const mem = new Map(), listeners = {}, timers = new Set();
   const localStorage = { getItem: k => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, v), removeItem: k => mem.delete(k) };
-  const window = { location, localStorage, addEventListener: (n, f) => (listeners[n] ||= []).push(f), removeEventListener() {}, dispatchEvent: e => (listeners[e.type] || []).forEach(f => f(e)) };
+  const window = { location, localStorage, addEventListener: (n, f) => (listeners[n] ||= []).push(f), removeEventListener: (n, f) => { listeners[n] = (listeners[n] || []).filter(listener => listener !== f); }, dispatchEvent: e => (listeners[e.type] || []).forEach(f => f(e)) };
   const context = vm.createContext({ window, localStorage, console, URLSearchParams, CustomEvent: class { constructor(type, data) { this.type = type; this.detail = data.detail; } }, setTimeout: f => { timers.add(f); return 0; }, clearTimeout() {}, setInterval() {}, clearInterval() {} });
   vm.runInContext(fs.readFileSync('nudema-store.js', 'utf8'), context);
   context.NudemaStore = window.NudemaStore;
@@ -18,6 +18,60 @@ function component(env, file) {
   const script = source.match(/<script type="text\/x-dc"[^>]*>([\s\S]*?)<\/script>/)[1];
   return vm.runInContext(`(function(){${script};return new Component({});})()`, env.context);
 }
+
+function categoryMenu(env) {
+  const classes = {};
+  class Element {
+    closest() { return null; }
+    querySelectorAll(selector) {
+      assert.equal(selector, '[data-menu-department]');
+      this.buttons = Array.from(this.innerHTML.matchAll(/data-menu-department="([^"]*)"/g), match => ({
+        dataset: { menuDepartment: match[1] },
+        addEventListener(_name, listener) { this.click = listener; }
+      }));
+      return this.buttons;
+    }
+  }
+  Object.assign(env.context, {
+    HTMLElement: Element,
+    customElements: { get: name => classes[name], define: (name, value) => { classes[name] = value; } },
+    document: { readyState: 'loading', activeElement: null, addEventListener() {} }
+  });
+  vm.runInContext(fs.readFileSync('storefront-ui.js', 'utf8'), env.context);
+  const menu = new classes['nudema-category-menu']();
+  menu.connectedCallback();
+  return menu;
+}
+
+test('category menu selects a department and links its real categories/products to existing routes', () => {
+  const env = environment(), menu = categoryMenu(env), tax = env.store.read('taxonomy');
+  const name = tax.departments[0], category = tax.categories[0], product = env.store.read('products')[0];
+  menu.buttons.find(button => button.dataset.menuDepartment === name).click();
+  assert.equal(menu.department, name);
+  assert.ok(menu.innerHTML.includes('/search?category=' + encodeURIComponent(category) + '&amp;department=' + encodeURIComponent(name)));
+  assert.ok(menu.innerHTML.includes('/product?id=' + product.id));
+  menu.buttons.find(button => button.dataset.menuDepartment === tax.departments[1]).click();
+  assert.match(menu.innerHTML, /Энэ бүлэгт бүтээгдэхүүн хараахан нэмэгдээгүй байна/);
+  assert.equal(menu.innerHTML.includes('/product?id=' + product.id), false);
+});
+
+test('admin taxonomy/product updates refresh the open category menu without losing its selection', () => {
+  const env = environment(), menu = categoryMenu(env), store = env.store;
+  const department = store.read('taxonomy').departments[1];
+  menu.buttons.find(button => button.dataset.menuDepartment === department).click();
+  const result = store.catalog.editTaxonomy(store.read('taxonomy'), store.read('products'), 'categories', -1, 'Анхны тусламж', department);
+  store.write('taxonomy', result.taxonomy);
+  const product = { ...store.read('products')[0], id: 999, title: 'Ариун боолт', category: 'Анхны тусламж', cat: 'Анхны тусламж', department, productType: 'medical' };
+  store.write('products', store.read('products').concat(product));
+  assert.equal(menu.department, department);
+  assert.ok(menu.innerHTML.includes('/product?id=999'));
+  assert.ok(menu.innerHTML.includes(encodeURIComponent('Анхны тусламж')));
+  assert.equal(menu.innerHTML.includes('Энэ бүлэгт бүтээгдэхүүн хараахан нэмэгдээгүй байна'), false);
+  menu.disconnectedCallback();
+  const html = menu.innerHTML;
+  store.write('products', []);
+  assert.equal(menu.innerHTML, html);
+});
 
 test('legacy categories migrate without losing products; all departments remain extensible', () => {
   const { store } = environment();

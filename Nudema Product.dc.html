@@ -19,10 +19,10 @@
 <script defer src="/support.js?v=20261116-r2"></script>
 <link rel="stylesheet" href="/storefront.css?v=20261117-r5">
 <link rel="stylesheet" href="/storefront-addwel.css?v=20261116-r2">
-<link rel="stylesheet" href="/storefront-musinsa.css?v=20261117-r6">
-<script defer src="/storefront-ui.js?v=20261116-r2"></script>
+<link rel="stylesheet" href="/storefront-queenit.css?v=20261117-r7">
+<script defer src="/storefront-ui.js?v=20261117-r7"></script>
 <link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#111111">
+<meta name="theme-color" content="#7651d4">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Nudema">
@@ -49,13 +49,13 @@
 <script src="/nudema-store.js?v=20261117-r3"></script>
 <script src="/nudema-cart.js?v=20261116-r2"></script>
 <link rel="stylesheet" href="/user-ui.css?v=20261116-r4">
-<script src="/user-ui.js?v=20261116-r2"></script>
+<script src="/user-ui.js?v=20261117-r7"></script>
 </helmet>
 <!-- Өнгөт туузууд дэлгэц дүүрэн; доторх агуулга 1280px -->
 <div class="pd-page" style="width:100%;background:#fff;">
 
   <!-- header -->
-  <nudema-shop-header></nudema-shop-header>
+  <nudema-shop-header data-page="product"></nudema-shop-header>
 
   <sc-if value="{{ loadingProduct }}" hint-placeholder-val="{{ false }}"><div class="pd-load-state" role="status">Бүтээгдэхүүнийг ачаалж байна...</div></sc-if>
   <sc-if value="{{ productLoadError }}" hint-placeholder-val="{{ false }}"><div class="pd-load-state" role="alert"><p>Бүтээгдэхүүнийг ачаалж чадсангүй. Сүлжээгээ шалгаад дахин оролдоно уу.</p><button type="button" onClick="{{ retryProduct }}">Дахин оролдох</button></div></sc-if>
@@ -72,15 +72,15 @@
   <sc-if value="{{ found }}" hint-placeholder-val="{{ true }}">
   <div>
   <!-- breadcrumb -->
-  <div style="max-width:1280px;margin:0 auto;padding:18px 40px 0;font-size:12.5px;color:#9aa39c;display:flex;gap:8px;">
+  <div class="pd-breadcrumb" style="max-width:1280px;margin:0 auto;padding:18px 40px 0;font-size:12.5px;color:#9aa39c;display:flex;gap:8px;">
     <a href="/">Нүүр</a><span>›</span><a href="{{ departmentHref }}">{{ department }}</a><span>›</span><a href="{{ categoryHref }}" style="color:#5c6660;">{{ category }}</a>
   </div>
 
   <!-- product top -->
   <section class="pd-top" style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:52px;padding:28px 40px 64px;">
     <!-- gallery -->
-    <div>
-      <div style="position:relative;background:#f4f5f3;border-radius:16px;aspect-ratio:1/1;overflow:hidden;">
+    <div class="pd-gallery">
+      <div class="pd-main-photo" style="position:relative;background:#f4f5f3;border-radius:16px;aspect-ratio:1/1;overflow:hidden;">
         <sc-if value="{{ hasImg }}" hint-placeholder-val="{{ false }}">
           <img src="{{ img }}" alt="{{ title }}" decoding="async" fetchpriority="high" width="1024" height="1024" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;">
         </sc-if>
@@ -92,9 +92,9 @@
         </sc-if>
       </div>
       <sc-if value="{{ hasThumbs }}" hint-placeholder-val="{{ false }}">
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px;">
+        <div class="pd-thumbnails" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px;">
           <sc-for list="{{ thumbs }}" as="t" hint-placeholder-count="4">
-            <button onClick="{{ t.onClick }}" style="{{ t.style }}">
+            <button aria-label="{{ t.label }}" aria-pressed="{{ t.selected }}" onClick="{{ t.onClick }}" style="{{ t.style }}">
               <img src="{{ t.src }}" alt="{{ title }}" loading="lazy" decoding="async" fetchpriority="low" width="120" height="120" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;">
             </button>
           </sc-for>
@@ -103,26 +103,22 @@
     </div>
 
     <!-- info -->
-    <div>
-      <div style="font-size:13px;font-weight:700;color:#00b6d4;letter-spacing:0.04em;">{{ productBrand }}</div>
+    <div class="pd-info">
+      <a class="pd-brand-link" href="{{ brandHref }}">{{ productBrand }} <span aria-hidden="true">›</span></a>
       <h1 class="pd-title" style="font-size:28px;font-weight:800;line-height:1.32;margin:10px 0 14px;color:#333333;">{{ title }}</h1>
-      <div style="display:flex;align-items:center;gap:10px;font-size:13px;margin-bottom:22px;">
+      <div class="pd-rating" style="display:flex;align-items:center;gap:10px;font-size:13px;margin-bottom:22px;">
         <span style="color:#e0a020;font-weight:700;">★★★★★ {{ rating }}</span>
         <span style="color:#9aa39c;">Сэтгэгдэл {{ count }}</span>
       </div>
 
-      <sc-if value="{{ hasDiscount }}" hint-placeholder-val="{{ true }}">
-        <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;">
-          <span style="font-size:15px;color:#b3bab4;text-decoration:line-through;">{{ original }}</span>
-          <span style="font-size:15px;color:#e0392f;font-weight:800;">{{ discountPct }}</span>
-        </div>
-      </sc-if>
-      <div class="pd-price" style="font-size:32px;font-weight:800;color:#111;margin-bottom:22px;">{{ price }}</div>
+      <div class="pd-price-card">
+        <span class="pd-price-label">Онлайн үнэ</span>
+        <sc-if value="{{ hasDiscount }}" hint-placeholder-val="{{ true }}"><span class="pd-original">{{ original }}</span></sc-if>
+        <div class="pd-price-line"><sc-if value="{{ hasDiscount }}" hint-placeholder-val="{{ true }}"><span class="pd-discount">{{ discountPct }}</span></sc-if><strong class="pd-price">{{ price }}</strong></div>
+        <sc-if value="{{ hasDiscount }}" hint-placeholder-val="{{ true }}"><p class="pd-saving">Хэмнэлт <strong>{{ benefit }}</strong></p></sc-if>
+      </div>
 
-      <div style="border-top:1px solid #eee;border-bottom:1px solid #eee;padding:18px 0;display:flex;flex-direction:column;gap:12px;font-size:14px;">
-        <sc-if value="{{ hasDiscount }}" hint-placeholder-val="{{ true }}">
-          <div style="display:flex;justify-content:space-between;"><span style="color:#8a938c;">Хямдралын дүн</span><span style="font-weight:700;color:#e0392f;">−{{ benefit }}</span></div>
-        </sc-if>
+      <div class="pd-delivery" style="border-top:1px solid #eee;border-bottom:1px solid #eee;padding:18px 0;display:flex;flex-direction:column;gap:12px;font-size:14px;">
         <sc-if value="{{ hasDeliveryPolicy }}" hint-placeholder-val="{{ true }}">
           <div style="display:flex;justify-content:space-between;gap:18px;"><span style="color:#8a938c;">Хүргэлтийн төлбөр</span><span style="font-weight:700;color:#3a423c;text-align:right;">{{ deliveryLabel }}</span></div>
         </sc-if>
@@ -151,13 +147,13 @@
       </sc-if>
 
       <!-- quantity -->
-      <div style="margin-top:24px;display:flex;align-items:center;justify-content:space-between;background:#f4f5f3;border-radius:12px;padding:16px 18px;">
+      <div class="pd-quantity" style="margin-top:24px;display:flex;align-items:center;justify-content:space-between;background:#f4f5f3;border-radius:12px;padding:16px 18px;">
         <span style="font-size:14px;font-weight:600;">{{ optionLabel }}</span>
         <div style="display:flex;align-items:center;gap:16px;">
           <div style="display:flex;align-items:center;border:1px solid #d7ddd7;border-radius:8px;background:#fff;">
-            <button onClick="{{ dec }}" style="border:none;background:none;width:34px;height:34px;font-size:17px;cursor:pointer;">−</button>
+            <button aria-label="Тоо ширхэг хасах" onClick="{{ dec }}" style="border:none;background:none;width:34px;height:34px;font-size:17px;cursor:pointer;">−</button>
             <span style="width:34px;text-align:center;font-size:14px;font-weight:700;">{{ qty }}</span>
-            <button onClick="{{ inc }}" style="border:none;background:none;width:34px;height:34px;font-size:17px;cursor:pointer;">+</button>
+            <button aria-label="Тоо ширхэг нэмэх" onClick="{{ inc }}" style="border:none;background:none;width:34px;height:34px;font-size:17px;cursor:pointer;">+</button>
           </div>
           <span style="font-size:16px;font-weight:800;">{{ lineTotal }}</span>
         </div>
@@ -176,10 +172,10 @@
       <!-- buttons -->
       <div class="pd-actions" style="margin-top:44px;display:flex;gap:12px;">
         <sc-if value="{{ inStock }}" hint-placeholder-val="{{ true }}">
-          <a href="{{ cartHref }}" style="flex:1;height:56px;line-height:56px;text-align:center;border:1px solid #00b6d4;border-radius:12px;background:#fff;color:#00b6d4;font-size:16px;font-weight:800;">Сагсанд нэмэх</a>
+          <a class="pd-add-cart" aria-label="Сагсанд нэмэх" href="{{ cartHref }}" style="flex:1;height:56px;line-height:56px;text-align:center;border:1px solid #00b6d4;border-radius:12px;background:#fff;color:#00b6d4;font-size:16px;font-weight:800;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 8h16l-1.5 13h-13L4 8Z"/><path d="M8 9V6a4 4 0 0 1 8 0v3"/></svg><span>Сагсанд нэмэх</span></a>
         </sc-if>
         <sc-if value="{{ inStock }}" hint-placeholder-val="{{ true }}">
-          <a href="{{ checkoutHref }}" style="flex:1;height:56px;line-height:56px;text-align:center;border:none;border-radius:12px;background:#00b6d4;color:#fff;font-size:16px;font-weight:800;">Худалдан авах</a>
+          <a class="pd-buy" href="{{ checkoutHref }}" style="flex:1;height:56px;line-height:56px;text-align:center;border:none;border-radius:12px;background:#00b6d4;color:#fff;font-size:16px;font-weight:800;">Худалдан авах</a>
         </sc-if>
         <sc-if value="{{ soldOut }}" hint-placeholder-val="{{ false }}">
           <span style="flex:1;height:56px;line-height:56px;text-align:center;border:none;border-radius:12px;background:#eceff6;color:#9aa39c;font-size:16px;font-weight:800;cursor:not-allowed;">Дууссан</span>
@@ -618,7 +614,8 @@ class Component extends DCLogic {
       department,
       departmentHref: '/search?department=' + encodeURIComponent(department),
       categoryHref: '/search?category=' + encodeURIComponent(product.category || ''),
-      productBrand: product.brand || '',
+      productBrand: product.brand || NudemaStore.read('settings').shopName || 'Nudema',
+      brandHref: product.brand ? '/search?q=' + encodeURIComponent(product.brand) : '/search',
       productUnit: product.unit || 'ширхэг',
       id: product.id,
       title: product.title,
@@ -632,7 +629,7 @@ class Component extends DCLogic {
       noImg: !mainImg,
       hasThumbs: gallery.length > 1,
       thumbs: gallery.map((src, i) => ({
-        src,
+        src, label: 'Зураг ' + (i + 1), selected: i === shotIdx,
         onClick: () => this.setState({ shot: i }),
         style: `position:relative;display:block;padding:0;background:#f4f5f3;border-radius:10px;aspect-ratio:1/1;overflow:hidden;cursor:pointer;border:2px solid ${i === shotIdx ? '#00b6d4' : 'transparent'};`,
       })),

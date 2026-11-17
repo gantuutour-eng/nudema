@@ -20,7 +20,7 @@
 <script src="./assets/vendor/react-dom-18.3.1.production.min.js"></script>
 <script defer src="/support.js?v=20261116-r2"></script>
 <link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#111111">
+<meta name="theme-color" content="#7651d4">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Nudema">
@@ -30,7 +30,7 @@
 <script defer src="/pwa-install.js?v=20261116-r3"></script>
 <link rel="stylesheet" href="/storefront.css?v=20261117-r5">
 <link rel="stylesheet" href="/storefront-addwel.css?v=20261116-r2">
-<link rel="stylesheet" href="/storefront-musinsa.css?v=20261117-r6">
+<link rel="stylesheet" href="/storefront-queenit.css?v=20261117-r7">
 </head>
 <body class="nd-storefront">
 <noscript>
@@ -82,25 +82,25 @@
 <script src="/nudema-store.js?v=20261117-r3"></script>
 <script src="/nudema-cart.js?v=20261116-r2"></script>
 <link rel="stylesheet" href="/user-ui.css?v=20261116-r4">
-<script src="/user-ui.js?v=20261116-r2"></script>
+<script src="/user-ui.js?v=20261117-r7"></script>
 <link rel="stylesheet" href="/storefront.css?v=20261117-r5">
 <link rel="stylesheet" href="/storefront-addwel.css?v=20261116-r2">
-<link rel="stylesheet" href="/storefront-musinsa.css?v=20261117-r6">
-<script src="/storefront-ui.js?v=20261116-r2"></script>
+<link rel="stylesheet" href="/storefront-queenit.css?v=20261117-r7">
+<script src="/storefront-ui.js?v=20261117-r7"></script>
 </helmet>
 <div class="nd-home">
   <nudema-shop-header></nudema-shop-header>
-  <nav class="nd-main-nav" aria-label="Үндсэн цэс"><a class="nd-all-category" href="/search#departmentFilter">☰ &nbsp; Ангилал</a><a href="#curation">Албан ёсны дэлгүүр</a><a href="#best-products">Хамгийн эрэлттэй</a><a href="/search">Бүх бүтээгдэхүүн</a><a href="/account">Миний хуудас</a><a href="#brand-story">Брэндийн түүх</a><a href="#customer-support">Хэрэглэгчийн төв</a></nav>
+  <nudema-department-tabs></nudema-department-tabs>
   <section class="nd-hero-layout" aria-label="Онцлох санал">
-    <nudema-category-sidebar></nudema-category-sidebar>
     <div class="nd-hero"><div class="nd-hero-window"><div style="{{ heroTrackStyle }}"><sc-for list="{{ heroSlides }}" as="s" hint-placeholder-count="1"><div class="nd-hero-slide">
       <sc-if value="{{ s.hasImg }}" hint-placeholder-val="{{ false }}"><img class="nd-hero-image" src="{{ s.img }}" alt=""></sc-if>
       <sc-if value="{{ s.noImg }}" hint-placeholder-val="{{ true }}"><div class="nd-hero-art"></div></sc-if>
       <div class="nd-hero-shade"></div><div class="nd-hero-copy"><span class="nd-eyebrow">Nudema in Mongolia</span><h1>{{ s.line1 }}<sc-if value="{{ s.hasLine2 }}" hint-placeholder-val="{{ false }}"><br>{{ s.line2 }}</sc-if></h1><p>{{ s.sub }}</p></div>
     </div></sc-for></div><div class="nd-hero-controls"><button aria-label="Өмнөх санал" onClick="{{ heroPrev }}">‹</button><span>{{ heroCounter }}</span><button aria-label="Дараах санал" onClick="{{ heroNext }}">›</button></div></div></div>
   </section>
-  <section class="nd-content" id="curation"><div class="nd-section-heading"><h2>Зөвхөн энд, албан ёсны дэлгүүрт!</h2><a href="/search">Бүтээгдэхүүн цааш үзэх ›</a></div><nudema-curation></nudema-curation></section>
-  <section class="nd-services"><div class="nd-services-inner"><div><h2>Өдөр тутмын сайхан сонголт</h2><p>Гоо сайхан · Эрүүл мэнд · Гэр ахуй</p></div><nudema-department-shortcuts></nudema-department-shortcuts></div></section>
+  <section class="nd-home-shortcuts" aria-label="Шуурхай сонголт"><nudema-department-shortcuts></nudema-department-shortcuts></section>
+  <p class="nd-home-notice">{{ storeNotice }}</p>
+  <section class="nd-content" id="curation"><div class="nd-section-heading"><h2>Танд санал болгох</h2><a href="/search">Бүгдийг үзэх ›</a></div><nudema-curation></nudema-curation></section>
   <nudema-recent-products></nudema-recent-products>
   <section class="nd-content" id="best-products"><div class="nd-section-heading"><h2>Хамгийн эрэлттэй бүтээгдэхүүн</h2><a href="/search">Бүгдийг үзэх ›</a></div><p class="nd-section-sub">Энэ долоо хоногт хамгийн их зарагдсан Nudema бүтээгдэхүүнүүд</p><div class="nd-collection-tabs"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button></sc-for></div><div class="nd-products"><sc-for list="{{ bestFiltered }}" as="p" hint-placeholder-count="4"><nudema-product-card product-id="{{ p.id }}"></nudema-product-card></sc-for></div><sc-if value="{{ bestEmpty }}" hint-placeholder-val="{{ false }}"><p class="nd-empty">Энэ ангилалд бүтээгдэхүүн хараахан нэмэгдээгүй байна.</p></sc-if></section>
   <nudema-market-promotions></nudema-market-promotions>
@@ -271,6 +271,7 @@ class Component extends DCLogic {
       membershipBanner, hasMembershipBanner: !!membershipBanner,
       hasVideo: !!embedUrl, noVideo: !embedUrl, embedUrl,
       reviewSummary: `${money(reviewsRaw.length * 4500)}+ үнэлгээ · ★ ${avgRating}`,
+      storeNotice: (cms.marquee || []).filter(Boolean).join(' · ') || settings.shopName,
       shopName: settings.shopName,
       footerCompany: `${settings.shopName} ХХК · Улаанбаатар хот`,
       footerLine: `И-мэйл: ${settings.email} · Утас: ${settings.phone}`,

@@ -2,7 +2,7 @@
   'use strict';
   var input = document.getElementById('searchInput');
   var results = document.getElementById('results'), empty = document.getElementById('empty'), summary = document.getElementById('summary');
-  var group = document.getElementById('departmentFilter'), category = document.getElementById('categoryFilter');
+  var group = document.getElementById('departmentSelect'), category = document.getElementById('categoryFilter');
   var tax, products;
   function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]; }); }
   function options(values, selected, label) {
