@@ -25,7 +25,7 @@ function database() {
   let saved;
   return {
     get saved() { return saved; },
-    async batch(statements) { for (const statement of statements) await statement.run(); },
+    async batch() {},
     prepare(sql) {
       let args;
       return {

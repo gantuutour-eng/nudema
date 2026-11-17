@@ -14,8 +14,8 @@ body.nd-admin-booting #dc-root{visibility:hidden!important}
 <script src="./assets/vendor/react-18.3.1.production.min.js"></script>
 <script src="./assets/vendor/react-dom-18.3.1.production.min.js"></script>
 <script defer src="/support.js?v=20261116-r2"></script>
-<script src="/admin-team.js?v=20261117-r1"></script>
-<script src="/nudema-store.js?v=20261117-r1"></script>
+<script src="/admin-team.js?v=20261117-r2"></script>
+<script src="/nudema-store.js?v=20261117-r2"></script>
 </head>
 <body class="nd-admin nd-admin-mobile nd-admin-booting">
 <div id="nd-admin-startup" role="status" aria-live="polite"><div class="nd-startup-content"><img src="/assets/brand/nudema-logo.svg" alt="Nudema"><span id="nd-admin-startup-message">Түр хүлээнэ үү…</span><br><button id="nd-admin-startup-retry" type="button" hidden>Дахин ачаалах</button></div></div>
@@ -45,7 +45,7 @@ body.nd-admin-booting #dc-root{visibility:hidden!important}
     [style*="animation:sheetUp"],[style*="animation:fadeIn"]{animation:none !important;}
   }
 </style>
-<script src="/nudema-store.js?v=20261117-r1"></script>
+<script src="/nudema-store.js?v=20261117-r2"></script>
 <link rel="stylesheet" href="/catalog-admin.css?v=20261116-r2">
 <link rel="stylesheet" href="/admin-theme.css?v=20261116-r2">
 </helmet>
@@ -1060,7 +1060,6 @@ class Component extends DCLogic {
   }
 
   logout() {
-    if (NudemaStore.endSession) NudemaStore.endSession();
     this.authRequest('/api/admin-auth/logout', { method: 'POST' }).catch(() => ({})).then(() => {
       NudemaStore.remoteStatus.ready = false;
       NudemaStore.remoteStatus.identity = null;

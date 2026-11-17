@@ -32,7 +32,6 @@
       this.map.on('click', e => this.pick({ lat: e.latlng.lat, lng: e.latlng.lng, label: 'Газрын зураг дээр сонгосон байршил' }, false));
       this.resizeObserver = new ResizeObserver(() => this.map && this.map.invalidateSize());
       this.resizeObserver.observe(this);
-      if (this.place) this.pick(this.place, true);
     }
     setSearchState(state) {
       this.searchState = state;
@@ -50,9 +49,7 @@
       this.cancelSearch();
       if (this.resizeObserver) this.resizeObserver.disconnect();
       if (this.map) this.map.remove();
-      this.map = null; this.marker = null; this.resizeObserver = null;
       this.initialized = false;
-      this.dataset.searchState = 'disconnected';
     }
     async search() {
       this.cancelSearch();
@@ -79,7 +76,6 @@
       } finally { if (this.controller === controller) { this.controller = null; this.searchButton.disabled = false; } }
     }
     pick(place, center) {
-      if (!place || !Number.isFinite(place.lat) || !Number.isFinite(place.lng)) return;
       if (place.lat < bounds[0][0] || place.lat > bounds[1][0] || place.lng < bounds[0][1] || place.lng > bounds[1][1]) return;
       this.cancelSearch(); this.results.replaceChildren();
       this.place = { lat: Number(place.lat.toFixed(6)), lng: Number(place.lng.toFixed(6)), label: place.label };

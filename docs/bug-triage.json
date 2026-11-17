@@ -1,0 +1,579 @@
+{
+  "schemaVersion": 1,
+  "assessedAt": "2026-11-17",
+  "baselineCommit": "0d758dc49ac1f16c85aad8686a0c5069e5ef35e0",
+  "pullRequest": "https://github.com/gantuutour-eng/nudema/pull/9",
+  "frequencyIsMeasured": false,
+  "scale": {
+    "frequency": {
+      "1": "정상 UI 발생 사례 없음; 특수/인위적 조건 또는 미확인",
+      "2": "제한된 동작 조합",
+      "3-4": "지연·실패·연속 조작 등 조건부 노출",
+      "5-7": "통상 작업에서 반복 노출 가능",
+      "8-10": "일상 기능의 반복·일관된 재현"
+    },
+    "severity": {
+      "1-2": "표시·부가 처리 영향",
+      "3-4": "혼동·재입력·회복 가능한 작업 오류",
+      "5-6": "저장 실패·잘못된 금액/업무 판단",
+      "7-8": "주문·재고·연결 데이터 손실 위험",
+      "9-10": "광범위한 복구 곤란 손실/접근 침해"
+    }
+  },
+  "rule": "frequency * severity < 5 => issue only, no implementation. A score >=5 is not authorization for speculative new features; unreported rare cases remain issue only.",
+  "findings": [
+    {
+      "id": "F01",
+      "title": "주문 상태 수정 때 회원–주문 연결 삭제",
+      "frequency": 8,
+      "severity": 8,
+      "score": 64,
+      "decision": "PR 유지",
+      "evidence": "SQLite 재현",
+      "files": [
+        "functions/_lib.js"
+      ],
+      "basis": "기존 전체 DELETE가 user_orders 외래키 CASCADE를 실행한다. 회원 주문의 상태 변경이라는 정상 작업에서 발생한다.",
+      "issue": null,
+      "codeAction": "retain_current_pr_fix"
+    },
+    {
+      "id": "F02",
+      "title": "서버 응답 전 저장 완료 표시",
+      "frequency": 8,
+      "severity": 5,
+      "score": 40,
+      "decision": "PR 유지",
+      "evidence": "브라우저·코드 확인",
+      "files": [
+        "admin-team.js",
+        "Nudema Admin.dc.html",
+        "Nudema Admin Mobile.dc.html"
+      ],
+      "basis": "로컬 write 성공 직후 성공 알림이 떠서 서버 거절·오프라인 상태를 성공으로 오인한다.",
+      "issue": null,
+      "codeAction": "retain_current_pr_fix"
+    },
+    {
+      "id": "F03",
+      "title": "연속 저장 요청의 처리 순서 역전",
+      "frequency": 3,
+      "severity": 6,
+      "score": 18,
+      "decision": "PR 유지",
+      "evidence": "격리 응답 순서 재현",
+      "files": [
+        "nudema-store.js"
+      ],
+      "basis": "같은 항목을 연속 저장하면 병렬 PUT의 늦은 이전 요청이 마지막 편집을 덮을 수 있다.",
+      "issue": null,
+      "codeAction": "retain_current_pr_fix"
+    },
+    {
+      "id": "F04",
+      "title": "저장 실패 뒤 폴링이 로컬 편집을 덮음",
+      "frequency": 3,
+      "severity": 6,
+      "score": 18,
+      "decision": "PR 유지",
+      "evidence": "격리 재현",
+      "files": [
+        "nudema-store.js"
+      ],
+      "basis": "낙관적 로컬 저장이 서버에서 실패한 뒤 다음 조회가 서버의 옛 값을 반영한다.",
+      "issue": null,
+      "codeAction": "retain_current_pr_fix"
+    },
+    {
+      "id": "F05",
+      "title": "다른 항목의 저장 성공이 이전 오류를 지움",
+      "frequency": 3,
+      "severity": 5,
+      "score": 15,
+      "decision": "PR 유지",
+      "evidence": "격리 재현",
+      "files": [
+        "nudema-store.js"
+      ],
+      "basis": "설정 저장 실패 뒤 콘텐츠 저장 성공 시 공통 error가 초기화돼 실패가 가려진다.",
+      "issue": null,
+      "codeAction": "retain_current_pr_fix"
+    },
+    {
+      "id": "F06",
+      "title": "검색어 수정·주소 선택/삭제 뒤 이전 주소 응답 표시",
+      "frequency": 3,
+      "severity": 4,
+      "score": 12,
+      "decision": "PR 유지",
+      "evidence": "격리·브라우저 확인",
+      "files": [
+        "address-picker.js"
+      ],
+      "basis": "진행 중 요청을 무효화하지 않는 입력/선택/삭제 동작과 이전 catch 응답이 현재 결과를 덮는다.",
+      "issue": null,
+      "codeAction": "retain_current_pr_fix"
+    },
+    {
+      "id": "F07",
+      "title": "관리자 목록 재조회·탭 전환의 늦은 응답",
+      "frequency": 2,
+      "severity": 3,
+      "score": 6,
+      "decision": "PR 유지",
+      "evidence": "격리 재현",
+      "files": [
+        "admin-team.js"
+      ],
+      "basis": "reload나 탭 전환으로 요청이 겹치면 이전 성공/실패가 최신 목록 상태를 덮는다.",
+      "issue": null,
+      "codeAction": "retain_current_pr_fix"
+    },
+    {
+      "id": "F08",
+      "title": "취소 표기 차이로 취소 주문이 구매액에 포함",
+      "frequency": 7,
+      "severity": 5,
+      "score": 35,
+      "decision": "PR 유지",
+      "evidence": "코드·SQLite 확인",
+      "files": [
+        "functions/api/auth/account.js",
+        "nudema-auth.js",
+        "Nudema Admin.dc.html",
+        "Nudema Admin Mobile.dc.html"
+      ],
+      "basis": "관리자는 cancel을 저장하지만 회원 합계는 cancelled만 제외했다.",
+      "issue": null,
+      "codeAction": "retain_current_pr_fix"
+    },
+    {
+      "id": "F09",
+      "title": "같은 상품을 여러 행·옵션으로 담으면 합계 재고 초과",
+      "frequency": 3,
+      "severity": 7,
+      "score": 21,
+      "decision": "PR 유지",
+      "evidence": "SQLite 재현",
+      "files": [
+        "functions/api/orders.js"
+      ],
+      "basis": "서버가 각 행만 비교하므로 동일 상품 합산 수량이 재고보다 클 수 있다.",
+      "issue": null,
+      "codeAction": "retain_current_pr_fix"
+    },
+    {
+      "id": "F10",
+      "title": "응답이 끝나지 않는 요청으로 저장 대기 지속",
+      "frequency": 3,
+      "severity": 4,
+      "score": 12,
+      "decision": "PR 유지",
+      "evidence": "코드 확인·통신 장애 가정",
+      "files": [
+        "nudema-store.js"
+      ],
+      "basis": "기존 공통 fetch에는 제한 시간이 없다. 기존 모바일 연결·멈춤 신고와 관련한 최소 요청 제한만 유지한다.",
+      "issue": null,
+      "codeAction": "retain_current_pr_fix"
+    },
+    {
+      "id": "F11",
+      "title": "서버 전송 중 페이지를 나가 저장 결과 유실",
+      "frequency": 2,
+      "severity": 5,
+      "score": 10,
+      "decision": "PR 유지",
+      "evidence": "브라우저 동작·코드 확인",
+      "files": [
+        "admin-team.js"
+      ],
+      "basis": "이미 전송 중이거나 실패한 쓰기를 이탈 때 알리지 않는다. 해당 쓰기만 브라우저 이탈 확인으로 보호한다.",
+      "issue": null,
+      "codeAction": "retain_current_pr_fix"
+    },
+    {
+      "id": "F12",
+      "title": "별도 주문 간 재고 예약·차감 없음",
+      "frequency": 6,
+      "severity": 8,
+      "score": 48,
+      "decision": "현황 기록·미수정",
+      "evidence": "격리 DB 재현",
+      "files": [
+        "functions/api/orders.js"
+      ],
+      "basis": "재고 1개에 연속 주문 두 건이 모두 생성된다. 예약/차감/취소 복원 기준은 정해지지 않아 이번 점수 평가에서 기능을 추가하지 않는다.",
+      "issue": null,
+      "codeAction": "no_new_change"
+    },
+    {
+      "id": "F13",
+      "title": "오래된 관리자 주문 목록 저장이 새 주문을 삭제",
+      "frequency": 3,
+      "severity": 8,
+      "score": 24,
+      "decision": "현황 기록·미수정",
+      "evidence": "SQL 경로 확인",
+      "files": [
+        "functions/_lib.js",
+        "Nudema Admin.dc.html",
+        "Nudema Admin Mobile.dc.html"
+      ],
+      "basis": "관리자 조회 후 새 주문이 생기면 전체 교체 요청에 빠져 삭제될 수 있다. 기존 API 전체 교체 의미를 이번 평가에서 변경하지 않는다.",
+      "issue": null,
+      "codeAction": "no_new_change"
+    },
+    {
+      "id": "F14",
+      "title": "업로드 도중 폼·블록 변경 시 다른 대상에 이미지 연결",
+      "frequency": 2,
+      "severity": 5,
+      "score": 10,
+      "decision": "현황 기록·미수정",
+      "evidence": "콜백 경로 확인",
+      "files": [
+        "Nudema Admin.dc.html",
+        "Nudema Admin Mobile.dc.html"
+      ],
+      "basis": "업로드 완료 시 현재 form 또는 배열 인덱스를 사용한다. 실제 운영 재현 없이 폼/업로드 전체를 재설계하지 않는다.",
+      "issue": null,
+      "codeAction": "no_new_change"
+    },
+    {
+      "id": "F15",
+      "title": "장바구니 상품 삭제·재고 변경이 조용히 보정됨",
+      "frequency": 4,
+      "severity": 4,
+      "score": 16,
+      "decision": "현황 기록·미수정",
+      "evidence": "코드 확인",
+      "files": [
+        "nudema-cart.js"
+      ],
+      "basis": "목록에서는 삭제 상품이 빠지고 수량은 재고로 줄어드나 배지의 저장 수량은 그대로일 수 있다.",
+      "issue": null,
+      "codeAction": "no_new_change"
+    },
+    {
+      "id": "F16",
+      "title": "상품 조회 전 검색 결과 없음 표시",
+      "frequency": 5,
+      "severity": 2,
+      "score": 10,
+      "decision": "현황 기록·미수정",
+      "evidence": "초기 렌더 경로 확인",
+      "files": [
+        "catalog-search.js"
+      ],
+      "basis": "원격 초기 값이 비어 있는 동안 실제 검색 결과가 없는 것처럼 표시한다.",
+      "issue": null,
+      "codeAction": "no_new_change"
+    },
+    {
+      "id": "F17",
+      "title": "계정 API 일시 장애에서 로그인 폼 표시",
+      "frequency": 3,
+      "severity": 4,
+      "score": 12,
+      "decision": "현황 기록·미수정",
+      "evidence": "기존 account 테스트 확인",
+      "files": [
+        "Nudema Account.dc.html"
+      ],
+      "basis": "401 외 503 같은 오류에도 오류 문구와 로그인 폼을 같이 보여 실제 로그아웃으로 오인할 수 있다.",
+      "issue": null,
+      "codeAction": "no_new_change"
+    },
+    {
+      "id": "F18",
+      "title": "미입금 주문도 매출·구매액·포인트에 포함",
+      "frequency": 7,
+      "severity": 5,
+      "score": 35,
+      "decision": "정책 확인 전 미수정",
+      "evidence": "코드 확인",
+      "files": [
+        "functions/api/auth/account.js",
+        "Nudema Admin.dc.html",
+        "Nudema Admin Mobile.dc.html"
+      ],
+      "basis": "취소 외 상태를 합산한다. 결제 확정/배송 완료 중 계산 기준을 추측해서 바꾸지 않는다.",
+      "issue": null,
+      "codeAction": "no_new_change"
+    },
+    {
+      "id": "F19",
+      "title": "상품명 단어로 리뷰 연결",
+      "frequency": 4,
+      "severity": 4,
+      "score": 16,
+      "decision": "현황 기록·미수정",
+      "evidence": "코드 확인",
+      "files": [
+        "Nudema Product.dc.html"
+      ],
+      "basis": "비슷한 이름의 상품에 리뷰가 잘못 연결될 수 있다. 기존 데이터의 정확한 연결 대상을 추측해 변경하지 않는다.",
+      "issue": null,
+      "codeAction": "no_new_change"
+    },
+    {
+      "id": "F20",
+      "title": "리뷰 목록과 평점·개수가 별도 값",
+      "frequency": 5,
+      "severity": 3,
+      "score": 15,
+      "decision": "현황 기록·미수정",
+      "evidence": "코드 확인",
+      "files": [
+        "Nudema Product.dc.html",
+        "nudema-store.js"
+      ],
+      "basis": "리뷰 목록과 상품의 rating/review count 필드가 독립적이어서 숨김·삭제 후 값이 달라질 수 있다.",
+      "issue": null,
+      "codeAction": "no_new_change"
+    },
+    {
+      "id": "F21",
+      "title": "회원 15% 할인 안내와 실제 결제 불일치",
+      "frequency": 6,
+      "severity": 5,
+      "score": 30,
+      "decision": "운영 안내 확인 전 미수정",
+      "evidence": "기본 문구·주문 계산 코드 확인",
+      "files": [
+        "nudema-store.js",
+        "functions/api/orders.js"
+      ],
+      "basis": "기본 배너는 전 주문 15% 할인을 안내하지만 회원 할인 계산이 없다. 운영 배너 사용 여부는 확인하지 않았다.",
+      "issue": null,
+      "codeAction": "no_new_change"
+    },
+    {
+      "id": "F22",
+      "title": "생일 쿠폰 안내만 있고 발급 경로 없음",
+      "frequency": 2,
+      "severity": 3,
+      "score": 6,
+      "decision": "운영 안내 확인 전 미수정",
+      "evidence": "기본 문구·기능 검색",
+      "files": [
+        "nudema-store.js",
+        "functions"
+      ],
+      "basis": "기본 배너의 생일 쿠폰과 연결된 발급 처리가 없다. 새 쿠폰 시스템은 만들지 않는다.",
+      "issue": null,
+      "codeAction": "no_new_change"
+    },
+    {
+      "id": "F23",
+      "title": "주문 이메일 알림 설정에 발송 처리 없음",
+      "frequency": 5,
+      "severity": 5,
+      "score": 25,
+      "decision": "운영 안내 확인 전 미수정",
+      "evidence": "설정 UI·서버 코드 확인",
+      "files": [
+        "Nudema Admin.dc.html",
+        "Nudema Admin Mobile.dc.html",
+        "functions/api/orders.js"
+      ],
+      "basis": "이메일 알림 스위치는 저장되지만 주문 생성 경로에 발송 처리가 없다.",
+      "issue": null,
+      "codeAction": "no_new_change"
+    },
+    {
+      "id": "F24",
+      "title": "24시간 미입금 자동 취소 안내와 처리 불일치",
+      "frequency": 6,
+      "severity": 6,
+      "score": 36,
+      "decision": "운영 안내 확인 전 미수정",
+      "evidence": "기본 문구·서버 코드 확인",
+      "files": [
+        "nudema-store.js",
+        "functions/api/orders.js"
+      ],
+      "basis": "계좌 안내에 자동 취소를 약속하지만 만료 실행 경로가 없다. 자동 취소·재고 복원 시스템은 이번에 추가하지 않는다.",
+      "issue": null,
+      "codeAction": "no_new_change"
+    },
+    {
+      "id": "F25",
+      "title": "주문 생성 응답 유실 뒤 수동 재시도로 중복 주문 가능",
+      "frequency": 1,
+      "severity": 7,
+      "score": 7,
+      "decision": "희귀·이슈만",
+      "evidence": "운영 미재현·위험 추정",
+      "files": [
+        "Nudema Checkout.dc.html",
+        "functions/api/orders.js"
+      ],
+      "basis": "201 응답만 유실되어 사용자가 다시 주문하는 특수 상황. 운영 사례 없이 idempotency 저장소·키 수명 설계는 하지 않는다.",
+      "issue": "https://github.com/gantuutour-eng/nudema/issues/11",
+      "codeAction": "issue_only"
+    },
+    {
+      "id": "F26",
+      "title": "주문 생성 후 회원 연결 SQL만 실패할 가능성",
+      "frequency": 1,
+      "severity": 7,
+      "score": 7,
+      "decision": "희귀·이슈만",
+      "evidence": "인위적 SQL 실패에서만 재현",
+      "files": [
+        "functions/api/orders.js"
+      ],
+      "basis": "정상 주문은 성공한다. 이전 테스트는 트리거로 두 번째 SQL을 강제로 실패시킨 조건이었다. PR의 신규 생성 트랜잭션 변경은 제외한다.",
+      "issue": "https://github.com/gantuutour-eng/nudema/issues/12",
+      "codeAction": "issue_only"
+    },
+    {
+      "id": "F27",
+      "title": "로그아웃 직후 늦은 저장 응답이 ready 플래그 변경",
+      "frequency": 1,
+      "severity": 3,
+      "score": 3,
+      "decision": "5 미만·이슈만",
+      "evidence": "코드·인위적 응답 지연",
+      "files": [
+        "nudema-store.js"
+      ],
+      "basis": "기존 pushRemote 성공은 ready를 true로 한다. identity·HttpOnly 세션을 복구하거나 권한을 부여하는 문제는 아니다. PR의 세션 세대·종료 API를 제외한다.",
+      "issue": "https://github.com/gantuutour-eng/nudema/issues/10",
+      "codeAction": "issue_only"
+    },
+    {
+      "id": "F28",
+      "title": "이전 조회의 늦은 401이 새 작업 뒤 도착",
+      "frequency": 1,
+      "severity": 3,
+      "score": 3,
+      "decision": "5 미만·이슈만",
+      "evidence": "운영 미재현·인위적 순서",
+      "files": [
+        "nudema-store.js"
+      ],
+      "basis": "서로 다른 인증 판정의 응답을 특이한 순서로 전달할 때 발생한다. 추가 stale-error 인증 가드는 제외한다.",
+      "issue": "https://github.com/gantuutour-eng/nudema/issues/13",
+      "codeAction": "issue_only"
+    },
+    {
+      "id": "F29",
+      "title": "동일 주소 지도 요소를 DOM 재삽입하면 마커 참조 잔존",
+      "frequency": 1,
+      "severity": 3,
+      "score": 3,
+      "decision": "5 미만·이슈만",
+      "evidence": "수동 DOM 수명 조건",
+      "files": [
+        "address-picker.js"
+      ],
+      "basis": "화면 이동 시 새 요소 생성과 다른, 같은 custom element를 제거·재삽입하는 조건이다. 지도 재연결 복구 코드는 제외한다.",
+      "issue": "https://github.com/gantuutour-eng/nudema/issues/14",
+      "codeAction": "issue_only"
+    },
+    {
+      "id": "F30",
+      "title": "주소 선택 함수에 NaN 좌표 직접 전달",
+      "frequency": 1,
+      "severity": 2,
+      "score": 2,
+      "decision": "5 미만·이슈만",
+      "evidence": "비정상 직접 호출",
+      "files": [
+        "address-picker.js"
+      ],
+      "basis": "실제 지도 클릭·서버 지오코드 결과에서는 재현되지 않았다. 주문 API 좌표 검증은 이미 존재한다. 추가 클라이언트 가드는 제외한다.",
+      "issue": "https://github.com/gantuutour-eng/nudema/issues/15",
+      "codeAction": "issue_only"
+    },
+    {
+      "id": "F31",
+      "title": "제거된 관리자 목록의 늦은 응답이 내부 상태 갱신",
+      "frequency": 1,
+      "severity": 2,
+      "score": 2,
+      "decision": "5 미만·이슈만",
+      "evidence": "컴포넌트 해제 경계",
+      "files": [
+        "admin-team.js"
+      ],
+      "basis": "닫힌 요소의 메모리/DOM에 응답이 반영되는 사례이며 권한 변경은 아니다. 해제/재연결 전용 가드는 제외한다.",
+      "issue": "https://github.com/gantuutour-eng/nudema/issues/16",
+      "codeAction": "issue_only"
+    },
+    {
+      "id": "F32",
+      "title": "API에 소수 수량을 보내면 소수 주문 행 생성",
+      "frequency": 1,
+      "severity": 4,
+      "score": 4,
+      "decision": "5 미만·이슈만",
+      "evidence": "정상 버튼 외 입력",
+      "files": [
+        "functions/api/orders.js",
+        "nudema-cart.js"
+      ],
+      "basis": "정상 수량 버튼은 정수를 사용한다. qty=1.5 직접 요청을 위한 PR의 추가 정수 검사만 제외한다. 정상 여러 옵션 합산 검사는 유지한다.",
+      "issue": "https://github.com/gantuutour-eng/nudema/issues/17",
+      "codeAction": "issue_only"
+    },
+    {
+      "id": "F33",
+      "title": "JSON이 아닌 HTTP 200 응답도 저장 성공으로 처리",
+      "frequency": 1,
+      "severity": 4,
+      "score": 4,
+      "decision": "5 미만·이슈만",
+      "evidence": "운영 미재현·인위적 응답",
+      "files": [
+        "nudema-store.js"
+      ],
+      "basis": "실제 저장 API는 JSON을 반환한다. 프록시 HTML 200 같은 특이 응답의 추가 acknowledgement 검증은 제외한다.",
+      "issue": "https://github.com/gantuutour-eng/nudema/issues/18",
+      "codeAction": "issue_only"
+    },
+    {
+      "id": "F34",
+      "title": "버튼 비활성화 중 스크립트로 폼 재제출 가능",
+      "frequency": 1,
+      "severity": 3,
+      "score": 3,
+      "decision": "5 미만·이슈만",
+      "evidence": "운영 미재현·프로그램 제출",
+      "files": [
+        "Nudema Login.dc.html",
+        "Nudema Signup.dc.html",
+        "Nudema Account.dc.html"
+      ],
+      "basis": "정상 클릭은 disabled로 막는다. 강제 submit 이벤트 등을 위한 새 공통 제출 계층은 추가하지 않는다.",
+      "issue": "https://github.com/gantuutour-eng/nudema/issues/19",
+      "codeAction": "issue_only"
+    },
+    {
+      "id": "F35",
+      "title": "상품에 연결하지 않은 업로드 이미지가 R2에 남음",
+      "frequency": 2,
+      "severity": 2,
+      "score": 4,
+      "decision": "5 미만·이슈만",
+      "evidence": "업로드·저장 분리 경로 확인",
+      "files": [
+        "functions/api/admin/images.js",
+        "Nudema Admin.dc.html",
+        "Nudema Admin Mobile.dc.html"
+      ],
+      "basis": "사진 업로드 후 폼 저장을 취소하면 사용하지 않은 객체가 남을 수 있다. 소량 저장 비용 이슈이며 실제 비용 피해는 확인하지 않았다. 참조 계산·정리 작업은 만들지 않는다.",
+      "issue": "https://github.com/gantuutour-eng/nudema/issues/20",
+      "codeAction": "issue_only"
+    }
+  ],
+  "notBugs": [
+    "50 state machines are not 50 defects.",
+    "Search query is synchronized into URL on every input; the previous claim of polling erasing the query was not reproduced.",
+    "A late save can change ready after logout, but does not restore identity, an HttpOnly session, or privileges.",
+    "Strict fulfilment transitions, generic dirty-form machinery, historic price migrations and shared PC/mobile controller extraction are not requested bug fixes."
+  ]
+}

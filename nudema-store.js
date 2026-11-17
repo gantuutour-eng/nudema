@@ -6,7 +6,7 @@
  */
 (function () {
   // The store is loaded in the document head and by the DC helmet. Initialize once.
-  if (window.NudemaStore && window.NudemaStore.version === '20261117-r1') return;
+  if (window.NudemaStore && window.NudemaStore.version === '20261117-r2') return;
   var KEYS = {
     products: 'nudema_products',
     settings: 'nudema_settings',
@@ -399,7 +399,7 @@
   // Амжилттай бичсэн эсэхийг буцаана. Зураг base64-ээр хадгалахад
   // localStorage-ийн хязгаар (ойролцоогоор 5MB) дүүрч болзошгүй тул
   // алдааг залгичгүй мэдээлнэ.
-  var write = function (name, value, send) {
+  var write = function (name, value) {
     var key = KEYS[name];
     var ok = true;
     try {
@@ -410,7 +410,7 @@
     try {
       window.dispatchEvent(new CustomEvent('nudema:change', { detail: { name: name, key: key, ok: ok } }));
     } catch (e) {}
-    if (ok && send !== false) pushRemote(name, value);
+    if (ok) pushRemote(name, value);
     return ok;
   };
 
@@ -429,41 +429,30 @@
   };
 
   var mutationEpoch = 0;
-  var sessionEpoch = 0;
   var saveQueue = Promise.resolve(true);
   var saveRecords = {};
   var cacheVersions = {};
   var failedWrites = {};
-  var saveTrace = [];
   var activeWrite = false;
   remoteStatus.pendingWrites = 0;
   remoteStatus.errorStatus = 0;
-  remoteStatus.loadState = 'idle';
   remoteStatus.saveState = 'idle';
   var refreshSaveState = function () {
     var records = Object.keys(saveRecords).map(function (key) { return saveRecords[key]; });
     remoteStatus.saveState = remoteStatus.pendingWrites ? (activeWrite ? 'saving' : 'queued')
       : records.some(function (r) { return r.state === 'failed'; }) ? 'failed'
       : records.some(function (r) { return r.state === 'saved'; }) ? 'saved' : 'idle';
+    remoteStatus.retryableWrites = Object.keys(failedWrites).length;
     try { window.dispatchEvent(new CustomEvent('nudema:save-state', { detail: { state: remoteStatus.saveState, pending: remoteStatus.pendingWrites } })); } catch (ignore) {}
   };
   var transitionSave = function (name, state, revision) {
     if (saveRecords[name] && saveRecords[name].revision === revision) saveRecords[name].state = state;
-    saveTrace.push({ resource: name, state: state, revision: revision });
-    if (saveTrace.length > 30) saveTrace.shift();
     refreshSaveState();
   };
   var saveErrors = function () {
     var failure = Object.keys(saveRecords).map(function (name) { return saveRecords[name]; }).find(function (r) { return r.error; });
     remoteStatus.error = failure ? failure.error : '';
     remoteStatus.errorStatus = failure ? failure.status : 0;
-  };
-  var endSession = function () {
-    sessionEpoch++; mutationEpoch++;
-    failedWrites = {}; saveRecords = {};
-    remoteStatus.ready = false; remoteStatus.identity = null;
-    remoteStatus.loadState = 'idle';
-    applyRemote({}); refreshSaveState();
   };
   var emitRemote = function (name, ok, message, cause, operation) {
     try {
@@ -478,7 +467,9 @@
     remoteStatus.errorStatus = cause && cause.status || 0;
     // Validation, permission and connection errors do not end a valid login.
     if (isAdminPage && remoteStatus.errorStatus === 401) {
-      endSession();
+      remoteStatus.ready = false;
+      remoteStatus.identity = null;
+      applyRemote({});
     }
     emitRemote(name, false, remoteStatus.error, cause, operation);
   };
@@ -502,7 +493,8 @@
   };
 
   var remoteRequest = function (url, options) {
-    var controller = typeof AbortController === 'function' ? new AbortController() : null;
+    var timed = url === '/api/admin/state' || url === '/api/storefront' || url === '/api/admin/catalog' || url.indexOf('/api/admin/store/') === 0;
+    var controller = timed && typeof AbortController === 'function' ? new AbortController() : null;
     var timeout = controller ? setTimeout(function () { controller.abort(); }, 16000) : null;
     return fetch(url, Object.assign({
       credentials: 'same-origin',
@@ -520,22 +512,18 @@
     }).finally(function () { if (timeout !== null) clearTimeout(timeout); });
   };
 
-  // One queue also orders catalog writes against product writes. Legacy write()
-  // still acknowledges the local cache only; writeAsync() acknowledges the server.
+  // Serialize the existing admin save paths; write() still reports local cache success.
   var queueSave = function (task) {
-    var name = task.name, revision = ++mutationEpoch, session = sessionEpoch;
+    var name = task.name, revision = ++mutationEpoch;
     var resources = task.resources || [name];
     resources.forEach(function (resource) { cacheVersions[resource] = revision; });
     var previous = saveRecords[name];
     saveRecords[name] = { state: 'queued', revision: revision, error: previous && previous.error || '', status: previous && previous.status || 0 };
     remoteStatus.pendingWrites++; transitionSave(name, 'queued', revision);
     var operation = saveQueue.then(function () {
-      if (session !== sessionEpoch) return false;
       activeWrite = true; transitionSave(name, 'saving', revision);
       return remoteRequest(task.url, { method: 'PUT', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }, body: task.body })
-        .then(function (body) {
-          if (session !== sessionEpoch) return false;
-          if (body.ok !== true) { var invalid = new Error('Серверийн хариуг баталгаажуулж чадсангүй. Дахин хадгална уу.'); invalid.status = 502; throw invalid; }
+        .then(function () {
           if (task.commit && !task.commit(revision)) throw new Error('Серверт хадгалагдсан боловч хөтчийн хадгалах сан дүүрсэн. Хуудсыг шинэчилнэ үү.');
           resources.forEach(function (resource) {
             if (saveRecords[resource] && saveRecords[resource].revision < revision && saveRecords[resource].state === 'failed') {
@@ -547,11 +535,11 @@
             saveRecords[name].error = ''; saveRecords[name].status = 0;
             delete failedWrites[name]; transitionSave(name, 'saved', revision);
           }
+          if (task.retain) remoteStatus.ready = true;
           saveErrors(); remoteStatus.updatedAt = new Date().toISOString();
           emitRemote(name, true, '', null, 'save');
           return true;
         }).catch(function (cause) {
-          if (session !== sessionEpoch) return false;
           if (saveRecords[name].revision === revision) {
             saveRecords[name].error = cause.message; saveRecords[name].status = cause.status || 0;
             if (task.retain) failedWrites[name] = task;
@@ -570,15 +558,6 @@
   var retryWrites = function () {
     return Promise.all(Object.keys(failedWrites).map(function (name) { return queueSave(failedWrites[name]); }))
       .then(function (results) { return results.every(Boolean); });
-  };
-  var inspect = function () {
-    // Metadata only. Never expose tokens, identities, payloads or customer data.
-    return {
-      load: remoteStatus.loadState, save: remoteStatus.saveState, pending: remoteStatus.pendingWrites,
-      authenticated: !!remoteStatus.identity, retryable: Object.keys(failedWrites).length,
-      resources: Object.keys(saveRecords).map(function (name) { var r = saveRecords[name]; return { name: name, state: r.state, revision: r.revision, status: r.status }; }),
-      trace: saveTrace.map(function (entry) { return Object.assign({}, entry); }),
-    };
   };
 
   // Rename category links and products together. D1 uses one atomic batch;
@@ -622,9 +601,7 @@
     if (Object.keys(failedWrites).length) return Promise.resolve(false);
     if (remoteStatus.syncing) return remotePromise || Promise.resolve(false);
     var epoch = mutationEpoch;
-    var session = sessionEpoch;
     remoteStatus.syncing = true;
-    remoteStatus.loadState = 'loading';
     var url = isAdminPage ? '/api/admin/state' : '/api/storefront';
     remotePromise = remoteRequest(url).then(function (body) {
       if (epoch !== mutationEpoch) return remoteStatus.ready;
@@ -632,18 +609,14 @@
       applyRemote(body.data || {});
       remoteStatus.ready = true;
       saveErrors();
-      remoteStatus.loadState = 'ready';
       remoteStatus.updatedAt = new Date().toISOString();
       emitRemote(null, true, '');
       return true;
     }).catch(function (cause) {
-      if (epoch !== mutationEpoch || session !== sessionEpoch) return false;
-      remoteStatus.loadState = 'error';
       remoteFailure(null, cause, 'sync');
       return false;
     }).then(function (result) {
       remoteStatus.syncing = false;
-      if (remoteStatus.loadState === 'loading') remoteStatus.loadState = remoteStatus.ready ? 'ready' : 'idle';
       remotePromise = null;
       return result;
     });
@@ -747,17 +720,13 @@
   }
 
   window.NudemaStore = {
-    version: '20261117-r1',
+    version: '20261117-r2',
     KEYS: KEYS,
     DEFAULTS: DEFAULTS,
     EMPTY_DEFAULTS: EMPTY_DEFAULTS,
     read: read,
     write: write,
-    writeAsync: function (name, value) { return write(name, value, false) ? pushRemote(name, value) : Promise.resolve(false); },
     retryWrites: retryWrites,
-    whenIdle: function () { return saveQueue; },
-    inspect: inspect,
-    endSession: endSession,
     subscribe: subscribe,
     sync: syncRemote,
     createOrder: createOrder,

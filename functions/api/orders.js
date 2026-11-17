@@ -26,7 +26,6 @@ export async function onRequestPost(context) {
       const product = products.find((item) => Number(item.id) === Number(requested.id));
       const qty = Math.max(1, Math.min(99, Number(requested.qty) || 1));
       if (!product) return error(`Unknown product: ${requested.id}`);
-      if (!Number.isInteger(qty)) return error('Item quantities must be whole numbers.');
       const combinedQty = (quantities.get(Number(product.id)) || 0) + qty;
       if (Number(product.stock) < combinedQty) return error(`Not enough stock: ${product.title}`);
       quantities.set(Number(product.id), combinedQty);
@@ -76,15 +75,14 @@ export async function onRequestPost(context) {
       status: 'pending',
     };
 
-    const statements = [db.prepare(
+    await db.prepare(
       `INSERT INTO orders
        (order_no, status, customer_email, customer_phone, payload, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
-    ).bind(order.no, order.status, order.email, order.phone, JSON.stringify(order), order.createdAt)];
+    ).bind(order.no, order.status, order.email, order.phone, JSON.stringify(order), order.createdAt).run();
     if (account) {
-      statements.push(db.prepare('INSERT INTO user_orders (order_no, user_id) VALUES (?, ?)').bind(order.no, account.id));
+      await db.prepare('INSERT INTO user_orders (order_no, user_id) VALUES (?, ?)').bind(order.no, account.id).run();
     }
-    await db.batch(statements);
 
     return json({ ok: true, order }, 201);
   } catch (cause) {
