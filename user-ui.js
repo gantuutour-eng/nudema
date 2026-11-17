@@ -107,6 +107,11 @@
     }
     window.__nudemaUserUiStarted = true;
     apply();
+    window.addEventListener('hashchange', function () {
+      var nav = document.querySelector('body > .nudema-mobile-nav');
+      if (nav) nav.innerHTML = navHtml();
+      if (window.NudemaCart) window.NudemaCart.updateBadges();
+    });
     if (window.NudemaStore) NudemaStore.subscribe(function (name) {
       if (name && name !== 'settings') return;
       var footer = document.querySelector('footer[data-nudema-common="1"]');
