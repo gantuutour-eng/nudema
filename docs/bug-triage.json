@@ -615,6 +615,19 @@
       "files": ["Nudema Search.dc.html"],
       "basis": "검색 페이지의 필터 레이아웃만 조정한다. 몽골어 라벨, 기존 필터 연결과 선택 동작은 유지한다.",
       "codeAction": "implemented"
+    },
+    {
+      "id": "F39",
+      "title": "PC 우측 바로가기가 본문 더보기 링크를 덮음",
+      "frequency": 6,
+      "severity": 3,
+      "score": 18,
+      "decision": "바로가기 영역만큼 본문 공간 확보",
+      "evidence": "1280×900 PC 홈에서 큐레이션 더보기 링크와 우측 장바구니 바로가기의 사각 영역이 겹치는 것을 DOM 좌표와 화면에서 확인.",
+      "files": ["storefront-musinsa.css"],
+      "basis": "기존 바로가기와 링크를 유지하고 PC 본문 폭에 바로가기 공간을 할당한다. 모바일 배치는 유지한다.",
+      "codeAction": "implemented",
+      "release": "20261117-r6"
     }
   ],
   "notBugs": [
