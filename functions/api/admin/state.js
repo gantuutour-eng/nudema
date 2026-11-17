@@ -21,6 +21,8 @@ export async function onRequestGet(context) {
     const state = await readState(db, storedNames);
     if (allowedNames.includes('orders')) {
       const orders = await readOrders(db);
+      // Old status-map writes must not override the authoritative order row.
+      state.data.statuses = Object.fromEntries(orders.map(order => [order.no, order.status || 'pending']));
       state.data.orders = canAdmin(context.data.admin, 'orders') || canAdmin(context.data.admin, 'customers')
         ? orders
         : orders.map(o => ({ no: o.no, date: o.date, createdAt: o.createdAt, status: o.status, total: o.total,

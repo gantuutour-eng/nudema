@@ -61,7 +61,7 @@
   customElements.define('nudema-save-status', SaveStatus);
   const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const statuses = { invited: 'Урилга илгээсэн', active: 'Идэвхтэй', suspended: 'Түр зогсоосон', revoked: 'Эрх цуцалсан' };
-  const actions = { 'team.invite': 'Администратор урьсан', 'team.update': 'Администраторын эрх өөрчилсөн', 'team.accept': 'Урилга хүлээн авсан', 'auth.google': 'Google-ээр нэвтэрсэн', 'put.products': 'Бүтээгдэхүүн хадгалсан', 'put.orders': 'Захиалга хадгалсан', 'put.content': 'Контент хадгалсан', 'put.settings': 'Тохиргоо хадгалсан', 'put.reviews': 'Сэтгэгдэл хадгалсан', 'post.images': 'Зураг байршуулсан', 'delete.images': 'Зураг устгасан' };
+  const actions = { 'team.invite': 'Администратор урьсан', 'team.update': 'Администраторын эрх өөрчилсөн', 'team.accept': 'Урилга хүлээн авсан', 'auth.google': 'Google-ээр нэвтэрсэн', 'put.products': 'Бүтээгдэхүүн хадгалсан', 'patch.orders': 'Захиалгын төлөв өөрчилсөн', 'put.orders': 'Захиалга хадгалсан', 'put.content': 'Контент хадгалсан', 'put.settings': 'Тохиргоо хадгалсан', 'put.reviews': 'Сэтгэгдэл хадгалсан', 'post.images': 'Зураг байршуулсан', 'delete.images': 'Зураг устгасан' };
   const date = value => value ? new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Ulaanbaatar', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(value.includes('T') ? value : value.replace(' ', 'T') + 'Z')) : '—';
   function describe(details) {
     let value; try { value = JSON.parse(details); } catch { return ''; }

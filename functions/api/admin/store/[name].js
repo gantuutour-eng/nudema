@@ -5,14 +5,15 @@ import {
   json,
   error,
   writeState,
-  replaceOrders,
 } from '../../../_lib.js';
 import { validateProducts, validateTaxonomy } from '../../../_catalog.js';
+import { saveProducts } from '../../../_inventory.js';
 
 export async function onRequestPut(context) {
   try {
     const name = context.params.name;
     if (!ADMIN_STATE_NAMES.includes(name)) return error('Unknown store name.', 404);
+    if (name === 'orders' || name === 'statuses') return error('Админ хуудсыг шинэчлээд захиалгын төлөвийг дахин сонгоно уу.', 409);
 
     const body = await context.request.json();
     if (!body || !Object.prototype.hasOwnProperty.call(body, 'value')) {
@@ -24,15 +25,16 @@ export async function onRequestPut(context) {
 
     const db = dbFrom(context);
     await ensureSchema(db);
-    if (name === 'orders') {
-      if (!Array.isArray(body.value)) return error('orders must be an array.');
-      await replaceOrders(db, body.value);
+    if (name === 'products') {
+      const products = await saveProducts(db, body.value, body.stockBefore);
+      return json({ ok: true, name, products });
     } else {
       await writeState(db, name, body.value);
     }
 
     return json({ ok: true, name });
   } catch (cause) {
+    if (cause.status) return error(cause.message, cause.status);
     return error('Could not save data.', 500, cause.message);
   }
 }

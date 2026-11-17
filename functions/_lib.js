@@ -1,4 +1,5 @@
 import { reconcileTaxonomy } from './_catalog.js';
+import { storeCopy } from './_store-copy.js';
 const PUBLIC_STATE_NAMES = ['products', 'settings', 'taxonomy', 'reviews', 'content'];
 const ADMIN_STATE_NAMES = [...PUBLIC_STATE_NAMES, 'orders', 'statuses'];
 
@@ -115,7 +116,7 @@ export async function readState(db, names) {
   const updatedAt = {};
   for (const row of result.results || []) {
     try {
-      data[row.name] = JSON.parse(row.value);
+      data[row.name] = storeCopy(row.name, JSON.parse(row.value));
       updatedAt[row.name] = row.updated_at;
     } catch {
       // Ignore a damaged row so one bad value does not take down the storefront.
@@ -161,7 +162,7 @@ export async function writeState(db, name, value) {
     `INSERT INTO app_state (name, value, updated_at)
      VALUES (?, ?, datetime('now'))
      ON CONFLICT(name) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
-  ).bind(name, JSON.stringify(value)).run();
+  ).bind(name, JSON.stringify(storeCopy(name, value))).run();
 }
 
 export async function replaceOrders(db, orders) {

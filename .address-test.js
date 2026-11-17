@@ -21,28 +21,17 @@ test('invalid queries do not call the geocoder', async () => {
   assert.equal(response.status, 400);
 });
 
-function database() {
-  let saved;
-  return {
-    get saved() { return saved; },
-    async batch() {},
-    prepare(sql) {
-      let args;
-      return {
-        bind(...values) { args = values; return this; },
-        async all() { return { results: [
-          { name: 'products', value: JSON.stringify([{ id: 1, title: 'Test', price: 500, stock: 10 }]) },
-          { name: 'settings', value: '{}' },
-        ] }; },
-        async run() { if (/INSERT INTO orders/.test(sql)) saved = JSON.parse(args[4]); return { success: true }; },
-      };
-    },
-  };
+async function database() {
+  const db = require('./.test-db.cjs')();
+  const { ensureSchema, writeState } = await import('./functions/_lib.js'); await ensureSchema(db);
+  await writeState(db, 'products', [{ id: 1, title: 'Test', price: 500, stock: 10 }]);
+  Object.defineProperty(db, 'saved', { get() { const row = db.sqlite.prepare('SELECT payload FROM orders LIMIT 1').get(); return row ? JSON.parse(row.payload) : undefined; } });
+  return db;
 }
 
 test('selected delivery coordinates and label survive order persistence', async () => {
   const { onRequestPost } = await import('./functions/api/orders.js');
-  const db = database();
+  const db = await database();
   const request = new Request('https://example.invalid/api/orders', { method: 'POST', body: JSON.stringify({
     items: [{ id: 1, qty: 1 }], customer: { name: 'QA', phone: '00000000', address: 'Test only', location: { lat: 47.9188126, lng: 106.9168967, label: 'Сүхбаатарын талбай' } },
   }) });
@@ -54,7 +43,7 @@ test('selected delivery coordinates and label survive order persistence', async 
 
 test('order API rejects delivery coordinates outside Mongolia', async () => {
   const { onRequestPost } = await import('./functions/api/orders.js');
-  const db = database();
+  const db = await database();
   const request = new Request('https://example.invalid/api/orders', { method: 'POST', body: JSON.stringify({
     items: [{ id: 1, qty: 1 }], customer: { name: 'QA', phone: '00000000', address: 'Test only', location: { lat: 37, lng: 127 } },
   }) });

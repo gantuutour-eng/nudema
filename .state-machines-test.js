@@ -15,6 +15,16 @@ function storeFixture(fetcher) {
   return { store: window.NudemaStore, events };
 }
 const loaded = () => Response.json({ identity: owner, data: { products: [], settings: {}, orders: [] } });
+test('single-order status saves preserve the other rows and their display order', async () => {
+  const requests = [], orders = [{ no: 'NEW', status: 'pending' }, { no: 'OLD', status: 'pending' }];
+  const { store } = storeFixture(async (url, options) => {
+    requests.push({ url, method: options?.method });
+    return options?.method === 'PATCH' ? Response.json({ ok: true, order: { no: 'OLD', status: 'paid' } }) : Response.json({ identity: owner, data: { orders } });
+  });
+  await store.sync(); assert.equal(await store.updateOrderStatus('OLD', 'paid'), true);
+  assert.equal(JSON.stringify(store.read('orders')), JSON.stringify([{ no: 'NEW', status: 'pending' }, { no: 'OLD', status: 'paid' }]));
+  assert.deepEqual(requests.at(-1), { url: '/api/admin/orders/OLD', method: 'PATCH' });
+});
 
 test('normal admin writes and catalog saves retain call order and submitted values', async () => {
   const requests = [], pending = [];

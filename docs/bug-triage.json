@@ -198,14 +198,15 @@
       "frequency": 6,
       "severity": 8,
       "score": 48,
-      "decision": "현황 기록·미수정",
+      "decision": "구현·검증",
       "evidence": "격리 DB 재현",
       "files": [
         "functions/api/orders.js"
       ],
-      "basis": "재고 1개에 연속 주문 두 건이 모두 생성된다. 예약/차감/취소 복원 기준은 정해지지 않아 이번 점수 평가에서 기능을 추가하지 않는다.",
+      "basis": "재고 1개로 별도 주문 두 건이 모두 생성되는 문제가 격리 DB에서 재현됐다.",
       "issue": null,
-      "codeAction": "no_new_change"
+      "codeAction": "implemented",
+      "resolution": "새 주문 생성 시 재고와 주문을 한 배치로 저장한다. 취소는 한 번 복원하며, 재활성화는 재고를 다시 확보한다. 과거 주문은 소급 처리하지 않는다."
     },
     {
       "id": "F13",
@@ -213,16 +214,17 @@
       "frequency": 3,
       "severity": 8,
       "score": 24,
-      "decision": "현황 기록·미수정",
+      "decision": "구현·검증",
       "evidence": "SQL 경로 확인",
       "files": [
         "functions/_lib.js",
         "Nudema Admin.dc.html",
         "Nudema Admin Mobile.dc.html"
       ],
-      "basis": "관리자 조회 후 새 주문이 생기면 전체 교체 요청에 빠져 삭제될 수 있다. 기존 API 전체 교체 의미를 이번 평가에서 변경하지 않는다.",
+      "basis": "관리자 조회 후 생성된 주문이 전체 교체 요청에 빠져 삭제될 수 있었다.",
       "issue": null,
-      "codeAction": "no_new_change"
+      "codeAction": "implemented",
+      "resolution": "단일 주문 PATCH로 상태를 변경한다. 기존 orders/statuses 대량 저장 경로는 409로 막아 새 주문을 보존한다."
     },
     {
       "id": "F14",
@@ -339,7 +341,7 @@
       "frequency": 6,
       "severity": 5,
       "score": 30,
-      "decision": "운영 안내 확인 전 미수정",
+      "decision": "안내 정정",
       "evidence": "기본 문구·주문 계산 코드 확인",
       "files": [
         "nudema-store.js",
@@ -347,7 +349,8 @@
       ],
       "basis": "기본 배너는 전 주문 15% 할인을 안내하지만 회원 할인 계산이 없다. 운영 배너 사용 여부는 확인하지 않았다.",
       "issue": null,
-      "codeAction": "no_new_change"
+      "codeAction": "copy_corrected",
+      "resolution": "운영에서 확인한 기본 15% 배너를 주문 조회 안내로 교체한다. 새 회원 할인 기능은 만들지 않았다."
     },
     {
       "id": "F22",
@@ -355,7 +358,7 @@
       "frequency": 2,
       "severity": 3,
       "score": 6,
-      "decision": "운영 안내 확인 전 미수정",
+      "decision": "안내 정정",
       "evidence": "기본 문구·기능 검색",
       "files": [
         "nudema-store.js",
@@ -363,7 +366,8 @@
       ],
       "basis": "기본 배너의 생일 쿠폰과 연결된 발급 처리가 없다. 새 쿠폰 시스템은 만들지 않는다.",
       "issue": null,
-      "codeAction": "no_new_change"
+      "codeAction": "copy_corrected",
+      "resolution": "기본 배너의 생일 쿠폰·무조건 무료 배송 문구를 제거한다. 별도 쿠폰 발급 기능은 만들지 않았다."
     },
     {
       "id": "F23",
@@ -371,7 +375,7 @@
       "frequency": 5,
       "severity": 5,
       "score": 25,
-      "decision": "운영 안내 확인 전 미수정",
+      "decision": "안내 정정",
       "evidence": "설정 UI·서버 코드 확인",
       "files": [
         "Nudema Admin.dc.html",
@@ -380,7 +384,8 @@
       ],
       "basis": "이메일 알림 스위치는 저장되지만 주문 생성 경로에 발송 처리가 없다.",
       "issue": null,
-      "codeAction": "no_new_change"
+      "codeAction": "copy_corrected",
+      "resolution": "작동하지 않는 이메일 알림 스위치를 없애고 관리자에서 주문을 확인하도록 안내한다. 발송 기능은 추가하지 않았다."
     },
     {
       "id": "F24",
@@ -388,7 +393,7 @@
       "frequency": 6,
       "severity": 6,
       "score": 36,
-      "decision": "운영 안내 확인 전 미수정",
+      "decision": "안내 정정",
       "evidence": "기본 문구·서버 코드 확인",
       "files": [
         "nudema-store.js",
@@ -396,7 +401,8 @@
       ],
       "basis": "계좌 안내에 자동 취소를 약속하지만 만료 실행 경로가 없다. 자동 취소·재고 복원 시스템은 이번에 추가하지 않는다.",
       "issue": null,
-      "codeAction": "no_new_change"
+      "codeAction": "copy_corrected",
+      "resolution": "기본 계좌 안내의 24시간 자동 취소 약속을 없애고 입금 확인 후 처리로 안내한다. 자동 취소 작업은 추가하지 않았다."
     },
     {
       "id": "F25",
@@ -425,7 +431,7 @@
       "files": [
         "functions/api/orders.js"
       ],
-      "basis": "정상 주문은 성공한다. 이전 테스트는 트리거로 두 번째 SQL을 강제로 실패시킨 조건이었다. PR의 신규 생성 트랜잭션 변경은 제외한다.",
+      "basis": "회원 연결 SQL만 실패하는 사례는 인위적 트리거에서만 재현됐다. 회원 연결은 기존 별도 SQL대로 유지한다. 이번 재고·주문 배치는 정상 주문의 재고 정합성을 위한 것이며 이 특수 실패를 위한 추가 변경은 하지 않았다.",
       "issue": "https://github.com/gantuutour-eng/nudema/issues/12",
       "codeAction": "issue_only"
     },
@@ -575,5 +581,6 @@
     "Search query is synchronized into URL on every input; the previous claim of polling erasing the query was not reproduced.",
     "A late save can change ready after logout, but does not restore identity, an HttpOnly session, or privileges.",
     "Strict fulfilment transitions, generic dirty-form machinery, historic price migrations and shared PC/mobile controller extraction are not requested bug fixes."
-  ]
+  ],
+  "urgentRelease": "20261117-r3"
 }

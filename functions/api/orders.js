@@ -1,5 +1,6 @@
 import { dbFrom, ensureSchema, json, error, makeOrderNo, readState } from '../_lib.js';
 import { sessionUser } from '../_auth.js';
+import { readCatalog, createStockOrder } from '../_inventory.js';
 
 function cleanText(value, max = 300) {
   return String(value == null ? '' : value).trim().slice(0, max);
@@ -14,8 +15,9 @@ export async function onRequestPost(context) {
     const db = dbFrom(context);
     await ensureSchema(db);
     const account = await sessionUser(db, context.request);
-    const state = await readState(db, ['products', 'settings']);
-    const products = Array.isArray(state.data.products) ? state.data.products : [];
+    const state = await readState(db, ['settings']);
+    const snapshot = await readCatalog(db);
+    const products = snapshot.products;
     const settings = state.data.settings || {};
     if (!products.length) return error('The product catalog has not been initialized.', 503);
 
@@ -73,19 +75,17 @@ export async function onRequestPost(context) {
       shipping,
       total: subtotal + shipping,
       status: 'pending',
+      inventoryDeducted: true,
     };
 
-    await db.prepare(
-      `INSERT INTO orders
-       (order_no, status, customer_email, customer_phone, payload, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
-    ).bind(order.no, order.status, order.email, order.phone, JSON.stringify(order), order.createdAt).run();
+    await createStockOrder(db, snapshot, order);
     if (account) {
       await db.prepare('INSERT INTO user_orders (order_no, user_id) VALUES (?, ?)').bind(order.no, account.id).run();
     }
 
     return json({ ok: true, order }, 201);
   } catch (cause) {
+    if (cause.status) return error(cause.message, cause.status);
     if (cause && cause.message && cause.message.includes('UNIQUE')) {
       return error('Please retry the order.', 409);
     }

@@ -137,7 +137,7 @@ test('password-era cookies and customer sessions never authorize admin access', 
 });
 test('every admin endpoint enforces permissions and cross-origin writes are denied', async () => {
   const f = await fixture(), staff = await activate(f, await invite(f));
-  for (const [path, method, expected] of [['state', 'GET', 200], ['catalog', 'PUT', 200], ['store/products', 'PUT', 200], ['images', 'POST', 200], ['team', 'GET', 403], ['audit', 'GET', 403], ['store/orders', 'PUT', 403], ['store/settings', 'PUT', 403], ['unknown', 'GET', 403]]) {
+  for (const [path, method, expected] of [['state', 'GET', 200], ['catalog', 'PUT', 200], ['store/products', 'PUT', 200], ['images', 'POST', 200], ['team', 'GET', 403], ['audit', 'GET', 403], ['store/orders', 'PUT', 403], ['orders/TEST', 'PATCH', 403], ['store/settings', 'PUT', 403], ['unknown', 'GET', 403]]) {
     const request = await signedRequest(f, staff, '/api/admin/' + path, method);
     const response = await f.middleware.onRequest({ request, env: f.env, data: {}, next: async () => Response.json({ ok: true }) });
     assert.equal(response.status, expected, path);

@@ -12,6 +12,14 @@ function component(file, extra = {}) {
   return { admin, store, context };
 }
 for (const file of ['Nudema Admin.dc.html', 'Nudema Admin Mobile.dc.html']) {
+  test(`${file}: remote order status waits for the single-order server response`, async () => {
+    let settle, target; const { admin } = component(file, { updateOrderStatus: (no, status) => { target = { no, status }; return new Promise(resolve => { settle = resolve; }); } });
+    const old = [{ no: 'A', status: 'pending' }]; admin.state.orders = old;
+    const request = admin.setStatus('A', 'paid');
+    assert.deepEqual(target, { no: 'A', status: 'paid' }); assert.equal(admin.state.orderSaving, true);
+    assert.equal(admin.state.orders, old); settle(false); await request;
+    assert.equal(admin.state.orderSaving, false); assert.equal(admin.state.authed, true);
+  });
   for (const status of [0, 400, 403, 503]) test(`${file}: HTTP ${status} preserves login and unsaved category/product edits`, () => {
     const { admin } = component(file);
     admin.handleRemoteError({ detail: { status, authExpired: false, message: 'Save failed', operation: 'save' } });

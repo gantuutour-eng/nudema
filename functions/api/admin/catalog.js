@@ -1,5 +1,6 @@
 import { dbFrom, ensureSchema, json, error } from '../../_lib.js';
 import { validateProducts, validateTaxonomy } from '../../_catalog.js';
+import { saveProducts } from '../../_inventory.js';
 
 export async function onRequestPut(context) {
   let body;
@@ -11,12 +12,10 @@ export async function onRequestPut(context) {
   try {
     const db = dbFrom(context);
     await ensureSchema(db);
-    await db.batch(['taxonomy', 'products'].map(name => db.prepare(
-      `INSERT INTO app_state (name, value, updated_at) VALUES (?, ?, datetime('now'))
-       ON CONFLICT(name) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
-    ).bind(name, JSON.stringify(body[name]))));
-    return json({ ok: true });
+    const products = await saveProducts(db, body.products, body.stockBefore, body.taxonomy);
+    return json({ ok: true, products });
   } catch (cause) {
+    if (cause.status) return error(cause.message, cause.status);
     return error('Could not save catalog.', 500, cause.message);
   }
 }

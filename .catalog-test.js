@@ -117,18 +117,17 @@ test('quota failures roll back taxonomy and products together', () => {
 test('catalog endpoint batches linked category renames and rejects orphan products', async () => {
   const { onRequestPut } = await import('./functions/api/admin/catalog.js');
   const { store } = environment();
-  const batches = [];
-  const db = { prepare: sql => ({ sql, bind(...args) { return { sql, args }; } }), batch: async stmts => { batches.push(stmts); return []; } };
+  const db = require('./.test-db.cjs')();
   const context = payload => ({ env: { DB: db }, request: new Request('https://example.com/api/admin/catalog', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }) });
   const products = store.read('products'), taxonomy = store.read('taxonomy');
   const result = await onRequestPut(context({ products, taxonomy }));
   assert.equal(result.status, 200);
-  const writes = batches.at(-1);
-  assert.equal(writes.length, 2);
-  assert.deepEqual(writes.map(s => s.args[0]), ['taxonomy', 'products']);
-  assert.ok(writes.every(s => s.sql.includes('INSERT INTO app_state')));
-  const count = batches.length;
+  const rows = db.sqlite.prepare('SELECT name,value FROM app_state ORDER BY name').all();
+  assert.deepEqual(rows.map(row => row.name), ['products', 'taxonomy']);
+  assert.deepEqual(JSON.parse(rows[0].value), JSON.parse(JSON.stringify(products)));
+  assert.deepEqual(JSON.parse(rows[1].value), JSON.parse(JSON.stringify(taxonomy)));
   const rejected = await onRequestPut(context({ taxonomy, products: [{ ...products[0], category: 'Orphan' }] }));
   assert.equal(rejected.status, 400);
-  assert.equal(batches.length, count);
+  assert.deepEqual(db.sqlite.prepare('SELECT name,value FROM app_state ORDER BY name').all(), rows);
+  db.sqlite.close();
 });
