@@ -33,6 +33,32 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startupFallback, { once: true });
   else startupFallback();
   window.NudemaAdminAccess = access;
+  // Independent of DC's editing forms: server acknowledgement stays visible even
+  // when a legacy optimistic editor closes. No payloads enter diagnostics/DOM.
+  class SaveStatus extends HTMLElement {
+    connectedCallback() {
+      if (this.closest('x-dc')) return;
+      this.update = () => {
+        const store = window.NudemaStore, state = store?.inspect();
+        this.hidden = !store?.remoteStatus.enabled || !state || state.save === 'idle';
+        if (this.hidden) return;
+        this.dataset.state = state.save;
+        this.setAttribute('aria-busy', String(state.pending > 0));
+        const text = state.pending ? 'Серверт хадгалж байна… (' + state.pending + ')'
+          : state.save === 'failed' ? 'Зарим өөрчлөлт хадгалагдсангүй. Дахин хадгална уу.' : 'Серверт хадгалагдлаа ✓';
+        this.innerHTML = '<div role="status" aria-live="polite" style="margin-bottom:14px;padding:12px 16px;border:1px solid #d8e7eb;border-radius:10px;background:#fff;font-size:13px;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span>' + text + '</span>' + (state.retryable && !state.pending ? '<button type="button" style="font:inherit;color:#007f95;background:#e9faff;border:1px solid #c7eaf0;border-radius:7px;padding:6px 12px">Дахин хадгалах</button>' : '') + '</div>';
+        this.querySelector('button')?.addEventListener('click', () => store.retryWrites());
+      };
+      this.warn = event => { const s = window.NudemaStore?.inspect(); if (s && (s.pending || s.retryable)) { event.preventDefault(); event.returnValue = ''; } };
+      ['nudema:save-state', 'nudema:remote', 'nudema:remote-error'].forEach(type => window.addEventListener(type, this.update));
+      window.addEventListener('beforeunload', this.warn); this.update();
+    }
+    disconnectedCallback() {
+      ['nudema:save-state', 'nudema:remote', 'nudema:remote-error'].forEach(type => window.removeEventListener(type, this.update));
+      window.removeEventListener('beforeunload', this.warn);
+    }
+  }
+  customElements.define('nudema-save-status', SaveStatus);
   const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const statuses = { invited: 'Урилга илгээсэн', active: 'Идэвхтэй', suspended: 'Түр зогсоосон', revoked: 'Эрх цуцалсан' };
   const actions = { 'team.invite': 'Администратор урьсан', 'team.update': 'Администраторын эрх өөрчилсөн', 'team.accept': 'Урилга хүлээн авсан', 'auth.google': 'Google-ээр нэвтэрсэн', 'put.products': 'Бүтээгдэхүүн хадгалсан', 'put.orders': 'Захиалга хадгалсан', 'put.content': 'Контент хадгалсан', 'put.settings': 'Тохиргоо хадгалсан', 'put.reviews': 'Сэтгэгдэл хадгалсан', 'post.images': 'Зураг байршуулсан', 'delete.images': 'Зураг устгасан' };
@@ -45,13 +71,14 @@
   const style = `:host{display:block;font:14px/1.5 Manrope,Inter,system-ui,sans-serif;color:#263238}*{box-sizing:border-box}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:wait;opacity:.55}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #81ddec;outline-offset:2px}.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px}h2,h3,p{margin:0}h2{font-size:20px}h3{font-size:16px}.muted{color:#7b8b93;font-size:12px;margin-top:5px}.primary,.secondary,.danger{border:0;border-radius:10px;padding:11px 17px;font-weight:700}.primary{background:#00b6d4;color:white}.secondary{background:#effbfe;color:#008ca5}.danger{background:#fff0f0;color:#c33030}.tabs{display:flex;gap:8px;margin-bottom:20px}.tab{border:1px solid #e0e9ed;border-radius:20px;background:white;padding:8px 15px;color:#647b84}.tab[aria-pressed=true]{background:#142e3a;color:white;border-color:#142e3a}.panel{background:white;border:1px solid #e3eaee;border-radius:16px;padding:22px;margin-bottom:20px;box-shadow:0 3px 16px #233b4805}.notice{background:#effbfe;border:1px solid #cfeef4;color:#22778c;border-radius:10px;padding:12px 15px;margin-bottom:18px}.error{background:#fff1f1;border-color:#f5cece;color:#b32b2b}.success{background:#f0fbf6;border-color:#cbeadb;color:#277b57}.table{overflow:auto}table{border-collapse:collapse;width:100%;min-width:670px;text-align:left}th{font-size:11px;color:#82919b;background:#f7f9fa;white-space:nowrap}td,th{padding:14px 12px;border-bottom:1px solid #edf1f4}td{font-size:13px;vertical-align:top}.name{font-weight:700}.mail{color:#778992;font-size:12px;overflow-wrap:anywhere}.pill{display:inline-block;border-radius:12px;font-size:11px;font-weight:700;background:#f2f5f7;color:#6e7e88;padding:4px 9px;white-space:nowrap}.active{background:#eaf9f0;color:#26754a}.invited{background:#fff7df;color:#8d7629}.suspended,.revoked{background:#fff0f0;color:#b44c4c}.tag{display:inline-block;font-size:10px;border:1px solid #e3e9ed;border-radius:5px;padding:2px 5px;margin:3px 3px 0 0;color:#778a94}label{display:block;font-size:12px;font-weight:700;color:#637982;margin-top:18px}input[type=email],select{display:block;width:100%;height:44px;border:1px solid #dce6eb;border-radius:9px;padding:0 12px;background:white;color:#263238;margin-top:7px}fieldset{border:1px solid #e3eaee;border-radius:10px;margin:18px 0;padding:13px}legend{font-size:12px;font-weight:700;color:#637982}.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.checks label{display:flex;gap:8px;align-items:center;margin:0;font-weight:500}input[type=checkbox]{accent-color:#00b6d4;width:16px;height:16px}.buttons{display:flex;gap:10px;margin-top:23px;flex-wrap:wrap}.editor{max-width:580px}.empty{padding:30px;text-align:center;color:#7c929b}.audit{display:grid;gap:0}.event{display:grid;grid-template-columns:1fr auto;gap:8px;padding:15px 0;border-bottom:1px solid #edf1f4}.event small{color:#84969f}.event details{grid-column:1/-1;font-size:11px;overflow-wrap:anywhere;color:#6a7f89}.link{border:0;background:none;color:#009db7;font:inherit;padding:0;text-decoration:underline}[hidden]{display:none!important}@media(max-width:640px){.panel{padding:16px}.bar h2{font-size:18px}.event{grid-template-columns:1fr}.checks{grid-template-columns:1fr}.primary,.secondary{padding:10px 13px}table{min-width:620px}}`;
   class AdminTeam extends HTMLElement {
     connectedCallback() {
-      if (this.started) return; this.started = true;
+      if (this.started) { this.load(); return; } this.started = true;
       this.root = this.attachShadow({ mode: 'open' }); this.members = []; this.entries = []; this.tab = 'members';
       this.root.addEventListener('click', event => this.click(event));
       this.root.addEventListener('submit', event => { event.preventDefault(); this.save(event.target); });
       this.root.addEventListener('change', event => { if (event.target.name === 'role') this.root.querySelector('fieldset').hidden = event.target.value === 'admin'; });
       this.load();
     }
+    disconnectedCallback() { this.loadRevision = (this.loadRevision || 0) + 1; this.dataset.state = 'disconnected'; }
     async request(path, options = {}) {
       const response = await fetch('/api/admin/' + path, { credentials: 'same-origin', ...options, headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...options.headers } });
       const body = await response.json().catch(() => ({}));
@@ -60,11 +87,18 @@
     }
     async load() {
       if (window.NudemaStore?.localPreview) { this.local = true; this.render(); return; }
+      const revision = this.loadRevision = (this.loadRevision || 0) + 1, tab = this.tab;
+      this.dataset.state = 'loading'; this.setAttribute('aria-busy', 'true');
       this.loading = true; this.render();
       try {
-        const body = await this.request('team'); this.members = body.members; this.identity = body.identity;
-        if (this.tab === 'audit') this.entries = (await this.request('audit')).entries;
-      } catch (error) { this.error = error.message; }
+        const body = await this.request('team');
+        if (revision !== this.loadRevision) return;
+        const entries = tab === 'audit' ? (await this.request('audit')).entries : this.entries;
+        if (revision !== this.loadRevision) return;
+        this.members = body.members; this.identity = body.identity; this.entries = entries;
+        this.dataset.state = 'ready';
+      } catch (error) { if (revision !== this.loadRevision) return; this.error = error.message; this.dataset.state = 'error'; }
+      this.setAttribute('aria-busy', 'false');
       this.loading = false; this.render();
     }
     async click(event) {

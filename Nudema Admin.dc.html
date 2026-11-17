@@ -15,8 +15,8 @@ body.nd-admin-booting #dc-root{visibility:hidden!important}
 <script src="./assets/vendor/react-18.3.1.production.min.js"></script>
 <script src="./assets/vendor/react-dom-18.3.1.production.min.js"></script>
 <script defer src="/support.js?v=20261116-r2"></script>
-<script src="/admin-team.js?v=20261116-admin2"></script>
-<script src="/nudema-store.js?v=20261116-r5"></script>
+<script src="/admin-team.js?v=20261117-r1"></script>
+<script src="/nudema-store.js?v=20261117-r1"></script>
 </head>
 <body class="nd-admin nd-admin-booting">
 <div id="nd-admin-startup" role="status" aria-live="polite"><div class="nd-startup-content"><img src="/assets/brand/nudema-logo.svg" alt="Nudema"><span id="nd-admin-startup-message">Түр хүлээнэ үү…</span><br><button id="nd-admin-startup-retry" type="button" hidden>Дахин ачаалах</button></div></div>
@@ -37,7 +37,7 @@ body.nd-admin-booting #dc-root{visibility:hidden!important}
   .aScroll::-webkit-scrollbar { height: 8px; }
 </style>
 <script src="/image-slot.js?v=20261116-r2"></script>
-<script src="/nudema-store.js?v=20261116-r5"></script>
+<script src="/nudema-store.js?v=20261117-r1"></script>
 <link rel="stylesheet" href="/catalog-admin.css?v=20261116-r2">
 <link rel="stylesheet" href="/admin-theme.css?v=20261116-r2">
 </helmet>
@@ -134,6 +134,7 @@ body.nd-admin-booting #dc-root{visibility:hidden!important}
     </header>
 
     <div class="nd-admin-workspace" style="padding:28px 32px 48px;">
+    <nudema-save-status></nudema-save-status>
     <sc-if value="{{ hasRemoteError }}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding:12px 16px;border:1px solid #f3d6ba;background:#fff9f1;color:#a45523;border-radius:10px;margin-bottom:18px;">{{ remoteError }}</div></sc-if>
     <sc-if value="{{ isTeam }}" hint-placeholder-val="{{ false }}"><nudema-admin-team></nudema-admin-team></sc-if>
       <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
@@ -1124,7 +1125,7 @@ class Component extends DCLogic {
     this._onRemoteReady = () => {
       const identity = NudemaStore.remoteStatus.identity;
       if (identity && identity.status === 'active') {
-        this.setState({ authed: true, sessionVerified: true, authLoading: false, dataError: '', remoteNotice: '', adminIdentity: identity, section: this.adminSection(identity, false) }); this.reload();
+        this.setState({ authed: true, sessionVerified: true, authLoading: false, dataError: '', remoteNotice: NudemaStore.remoteStatus.error || '', adminIdentity: identity, section: this.adminSection(identity, false) }); this.reload();
       }
     };
     window.addEventListener('nudema:remote', this._onRemoteReady);
@@ -1257,6 +1258,7 @@ class Component extends DCLogic {
   }
 
   logout() {
+    if (NudemaStore.endSession) NudemaStore.endSession();
     this.authRequest('/api/admin-auth/logout', { method: 'POST' }).catch(() => ({})).then(() => {
       NudemaStore.remoteStatus.ready = false;
       NudemaStore.remoteStatus.identity = null;
@@ -1991,7 +1993,8 @@ class Component extends DCLogic {
     const savedStatuses = this.statuses();
     const allOrders = this.orders().map(o => {
       // Хуучин nudema_order_statuses-д хийсэн өөрчлөлт байвал түүнийг эрхэмлэнэ
-      const cur = savedStatuses[o.no] || o.status || 'pending';
+      const rawStatus = savedStatuses[o.no] || o.status || 'pending';
+      const cur = rawStatus === 'cancelled' ? 'cancel' : rawStatus;
       const cat = catOf(cur);
       const items = resolveItems(o);
       const itemSubtotal = items.reduce((a, it) => a + it.line, 0);
@@ -2464,7 +2467,7 @@ class Component extends DCLogic {
       })),
       addMarquee: () => this.addMarquee(),
       saveContent: () => this.saveContent(),
-      contentSaved: this.state.contentSaved,
+      contentSaved: this.state.contentSaved && !NudemaStore.remoteStatus.enabled,
 
       // Толгойн хайлт
       q: this.state.q || '',
@@ -2497,7 +2500,7 @@ class Component extends DCLogic {
         .map(v => ({ value: v, label: v, selected: this.form().category === v ? 'selected' : '' })),
       badgeOptions: ['Байхгүй', ...this.taxonomy().badges]
         .map(v => ({ value: v, label: v, selected: this.form().badge === v ? 'selected' : '' })),
-      productSaved: this.state.productSaved,
+      productSaved: this.state.productSaved && !NudemaStore.remoteStatus.enabled,
       formError: this.state.formError || '',
       hasFormError: !!this.state.formError,
 
@@ -2512,7 +2515,7 @@ class Component extends DCLogic {
       sNotifyTrack: `width:44px;height:26px;background:${this.settings().orderNotify ? '#00b6d4' : '#cdd2e0'};border-radius:14px;position:relative;border:none;cursor:pointer;padding:0;flex:0 0 auto;`,
       sNotifyKnob: `position:absolute;top:3px;${this.settings().orderNotify ? 'right:3px;' : 'left:3px;'}width:20px;height:20px;background:#fff;border-radius:50%;transition:all .15s;`,
       saveSettings: () => this.saveSettings(),
-      settingsSaved: this.state.settingsSaved,
+      settingsSaved: this.state.settingsSaved && !NudemaStore.remoteStatus.enabled,
       settingsError: this.state.settingsError || '',
       hasSettingsError: !!this.state.settingsError,
 

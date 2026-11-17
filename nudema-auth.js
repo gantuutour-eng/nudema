@@ -41,7 +41,7 @@
   }
 
   function statusLabel(status) {
-    return ({ pending: 'Хүлээгдэж буй', paid: 'Төлбөр төлсөн', shipping: 'Хүргэлтэд', done: 'Хүргэгдсэн', cancelled: 'Цуцлагдсан' })[status] || status || 'Хүлээгдэж буй';
+    return ({ pending: 'Хүлээгдэж буй', paid: 'Төлбөр төлсөн', shipping: 'Хүргэлтэд', done: 'Хүргэгдсэн', cancel: 'Цуцлагдсан', cancelled: 'Цуцлагдсан' })[status] || status || 'Хүлээгдэж буй';
   }
 
   function showOauthError(element) {

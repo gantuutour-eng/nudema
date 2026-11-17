@@ -6,11 +6,11 @@ const vm = require('node:vm');
 test('customer pages use one release of the store before rendering and expose install metadata', () => {
   for (const file of fs.readdirSync('.').filter(f => /^Nudema .*\.html$/.test(f) && !f.includes('Admin'))) {
     const html = fs.readFileSync(file, 'utf8'), head = html.split('</head>')[0];
-    assert.match(head, /src="\/nudema-store\.js\?v=20261116-r5"/, file);
+    assert.match(head, /src="\/nudema-store\.js\?v=20261117-r1"/, file);
     assert.match(head, /rel="manifest" href="\/manifest.webmanifest"/, file);
     assert.match(head, /src="\/pwa-install\.js\?v=20261116-r3"/, file);
     assert.match(head, /href="\/pwa-install\.css\?v=20261116-r3"/, file);
-    for (const match of html.matchAll(/(?:src|href)="[^"?]*\/(nudema-store|storefront-ui|user-ui)\.js(?:\?([^"#]*))?"/g)) assert.equal(match[2], match[1] === 'nudema-store' ? 'v=20261116-r5' : 'v=20261116-r2', file);
+    for (const match of html.matchAll(/(?:src|href)="[^"?]*\/(nudema-store|storefront-ui|user-ui)\.js(?:\?([^"#]*))?"/g)) assert.equal(match[2], match[1] === 'nudema-store' ? 'v=20261117-r1' : 'v=20261116-r2', file);
   }
 });
 test('manifest includes valid PNG icons, home scope and standalone launch', () => {

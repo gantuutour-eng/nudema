@@ -20,12 +20,16 @@ export async function onRequestPost(context) {
     if (!products.length) return error('The product catalog has not been initialized.', 503);
 
     const normalizedItems = [];
+    const quantities = new Map();
     let subtotal = 0;
     for (const requested of items) {
       const product = products.find((item) => Number(item.id) === Number(requested.id));
       const qty = Math.max(1, Math.min(99, Number(requested.qty) || 1));
       if (!product) return error(`Unknown product: ${requested.id}`);
-      if (Number(product.stock) < qty) return error(`Not enough stock: ${product.title}`);
+      if (!Number.isInteger(qty)) return error('Item quantities must be whole numbers.');
+      const combinedQty = (quantities.get(Number(product.id)) || 0) + qty;
+      if (Number(product.stock) < combinedQty) return error(`Not enough stock: ${product.title}`);
+      quantities.set(Number(product.id), combinedQty);
       const options = Array.isArray(product.options) ? product.options.filter((option) => option && option.label) : [];
       const optionIndex = Math.min(Math.max(0, Number(requested.optionIndex) || 0), Math.max(0, options.length - 1));
       const option = options[optionIndex] || null;
@@ -72,14 +76,15 @@ export async function onRequestPost(context) {
       status: 'pending',
     };
 
-    await db.prepare(
+    const statements = [db.prepare(
       `INSERT INTO orders
        (order_no, status, customer_email, customer_phone, payload, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
-    ).bind(order.no, order.status, order.email, order.phone, JSON.stringify(order), order.createdAt).run();
+    ).bind(order.no, order.status, order.email, order.phone, JSON.stringify(order), order.createdAt)];
     if (account) {
-      await db.prepare('INSERT INTO user_orders (order_no, user_id) VALUES (?, ?)').bind(order.no, account.id).run();
+      statements.push(db.prepare('INSERT INTO user_orders (order_no, user_id) VALUES (?, ?)').bind(order.no, account.id));
     }
+    await db.batch(statements);
 
     return json({ ok: true, order }, 201);
   } catch (cause) {

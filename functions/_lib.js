@@ -165,12 +165,18 @@ export async function writeState(db, name, value) {
 }
 
 export async function replaceOrders(db, orders) {
-  const statements = [db.prepare('DELETE FROM orders')];
+  // Updating a status must not DELETE the parent of user_orders (ON DELETE CASCADE).
+  const ids = orders.map(order => String(order.no || ''));
+  if (ids.some(id => !id) || new Set(ids).size !== ids.length) throw new Error('Order numbers must be present and unique.');
+  const statements = [];
   for (const order of orders) {
     statements.push(db.prepare(
       `INSERT INTO orders
        (order_no, status, customer_email, customer_phone, payload, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
+       VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+       ON CONFLICT(order_no) DO UPDATE SET status = excluded.status,
+         customer_email = excluded.customer_email, customer_phone = excluded.customer_phone,
+         payload = excluded.payload, updated_at = excluded.updated_at`,
     ).bind(
       String(order.no || ''),
       String(order.status || 'pending'),
@@ -180,6 +186,9 @@ export async function replaceOrders(db, orders) {
       order.createdAt || (order.date ? `${order.date}T00:00:00.000Z` : new Date().toISOString()),
     ));
   }
+  // Keep the existing replacement contract: only genuinely omitted orders are removed.
+  // JSON avoids D1's SQL parameter limit for large order lists.
+  statements.push(db.prepare('DELETE FROM orders WHERE order_no NOT IN (SELECT value FROM json_each(?))').bind(JSON.stringify(ids)));
   await db.batch(statements);
 }
 

@@ -77,7 +77,8 @@ test('failed category saves preserve the previously confirmed catalog and sessio
   assert.equal(await store.catalog.saveAsync({ categories: ['Invalid'] }, []), false);
   assert.deepEqual(JSON.parse(JSON.stringify(store.read('taxonomy').categories)), ['Existing']);
   assert.equal(store.remoteStatus.identity.email, owner.email); assert.equal(store.remoteStatus.ready, true);
-  assert.equal(events.at(-1).detail.operation, 'save'); assert.equal(events.at(-1).detail.status, 400);
+  const failure = events.findLast(event => event.type === 'nudema:remote-error');
+  assert.equal(failure.detail.operation, 'save'); assert.equal(failure.detail.status, 400);
 });
 test('an older poll cannot overwrite a category that was just saved', async () => {
   let resolvePoll, reads = 0;
