@@ -47,7 +47,6 @@ nudema-department-tabs { display: block; }
 .nd-storefront .nd-shortcuts { display: grid; grid-auto-flow: column; grid-template-rows: repeat(2,52px); grid-auto-columns: minmax(170px,1fr); gap: 8px; justify-content: normal; padding: 0 0 4px; max-width: none; }
 .nd-storefront .nd-shortcuts > a { flex-direction: row; justify-content: flex-start; gap: 9px; padding: 5px; min-width: 0; border: 1px solid #efeff2; border-radius: 9px; box-shadow: 0 2px 5px #24242b05; color: #55555d; font-size: 12px; text-align: left; line-height: 1.4; }
 .nd-storefront .nd-shortcuts > a > img { width: 40px; height: 40px; flex: 0 0 40px; object-fit: contain; border-radius: 6px; background: #f8f7fa; }
-.nd-storefront .nd-home-notice { max-width: 1180px; margin: 20px auto 0; padding: 14px 18px; border-radius: 9px; color: #746984; background: #f8f6fc; font-size: 11px; line-height: 1.7; }
 
 /* Product collections: keep the entire photo clickable and the cart action distinct. */
 .nd-storefront .nd-content { max-width: 1240px; padding: 40px 30px; }
@@ -218,7 +217,6 @@ body.nd-storefront .nd-search:focus-within,body.nd-storefront .search-box:focus-
   .nd-storefront .nd-home-shortcuts { padding: 0 14px; margin: 12px 0 0; }
   .nd-storefront .nd-shortcuts { grid-auto-columns: 145px; gap: 7px; }
   .nd-storefront .nd-shortcuts > a { font-size: 11px; gap: 7px; }
-  .nd-storefront .nd-home-notice { margin: 18px 14px 0; padding: 12px 14px; font-size: 10px; }
   .nd-storefront .nd-content { padding: 30px 16px; }
   .nd-storefront .nd-section-heading { margin-bottom: 17px; gap: 12px; }
   .nd-storefront .nd-section-heading h2 { font-size: 19px; line-height: 1.45; }

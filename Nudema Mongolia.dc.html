@@ -32,7 +32,7 @@
 <script defer src="/pwa-install.js?v=20261116-r3"></script>
 <link rel="stylesheet" href="/storefront.css?v=20261117-r5">
 <link rel="stylesheet" href="/storefront-addwel.css?v=20261116-r2">
-<link rel="stylesheet" href="/storefront-queenit.css?v=20261117-r7">
+<link rel="stylesheet" href="/storefront-queenit.css?v=20261117-r9">
 </head>
 <body class="nd-storefront">
 <noscript>
@@ -68,10 +68,10 @@
 <script src="/nudema-store.js?v=20261117-r3"></script>
 <script src="/nudema-cart.js?v=20261116-r2"></script>
 <link rel="stylesheet" href="/user-ui.css?v=20261116-r4">
-<script src="/user-ui.js?v=20261117-r7"></script>
+<script src="/user-ui.js?v=20261117-r9"></script>
 <link rel="stylesheet" href="/storefront.css?v=20261117-r5">
 <link rel="stylesheet" href="/storefront-addwel.css?v=20261116-r2">
-<link rel="stylesheet" href="/storefront-queenit.css?v=20261117-r7">
+<link rel="stylesheet" href="/storefront-queenit.css?v=20261117-r9">
 <script src="/storefront-ui.js?v=20261117-r8"></script>
 </helmet>
 <div class="nd-home">
@@ -86,7 +86,6 @@
   </section>
   <section class="nd-home-shortcuts" aria-label="Шуурхай сонголт"><nudema-department-shortcuts></nudema-department-shortcuts></section>
   <section class="nd-content" id="curation"><div class="nd-section-heading"><h2>Танд санал болгох</h2><a href="/search">Бүгдийг үзэх ›</a></div><nudema-curation></nudema-curation></section>
-  <p class="nd-home-notice">{{ storeNotice }}</p>
   <nudema-recent-products></nudema-recent-products>
   <section class="nd-content" id="best-products"><div class="nd-section-heading"><h2>Хамгийн эрэлттэй бүтээгдэхүүн</h2><a href="/search">Бүгдийг үзэх ›</a></div><p class="nd-section-sub">Энэ долоо хоногт хамгийн их зарагдсан Nudema бүтээгдэхүүнүүд</p><div class="nd-collection-tabs"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button></sc-for></div><div class="nd-products"><sc-for list="{{ bestFiltered }}" as="p" hint-placeholder-count="4"><nudema-product-card product-id="{{ p.id }}"></nudema-product-card></sc-for></div><sc-if value="{{ bestEmpty }}" hint-placeholder-val="{{ false }}"><p class="nd-empty">Энэ ангилалд бүтээгдэхүүн хараахан нэмэгдээгүй байна.</p></sc-if></section>
   <nudema-market-promotions></nudema-market-promotions>
@@ -268,7 +267,6 @@ class Component extends DCLogic {
       officialProducts, tabs, bestFiltered, bestEmpty, reviewLoop,
       marqueeLoop, membershipBanner, hasMembershipBanner: !!membershipBanner,
       reviewSummary: `${money(reviewsRaw.length * 4500)}+ жинхэнэ хэрэглэгчийн үнэлгээ · ★ ${avgRating}`,
-      storeNotice: (cms.marquee || []).filter(Boolean).join(' · ') || settings.shopName,
       shopName: settings.shopName,
       shopPhone: settings.phone,
       shopEmail: settings.email,
